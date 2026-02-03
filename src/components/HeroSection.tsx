@@ -79,7 +79,8 @@ function HeroSection(){
 			<div className="flex items-center justify-center">
 				<Navbar
 					links={[
-                        { label: "Properties", href: "/properties" }
+                        { label: "Properties", href: "/properties" },
+                        {label: 'Partnership', href: "/partnership"}
 
 
                     ]}
