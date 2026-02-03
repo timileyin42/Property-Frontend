@@ -31,3 +31,9 @@ dist-ssr
 # Environment variables
 .env
 .env.*
+
+# Local prompts/instructions
+src/prompt.md
+src/AGENTS.md
+src/copilot-instructions.md
+src/components/user-profile/upload.md
