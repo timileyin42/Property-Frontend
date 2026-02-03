@@ -11,10 +11,10 @@ import Navbar from "../components/Navbar";
 import LineChart from "../components/charts/LineChart"
 import toast, { Toaster } from "react-hot-toast";
 import {useAuth} from "../context/AuthContext"
-import {useState, useEffect} from "react";
-import {fetchProperties} from "../api/properties"
-import {ApiProperty} from "../types/property"
-import AvailableProperties from "../components/AvailableProperties"
+import {useState, useEffect, useMemo} from "react";
+import { fetchInvestorInvestments, fetchPortfolioSummary } from "../api/investor.investments";
+import type { Investment } from "../types/investment";
+import { normalizeMediaUrl, isVideoUrl } from "../util/normalizeMediaUrl";
 
 
 // import { ReactNode } from "react";
@@ -28,55 +28,73 @@ export interface PortfolioStat {
 
 const InvestorDashboard = () => {
   const {user} = useAuth();
-  const [properties, setProperties] = useState<ApiProperty[]>([]);
-  console.log(user);
-// the will be later changed to properties Investors has invested in
-useEffect(() => {
-  // 1. Define an async function inside the effect
-  toast.success(`welcome ${user?.full_name}`)
+  const [investments, setInvestments] = useState<Investment[]>([]);
+  const [summary, setSummary] = useState<{
+    total: number;
+    total_initial_value: number;
+    total_current_value: number;
+    total_growth_percentage: number;
+    total_fractions_owned?: number;
+    properties_count?: number;
+    average_growth_percentage?: number;
+    trend_labels?: string[];
+    trend_values?: number[];
+  } | null>(null);
 
-  const fetchAndSetProperties = async () => {
-    try {
-      const data = await fetchProperties(); 
-
-
-      setProperties(data.slice(0, 3)); 
-    } catch (error) {
-      console.error("Failed to fetch properties:", error);
+  useEffect(() => {
+    if (user?.full_name) {
+      toast.success(`welcome ${user.full_name}`);
     }
-  };
 
-  // 2. Execute it immediately
-  fetchAndSetProperties();
-}, []); 
-console.log(properties);
+    const loadInvestorData = async () => {
+      try {
+        const [investmentRes, summaryRes] = await Promise.all([
+          fetchInvestorInvestments(),
+          fetchPortfolioSummary(),
+        ]);
+
+        setInvestments(investmentRes.investments ?? []);
+        setSummary(summaryRes ?? null);
+      } catch (error) {
+        console.error("Failed to fetch investor dashboard data:", error);
+      }
+    };
+
+    loadInvestorData();
+  }, [user?.full_name]);
+
   const portfolioStats: PortfolioStat[] = [
     {
       id: 1,
       title: "Total Investment",
-      value: "₦96,100,000",
-      description: "+12.3% this month",
+      value: summary
+        ? `₦${summary.total_current_value?.toLocaleString() ?? "0"}`
+        : "₦0",
+      description: summary
+        ? `+${summary.total_growth_percentage ?? 0}% overall`
+        : "+0% overall",
     },
     {
       id: 2,
-      title: "Fractional Investment",
-      value: "45",
-      description:
-        "Across 3 properties",
+      title: "Fractions Owned",
+      value: summary?.total_fractions_owned ?? 0,
+      description: summary?.properties_count
+        ? `Across ${summary.properties_count} properties`
+        : "Across 0 properties",
     },
     {
       id: 3,
       title: "Properties",
-      value: "3",
-      description:
-        "Active investments",
+      value: summary?.properties_count ?? investments.length,
+      description: "Active investments",
     },
-     {
+    {
       id: 4,
       title: "Avg. Growth",
-      value: "+12.0%",
-      description:
-        "6 month average",
+      value: summary?.average_growth_percentage
+        ? `+${summary.average_growth_percentage}%`
+        : `+${summary?.total_growth_percentage ?? 0}%`,
+      description: "6 month average",
     },
   ];
 // const demoProperties = [
@@ -116,8 +134,23 @@ console.log(properties);
 // 	]
 // graph demo data
 
-   const labels = ["Jan", "Feb", "Mar", "Apr", "May"];
-  const revenue = [20000, 40000, 60000, 80000];
+  const chartLabels =
+    summary?.trend_labels?.length ? summary.trend_labels : ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
+  const chartValues =
+    summary?.trend_values?.length ? summary.trend_values : [20000, 40000, 60000, 80000, 75000, 90000];
+
+  const investmentCards = useMemo(
+    () =>
+      investments.map((investment) => {
+        const normalized = normalizeMediaUrl(investment.image_url);
+        return {
+          ...investment,
+          mediaUrl: normalized,
+          isVideo: normalized ? isVideoUrl(normalized) : false,
+        };
+      }),
+    [investments]
+  );
  
   return (
     <div className="mx-auto px-4 my-16">
@@ -172,20 +205,99 @@ console.log(properties);
         </div>
       </section>
         {/* ===== GRAPH SECTION (Placeholder) ===== */}
-      <section className="my-12 w-full border border-gray-300 p-6 rounded-xl">
-        <h2 className="font-bold text-blue-900 text-lg mb-2">
-          Portfolio Growth
-        </h2>
-        <div className=" rounded-xl  flex w-full text-gray-400 p-4">
-                <LineChart labels={labels} data={revenue} />
-        </div>
-      </section>
+      {investments.length > 0 && (
+        <section className="my-12 w-full border border-gray-300 p-6 rounded-xl">
+          <h2 className="font-bold text-blue-900 text-lg mb-2">
+            Portfolio Growth
+          </h2>
+          <div className=" rounded-xl  flex w-full text-gray-400 p-4">
+                  <LineChart labels={chartLabels} data={chartValues} />
+          </div>
+        </section>
+      )}
 
       {/* ===== AVAILABLE PROPERTIES / STATS ===== */}
-
       <section>
-      	<AvailableProperties properties={properties} />
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-bold text-blue-900 text-lg">My Investments</h2>
+          <span className="text-sm text-gray-500">
+            {investments.length} investment(s)
+          </span>
+        </div>
 
+        {investmentCards.length === 0 ? (
+          <div className="bg-white border border-gray-200 rounded-xl p-6 text-sm text-gray-500">
+            No investments found yet.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {investmentCards.map((investment) => (
+              <div
+                key={investment.id}
+                className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden"
+              >
+                <div className="h-40 bg-gray-100">
+                  {investment.mediaUrl ? (
+                    investment.isVideo ? (
+                      <video
+                        className="w-full h-full object-cover"
+                        src={investment.mediaUrl}
+                        muted
+                        playsInline
+                        loop
+                        autoPlay
+                      />
+                    ) : (
+                      <img
+                        src={investment.mediaUrl}
+                        alt={investment.property_title}
+                        className="w-full h-full object-cover"
+                      />
+                    )
+                  ) : (
+                    <div className="h-full w-full flex items-center justify-center text-xs text-gray-400">
+                      Media unavailable
+                    </div>
+                  )}
+                </div>
+                <div className="p-4 space-y-2">
+                  <div>
+                    <h3 className="font-semibold text-blue-900">
+                      {investment.property_title}
+                    </h3>
+                    <p className="text-sm text-gray-500">
+                      {investment.property_location}
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <p className="text-gray-400">Initial Value</p>
+                      <p className="font-semibold">
+                        ₦{investment.initial_value.toLocaleString()}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-gray-400">Current Value</p>
+                      <p className="font-semibold">
+                        ₦{investment.current_value.toLocaleString()}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-gray-400">Growth</p>
+                      <p className="font-semibold text-emerald-600">
+                        +{investment.growth_percentage}%
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-gray-400">Fractions</p>
+                      <p className="font-semibold">{investment.fractions_owned}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );

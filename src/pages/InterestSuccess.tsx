@@ -106,7 +106,7 @@ if (
 
     <Step
       step={5}
-      title="Welcome to Elycap Luxury Homes"
+      title="Welcome to Elycapvest"
       description="Access your investor dashboard to track property performance, view returns, and manage your portfolio."
     />
   </ul>

@@ -1,5 +1,5 @@
 // components/Sidebar/Sidebar.tsx
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { sidebarItems } from "./SidebarConfig";
 import BuildingIcon from "../../svgs/BuildingIcon"
 import {LogoutIcon} from "../../svgs/ShieldIcon"
@@ -12,14 +12,14 @@ export const Sidebar = () => {
   return (
     <aside className="fixed left-0 top-0 h-screen w-20  md:w-64 bg-blue-900 text-white px-2 transition">
       <div className="p-4 text-xl font-bold">
-       <a
-            href="/"
-            className="flex  items-center gap-1 text-lg font-semibold font-inter text-white-900 whitespace-nowrap "
-          >
+        <Link
+          to="/"
+          className="flex items-center gap-1 text-lg font-semibold font-inter text-white-900 whitespace-nowrap"
+        >
           <BuildingIcon color="white" />
-
-            <span>Elycapvest</span>
-          </a></div>
+          <span>Elycapvest</span>
+        </Link>
+      </div>
 
       <nav className={`mt-6 space-y-1 flex flex-col gap-3 relative justify-center md:justify-start`}>
         {sidebarItems.map(item => (

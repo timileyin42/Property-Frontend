@@ -3,9 +3,10 @@ import { UserRowActions } from "./UserRowActions";
 
 interface Props {
   users: AdminUser[];
+  onRefresh?: () => void;
 }
 
-export const UsersTable = ({ users }: Props) => {
+export const UsersTable = ({ users, onRefresh }: Props) => {
   return (
     <div className="bg-white rounded-xl shadow overflow-x-auto p-4">
       <table className="w-full text-sm">
@@ -47,7 +48,7 @@ export const UsersTable = ({ users }: Props) => {
               </td>
 
               <td className="text-right pr-4">
-                <UserRowActions user={user} />
+                <UserRowActions user={user} onRefresh={onRefresh} />
               </td>
             </tr>
           ))}

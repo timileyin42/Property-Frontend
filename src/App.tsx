@@ -12,11 +12,20 @@ import DashboardLayout from "./layout/DashboardLayout"
 import Interest from "./pages/dashboard/Interest";
 import UploadProperties from "./pages/dashboard/UploadProperties";
 import UserManagement from "./pages/dashboard/UserManagement";
+import AdminProperties from "./pages/dashboard/AdminProperties";
 import {InterestPage} from './pages/InterestPage'
 import {ProtectedRoutes} from '../src/util/ProtectedRoutes'
 import { DashboardProvider } from "./context/dashboard.context";
 import PropertyInterest from "./pages/PropertyInterest"
 import InterestSuccess from "./pages/InterestSuccess"
+import ComingSoonPage from "./pages/ComingSoonPage"
+import UserProfilePage from "./pages/user/UserProfilePage"
+import PropertyDetails from "./pages/PropertyDetails"
+import Updates from "./pages/Updates"
+import UpdateDetail from "./pages/UpdateDetail"
+import AdminUpdates from "./pages/dashboard/AdminUpdates"
+import AssignInvestment from "./pages/dashboard/AssignInvestment"
+import UserDetails from "./pages/dashboard/UserDetails"
 
 
 function App() {
@@ -35,8 +44,24 @@ function App() {
     element: <Properties />,
   },
   {
+    path: "/properties/:id",
+    element: <PropertyDetails />,
+  },
+  {
     path: "/properties/:id/interest",
     element: <PropertyInterest />, // guarded internally
+  },
+  {
+    path: "/updates",
+    element: <Updates />,
+  },
+  {
+    path: "/updates/:id",
+    element: <UpdateDetail />,
+  },
+  {
+    path: "/partnership",
+    element: <ComingSoonPage />,
   },
   {
     path: "/interest-success",
@@ -65,6 +90,14 @@ function App() {
     ],
   },
 
+  // 👤 AUTHENTICATED USER ROUTES
+  {
+    element: <ProtectedRoutes />,
+    children: [
+      { path: "/profile", element: <UserProfilePage /> },
+    ],
+  },
+
   // 🛠 ADMIN ROUTES
   {
     element: <ProtectedRoutes allowedRole="ADMIN" />,
@@ -79,7 +112,11 @@ function App() {
         children: [
           { index: true, element: <Interest /> },
           { path: "uploadproperties", element: <UploadProperties /> },
+          { path: "properties", element: <AdminProperties /> },
+          { path: "updates", element: <AdminUpdates /> },
           { path: "user_management", element: <UserManagement /> },
+          { path: "assign-investment", element: <AssignInvestment /> },
+          { path: "users/:id", element: <UserDetails /> },
 
         ],
       },

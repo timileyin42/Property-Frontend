@@ -58,7 +58,7 @@ const ResetPassword = () => {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-4">
       <div className="flex items-center gap-2 mb-6">
         <Toaster />
-        <h1 className="text-xl font-bold text-blue-900">Elycap Luxury Homes</h1>
+        <h1 className="text-xl font-bold text-blue-900">Elycapvest</h1>
       </div>
 
       <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl">

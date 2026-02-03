@@ -1,4 +1,5 @@
 import { ApiProperty } from "../types/property";
+import { isVideoUrl, normalizeMediaUrl } from "../util/normalizeMediaUrl";
 
 
 interface Props {
@@ -6,14 +7,38 @@ interface Props {
 }
 
 const PropertySummaryCard: React.FC<Props> = ({ property }) => {
+  const mediaUrls = [
+    property.primary_image,
+    ...(property.image_urls ?? []),
+  ]
+    .map((url) => normalizeMediaUrl(url))
+    .filter(Boolean) as string[];
+
+  const imageUrl = mediaUrls.find((url) => !isVideoUrl(url));
+  const videoUrl = mediaUrls.find((url) => isVideoUrl(url));
   return (
 
     <div className="bg-white rounded-xl border border-gray-200 shadow shadow-lg p-4 space-y-4">
-      <img
-        src={property.primary_image}
-        alt={property.title}
-        className="rounded-md h-48 w-full object-cover"
-      />
+      {imageUrl ? (
+        <img
+          src={imageUrl}
+          alt={property.title}
+          className="rounded-md h-48 w-full object-cover"
+        />
+      ) : videoUrl ? (
+        <video
+          className="rounded-md h-48 w-full object-cover"
+          src={videoUrl}
+          muted
+          playsInline
+          loop
+          autoPlay
+        />
+      ) : (
+        <div className="rounded-md h-48 w-full bg-gray-100 flex items-center justify-center text-xs text-gray-400">
+          Image unavailable
+        </div>
+      )}
 
       <h2 className="font-semibold text-lg">{property.title}</h2>
       <p className="text-sm text-gray-500">{property.location}</p>

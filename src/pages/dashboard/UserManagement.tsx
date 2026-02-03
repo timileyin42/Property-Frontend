@@ -9,6 +9,7 @@ import toast, {Toaster} from "react-hot-toast"
 // import AvailableProperties from "../investorsData/AvailableProperties";
 // import {fetchAdminUsers} from "../../api/fetchAdminUsers"
 import {UsersTable} from "../../components/admincomponents/usersTable/UserTable"
+import DashboardStats from "../../components/admincomponents/DashboardStats";
 import { useUsers } from "../../components/features/users/useUsers";
 
 // interface AdminUser {
@@ -19,54 +20,12 @@ import { useUsers } from "../../components/features/users/useUsers";
 //   created_at: string;
 // }
 
-export interface PortfolioStat {
-  id: number;
-  title: string;
-  value: string | number;
-  description: string;
-}
-
-
 const UserManagement = () => {
- const { users, loading, error } = useUsers();
+ const { users, loading, error, reload } = useUsers();
 
 
     // const [properties, setProperties] = useState<Property[]>([]);
 // const [loadingProperties, setLoadingProperties] = useState(true);
-
-  const portfolioStats: PortfolioStat[] = [
-    {
-      id: 1,
-      title: "Total Investment",
-      value: "₦96,100,000",
-      description: "+12.3% this month",
-    },
-    {
-      id: 2,
-      title: "Fractional Investment",
-      value: "45",
-      description:
-        "Across 3 properties",
-    },
-    {
-      id: 3,
-      title: "Properties",
-      value: "3",
-      description:
-        "Active investments",
-    },
-     {
-      id: 4,
-      title: "Avg. Growth",
-      value: "+12.0%",
-      description:
-        "6 month average",
-    },
-  ];
-
-
-
-
 
 
   // search and filter function
@@ -115,35 +74,7 @@ const filteredUsers = useMemo(() => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-          {portfolioStats.map((item, index) => {
-          	const isLast = index === portfolioStats.length - 1;
-
-
-          	return (
-
-            <div
-              key={item.id}
-              className="border border-gray-200 bg-white shadow-lg rounded-xl"
-            >
-              <div className="p-8 flex flex-col gap-4">
-              
-
-                <h3 className="text-gray-400">
-                  {item.title}
-                </h3>
-
-                <p className={`text-2xl font-semibold ${isLast ? "text-green-600" : "text-blue-900"}`}>
-            {item.value}
-          </p>
-
-                <p className="text-gray-400 text-sm">
-                  {item.description}
-                </p>
-              </div>
-            </div>
-          )})}
-        </div>
+        <DashboardStats />
       </section>
         {/* ===== GRAPH SECTION (Placeholder) ===== */}
       <section className="my-12 border border-gray-300  rounded-xl">
@@ -174,7 +105,7 @@ const filteredUsers = useMemo(() => {
 </div>
 
 
-        <UsersTable users={filteredUsers} />
+        <UsersTable users={filteredUsers} onRefresh={reload} />
       </section>
 
       {/* ===== AVAILABLE PROPERTIES / STATS ===== */}

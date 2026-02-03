@@ -39,7 +39,7 @@ const FAQ = () => {
     {
       id: 6,
       question: "Are the properties verified?",
-      answer: "Absolutely. All properties listed on Elycap Luxury Homes undergo thorough verification including legal documentation checks, property inspections, and market valuation assessments."
+      answer: "Absolutely. All properties listed on Elycapvest Luxury Homes undergo thorough verification including legal documentation checks, property inspections, and market valuation assessments."
     }
   ];
 
@@ -60,7 +60,7 @@ const FAQ = () => {
             Frequently Asked Questions
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Find answers to common questions about Elycap Luxury Homes
+            Find answers to common questions about Elycapvest Luxury Homes
           </p>
         </div>
 

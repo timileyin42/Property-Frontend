@@ -22,6 +22,7 @@ export interface AdminUser {
   full_name: string;
   phone?: string;
   role: UserRole;
+  is_active?: boolean;
   created_at: string;
   updated_at: string;
 }

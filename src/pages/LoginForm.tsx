@@ -72,10 +72,7 @@ export const LoginForm = () => {
 useEffect(() => {
     if (loading || !user) return;
 
-    const redirectTo =
-      user.role === "ADMIN"
-        ? "/admindashboard"
-        : "/investor/dashboard";
+    const redirectTo = "/";
 
     navigate(redirectTo, { replace: true });
   }, [user, loading, navigate]);

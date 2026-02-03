@@ -47,7 +47,7 @@ const ForgotPassword = () => {
             
           </div>
           <h1 className="text-xl font-bold text-blue-900">
-            Elycap Luxury Homes
+            Elycapvest
           </h1>
         </div>
       <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-6">

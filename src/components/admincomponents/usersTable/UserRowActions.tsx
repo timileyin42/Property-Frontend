@@ -5,9 +5,10 @@ import { UserActionsDrawer } from "./UserActionsDrawer";
 
 interface Props {
   user: AdminUser;
+  onRefresh?: () => void;
 }
 
-export const UserRowActions = ({ user }: Props) => {
+export const UserRowActions = ({ user, onRefresh }: Props) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -20,7 +21,11 @@ export const UserRowActions = ({ user }: Props) => {
       </button>
 
       {open && (
-        <UserActionsDrawer user={user} onClose={() => setOpen(false)} />
+        <UserActionsDrawer
+          user={user}
+          onClose={() => setOpen(false)}
+          onRefresh={onRefresh}
+        />
       )}
     </>
   );

@@ -1,6 +1,7 @@
 import { ApiProperty } from "../types/property";
 import { CiLocationOn } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
+import { isVideoUrl, normalizeMediaUrl } from "../util/normalizeMediaUrl";
 
 
 interface PropertyCardProps {
@@ -10,6 +11,16 @@ interface PropertyCardProps {
 const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
 
 const navigate = useNavigate();
+
+  const mediaUrls = [
+    property.primary_image,
+    ...(property.image_urls ?? []),
+  ]
+    .map((url) => normalizeMediaUrl(url))
+    .filter(Boolean) as string[];
+
+  const imageUrl = mediaUrls.find((url) => !isVideoUrl(url));
+  const videoUrl = mediaUrls.find((url) => isVideoUrl(url));
 
 
   const fractionProgress =
@@ -23,12 +34,30 @@ const navigate = useNavigate();
     <div className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition overflow-hidden">
       
       {/* Image */}
-      <div className="relative">
-        <img
-          src={property.primary_image}
-          alt={property.title}
-          className="w-full h-48 object-cover"
-        />
+      <div
+        className="relative cursor-pointer"
+        onClick={() => navigate(`/properties/${property.id}`)}
+      >
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt={property.title}
+            className="w-full h-48 object-cover"
+          />
+        ) : videoUrl ? (
+          <video
+            className="w-full h-48 object-cover"
+            src={videoUrl}
+            muted
+            playsInline
+            loop
+            autoPlay
+          />
+        ) : (
+          <div className="w-full h-48 bg-gray-100 flex items-center justify-center text-xs text-gray-400">
+            Image unavailable
+          </div>
+        )}
 
         {/* ROI */}
         <span className="absolute top-3 right-3 bg-green-600 text-white text-xs font-medium px-2 py-1 rounded-full">

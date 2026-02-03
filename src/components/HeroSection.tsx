@@ -78,6 +78,7 @@ function HeroSection(){
 		<>
 			<div className="flex items-center justify-center">
 				<Navbar
+					logoText="Elycapvest Luxury Homes"
 					links={[
                         { label: "Properties", href: "/properties" },
                         {label: 'Partnership', href: "/partnership"}

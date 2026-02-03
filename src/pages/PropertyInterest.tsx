@@ -28,7 +28,7 @@ const PropertyInterest = () => {
      <div className="max-w-7xl mx-auto flex flex-col ">
        <div>
          <AppNavbar
-        title="Elycap Luxury Homes"
+        title="Elycapvest"
         subtitle="Express Your Interest"
         backLabel="Back to Properties"
         backTo="/properties"

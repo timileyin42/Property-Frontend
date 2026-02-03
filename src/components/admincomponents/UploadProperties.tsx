@@ -8,6 +8,7 @@ import { FiUpload } from "react-icons/fi";
 
 import { api } from "../../api/axios";
 import { fetchProperties } from "../../api/properties";
+import { updateAdminProperty } from "../../api/admin.properties";
 import { PropertyTable } from "../../components/PropertyTable";
 // Remove this import since it's causing conflicts
 // import type { ApiProperty as ImportedApiProperty, PropertyStatus as ImportedPropertyStatus } from "../../types/property";
@@ -41,17 +42,24 @@ export interface ApiProperty {
    Schema Definition
 ======================= */
 
+const optionalNumber = z.preprocess(
+  (value) => (value === "" || value === null ? undefined : value),
+  z.coerce.number().optional()
+);
+
 const propertySchema = z.object({
   title: z.string().min(1, "Title is required"),
   location: z.string().min(1, "Location is required"),
   description: z.string().min(1, "Description is required"),
-  project_value: z.coerce.number().positive(),
-  total_fractions: z.coerce.number().int().positive(),
-  fraction_price: z.coerce.number().positive(),
-  bedrooms: z.coerce.number().int().nonnegative(),
-  bathrooms: z.coerce.number().int().nonnegative(),
-  area_sqft: z.coerce.number().positive(),
-  expected_roi: z.coerce.number().nonnegative(),
+  project_value: optionalNumber,
+  total_fractions: z.coerce
+    .number({ invalid_type_error: "Total fractions is required" })
+    .min(1, "Total fractions is required"),
+  fraction_price: optionalNumber,
+  bedrooms: optionalNumber,
+  bathrooms: optionalNumber,
+  area_sqft: optionalNumber,
+  expected_roi: optionalNumber,
 });
 
 // Explicitly define the type to match the schema
@@ -59,20 +67,22 @@ type PropertyFormValues = {
   title: string;
   location: string;
   description: string;
-  project_value: number;
+  project_value?: number;
   total_fractions: number;
-  fraction_price: number;
-  bedrooms: number;
-  bathrooms: number;
-  area_sqft: number;
-  expected_roi: number;
+  fraction_price?: number;
+  bedrooms?: number;
+  bathrooms?: number;
+  area_sqft?: number;
+  expected_roi?: number;
 };
 
 /* =======================
    Constants
 ======================= */
 
-const MAX_FILE_SIZE = 100 * 1024 * 1024;
+const MAX_IMAGE_SIZE = 100 * 1024 * 1024;
+const MAX_VIDEO_SIZE = 500 * 1024 * 1024;
+const CHUNK_SIZE = 6 * 1024 * 1024;
 const ALLOWED_TYPES = [
   "image/jpeg",
   "image/png",
@@ -105,13 +115,13 @@ const AdminInvestmentsPage: React.FC = () => {
       title: "",
       location: "",
       description: "",
-      project_value: 0,
-      total_fractions: 0,
-      fraction_price: 0,
-      bedrooms: 0,
-      bathrooms: 0,
-      area_sqft: 0,
-      expected_roi: 0,
+      project_value: undefined,
+      total_fractions: undefined,
+      fraction_price: undefined,
+      bedrooms: undefined,
+      bathrooms: undefined,
+      area_sqft: undefined,
+      expected_roi: undefined,
     }
   });
 
@@ -122,11 +132,13 @@ const AdminInvestmentsPage: React.FC = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
 
-    const validFiles = selectedFiles.filter(
-      (file) =>
-        ALLOWED_TYPES.includes(file.type) &&
-        file.size <= MAX_FILE_SIZE
-    );
+    const validFiles = selectedFiles.filter((file) => {
+      if (!ALLOWED_TYPES.includes(file.type)) return false;
+
+      const isVideo = file.type.startsWith("video");
+      const maxSize = isVideo ? MAX_VIDEO_SIZE : MAX_IMAGE_SIZE;
+      return file.size <= maxSize;
+    });
 
     if (validFiles.length !== selectedFiles.length) {
       toast.error("Some files were rejected (type/size)");
@@ -175,6 +187,52 @@ const AdminInvestmentsPage: React.FC = () => {
 
     const uploadedUrls: string[] = [];
 
+    const uploadVideoInChunks = async (
+      file: File,
+      sig: any
+    ): Promise<string> => {
+      const totalSize = file.size;
+      let start = 0;
+      let end = Math.min(CHUNK_SIZE, totalSize);
+      const uploadId = `${file.name}-${Date.now()}`;
+      let secureUrl = "";
+
+      while (start < totalSize) {
+        const chunk = file.slice(start, end);
+        const formData = new FormData();
+        formData.append("file", chunk);
+        formData.append("api_key", sig.api_key);
+        formData.append("timestamp", String(sig.timestamp));
+        formData.append("signature", sig.signature);
+        formData.append("folder", sig.folder);
+        formData.append("resource_type", sig.resource_type);
+
+        if (sig.allowed_formats) {
+          formData.append("allowed_formats", sig.allowed_formats);
+        }
+
+        const uploadRes = await axios.post(sig.upload_url, formData, {
+          headers: {
+            "Content-Range": `bytes ${start}-${end - 1}/${totalSize}`,
+            "X-Unique-Upload-Id": uploadId,
+          },
+        });
+
+        if (uploadRes.data?.secure_url) {
+          secureUrl = uploadRes.data.secure_url;
+        }
+
+        start = end;
+        end = Math.min(start + CHUNK_SIZE, totalSize);
+      }
+
+      if (!secureUrl) {
+        throw new Error("Cloudinary upload failed");
+      }
+
+      return secureUrl;
+    };
+
     for (const file of files) {
       const resourceType = file.type.startsWith("video") ? "video" : "image";
       const payload = {
@@ -195,6 +253,15 @@ const AdminInvestmentsPage: React.FC = () => {
       );
 
       // 2️⃣ Upload to Cloudinary
+      const isVideo = file.type.startsWith("video");
+      const shouldChunk = isVideo && file.size > MAX_IMAGE_SIZE;
+
+      if (shouldChunk) {
+        const secureUrl = await uploadVideoInChunks(file, sig);
+        uploadedUrls.push(secureUrl);
+        continue;
+      }
+
       const formData = new FormData();
       formData.append("file", file);
       formData.append("api_key", sig.api_key);
@@ -231,29 +298,68 @@ const AdminInvestmentsPage: React.FC = () => {
 
     setIsSubmitting(true);
 
-    try {
-      // 1. Upload images
-      const imageUrls = await uploadImages();
+    const uploadPromise = uploadImages();
 
-      // 2. Prepare Payload - use "AVAILABLE" since that's in your local type
+    try {
       const payload = {
         ...data,
-        status: "AVAILABLE" as PropertyStatus, // Use "AVAILABLE" to match your local type
-        image_urls: imageUrls,
-        primary_image: imageUrls[0] || "", // Add primary_image
+        status: "AVAILABLE" as PropertyStatus,
+        image_urls: [] as string[],
+        primary_image: "",
       };
 
-      const res = await api.post<ApiProperty>("/admin/properties", payload);
-      
-      setProperties((prev) => [res.data, ...prev]);
-      toast.success("Property created successfully");
+      let res: { data: ApiProperty } | null = null;
 
-      // 3. Clear everything
-      reset();
-      setFiles([]);
-      previews.forEach((p) => URL.revokeObjectURL(p.url));
+      try {
+        res = await api.post<ApiProperty>("/admin/properties", payload);
+      } catch (createError: any) {
+        // Fallback to blocking upload if server requires images on create
+        const imageUrls = await uploadPromise;
+        const retryPayload = {
+          ...data,
+          status: "AVAILABLE" as PropertyStatus,
+          image_urls: imageUrls,
+          primary_image: imageUrls[0] || "",
+        };
+        res = await api.post<ApiProperty>("/admin/properties", retryPayload);
+      }
+
+      if (res) {
+        setProperties((prev) => [res!.data, ...prev]);
+        toast.success("Property created successfully");
+
+        uploadPromise
+          .then((imageUrls) => {
+            if (!imageUrls.length) return null;
+            return updateAdminProperty(res!.data.id, {
+              image_urls: imageUrls,
+              primary_image: imageUrls[0],
+            });
+          })
+          .then((updated) => {
+            if (!updated) return;
+            setProperties((prev) =>
+              prev.map((property) =>
+                property.id === updated.id ? updated : property
+              )
+            );
+          })
+          .catch((error) => {
+            console.error(error);
+            toast.error("Background media upload failed");
+          });
+
+        // Clear everything
+        reset();
+        setFiles([]);
+        previews.forEach((p) => URL.revokeObjectURL(p.url));
+      }
     } catch (err: any) {
       console.error(err);
+      if (err.response?.status === 401) {
+        toast.error("Please login as admin to upload media");
+        return;
+      }
       toast.error(err.response?.data?.message || "Failed to create property");
     } finally {
       setIsSubmitting(false);
@@ -311,6 +417,7 @@ const AdminInvestmentsPage: React.FC = () => {
                 <input
                   type={isNumber ? "number" : "text"}
                   step="any"
+                  required={key === "total_fractions"}
                   {...register(key)}
                   className="bg-gray-100 rounded-lg p-2"
                 />
@@ -333,13 +440,15 @@ const AdminInvestmentsPage: React.FC = () => {
             onChange={handleFileChange}
           />
 
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-2"
-          >
-            <FiUpload /> Upload
-          </button>
+          <div className="flex justify-center">
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="flex items-center gap-2"
+            >
+              <FiUpload /> Upload
+            </button>
+          </div>
 
           <div className="mt-3 grid grid-cols-3 gap-3">
             {previews.map((preview, index) => (
@@ -347,11 +456,19 @@ const AdminInvestmentsPage: React.FC = () => {
                 key={preview.url}
                 className="relative group rounded overflow-hidden"
               >
-                <img
-                  src={preview.url}
-                  className="w-full h-24 object-cover rounded"
-                  alt={`Preview ${index + 1}`}
-                />
+                {preview.file.type.startsWith("video") ? (
+                  <video
+                    src={preview.url}
+                    className="w-full h-24 object-cover rounded"
+                    muted
+                  />
+                ) : (
+                  <img
+                    src={preview.url}
+                    className="w-full h-24 object-cover rounded"
+                    alt={`Preview ${index + 1}`}
+                  />
+                )}
 
                 {/* ❌ Remove button */}
                 <button

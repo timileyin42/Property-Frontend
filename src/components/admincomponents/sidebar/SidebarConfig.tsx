@@ -9,6 +9,7 @@ import { FiUpload } from "react-icons/fi";
 //   UserIcon
 // } from "@components/svgs";
 import {UsersIcon, InterestIcon, HomeIcon} from "../../../components/svgs/ShieldIcon"
+import BuildingIcon from "../../../components/svgs/BuildingIcon";
 
 export interface SidebarItem {
   label: string;
@@ -26,6 +27,16 @@ export const sidebarItems: SidebarItem[] = [
     label: "Upload Properties",
     path: "uploadproperties",
     icon: <FiUpload  />
+  },
+  {
+    label: "Properties",
+    path: "properties",
+    icon: <BuildingIcon size={20} color="white" />
+  },
+  {
+    label: "Updates",
+    path: "updates",
+    icon: <InterestIcon />
   },
   {
     label: "User Management",

@@ -15,11 +15,12 @@ export interface Investment {
   user_id: number;
   property_id: number;
   fractions_owned: number;
-  ownership_percentage: number;
   initial_value: number;
   current_value: number;
+  ownership_percentage: number;
   growth_percentage: number;
   growth_amount: number;
+  image_url: string;
   created_at: string;
   updated_at: string;
   property_title: string;

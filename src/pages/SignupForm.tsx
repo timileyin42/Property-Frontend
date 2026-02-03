@@ -48,7 +48,7 @@ export const SignupForm = () => {
   const onSubmit = async (data: FormValues) => {
     try {
           await signup(data);
-      toast.success("Welcome to Elycap Luxury Homes!");
+      toast.success("Welcome to Elycapvest!");
 
  navigate("/verify_email", { 
       state: { email: data.email },
@@ -79,7 +79,7 @@ console.log(err)
         {/* Company Name (Top Left) */}
         <div className="absolute top-10 left-10 z-20">
           <Link to="/" className="text-white text-2xl font-black tracking-tighter uppercase">
-            Elycap <span className="text-blue-400">Luxury Homes</span>
+            Elycap<span className="text-blue-400">vest</span>
           </Link>
         </div>
 

@@ -10,7 +10,7 @@ const ComingSoonPage: React.FC = () => {
       {/* Top Navigation */}
       <div className="w-full max-w-6xl px-6 py-4 absolute top-0">
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-900">Elycap</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Elycapvest</h1>
           <button
             onClick={() => navigate('/')}
             className="text-blue-900 hover:text-blue-700 font-medium text-sm"
@@ -54,14 +54,14 @@ const ComingSoonPage: React.FC = () => {
         {/* Contact Info */}
         {/*<div className="pt-8 border-t border-gray-200">
           <p className="text-gray-500 text-sm mb-2">For partnership inquiries:</p>
-          <p className="text-blue-900 font-medium">partnerships@elycap.com</p>
+          <p className="text-blue-900 font-medium">partnerships@elycapvest.com</p>
         </div>*/}
       </div>
 
       {/* Bottom Footer */}
       <div className="absolute bottom-6 text-center">
         <p className="text-gray-400 text-sm">
-          © {new Date().getFullYear()} Elycap Luxury Homes. All rights reserved.
+          © {new Date().getFullYear()} Elycapvest. All rights reserved.
         </p>
       </div>
 

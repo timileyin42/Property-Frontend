@@ -6,6 +6,19 @@ export const fetchAdminUsers = async (): Promise<AdminUser[]> => {
   return data.users;
 };
 
+export const fetchAdminUser = async (userId: number): Promise<AdminUser> => {
+  const { data } = await api.get<AdminUser>(`/admin/users/${userId}`);
+  return data;
+};
+
+export const updateAdminUser = async (
+  userId: number,
+  payload: Partial<Pick<AdminUser, "full_name" | "email" | "phone" | "is_active">>
+): Promise<AdminUser> => {
+  const { data } = await api.patch<AdminUser>(`/admin/users/${userId}`, payload);
+  return data;
+};
+
 
 // user profile
 
@@ -86,7 +99,7 @@ export const updateUserRole = async (
 };
 
 export const deactivateUser = async (userId: number): Promise<void> => {
-  await api.patch(`/admin/users/${userId}/deactivate`);
+  await updateAdminUser(userId, { is_active: false });
 };
 
 export const deleteUser = async (userId: number): Promise<void> => {

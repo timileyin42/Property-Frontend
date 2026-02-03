@@ -13,7 +13,7 @@ const AboutUsMinimal = () => {
               <img
                 // src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
                 src={img}
-                alt="Elycap Luxury Homes"
+                alt="Elycapvest Luxury Homes"
                 className="w-full rounded-2xl shadow-xl transition-transform duration-500 group-hover:scale-[1.02]"
                 loading="lazy"
               />
@@ -37,7 +37,7 @@ const AboutUsMinimal = () => {
           <div className="space-y-8">
             <div>
               <span className="inline-block text-gray-900 font-semibold text-sm tracking-wider mb-4">
-                ABOUT ELYCAP HOMES
+                ABOUT ELYCAPVEST LUXURY HOMES
               </span>
               <h1 className="text-4xl md:text-5xl font-bold text-blue-900 mb-6">
                 Revolutionizing Real Estate
@@ -46,7 +46,7 @@ const AboutUsMinimal = () => {
               
               <div className="space-y-4 text-gray-600">
                 <p className="text-lg leading-relaxed">
-                  Elycap Luxury Homes is revolutionizing real estate investment in Africa by combining 
+                  Elycapvest Luxury Homes is revolutionizing real estate investment in Africa by combining 
                   fractional ownership with complete transparency in shortlet property management.
                 </p>
                 <p>

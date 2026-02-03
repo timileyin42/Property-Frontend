@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 interface AppNavbarProps {
   title: string;
@@ -23,7 +23,7 @@ const AppNavbar = ({
       <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
         
         {/* Left */}
-        <a href="/" className="flex items-center gap-3 text-2xl">
+        <Link to="/" className="flex items-center gap-3 text-2xl">
           {/* Logo */}
           <div className="h-9 w-9 text-5xl rounded-lg bg-primary text-white flex items-center justify-center font-bold">
             E
@@ -40,7 +40,7 @@ const AppNavbar = ({
               </p>
             )}
           </div>
-        </a>
+        </Link>
 
         {/* Right */}
         <div className="flex items-center gap-3">

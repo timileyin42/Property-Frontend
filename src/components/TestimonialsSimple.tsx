@@ -1,4 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
+import img1 from "../assets/img1.jpg";
+import img2 from "../assets/img2.jpg";
+import img3 from "../assets/img3.jpg";
 // import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { Star } from "lucide-react";
 
@@ -10,20 +13,20 @@ const TestimonialsSimple = () => {
     {
       name: "Sarah Okonkwo",
       role: "Real Estate Investor",
-      comment: "Elycap Luxury Homes has completely transformed how I invest in real estate. The transparency and real-time monitoring give me peace of mind.",
-      image: "https://images.unsplash.com/photo-1494790108755-2616b786d4c9?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+      comment: "Elycapvest Luxury Homes has completely transformed how I invest in real estate. The transparency and real-time monitoring give me peace of mind.",
+      image: img1,
     },
     {
       name: "David Adeleke",
       role: "Tech Entrepreneur",
-      comment: "As someone who values transparency, Elycap Luxury Homes is exactly what the real estate market needed. Highly recommended!",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+      comment: "As someone who values transparency, Elycapvest Luxury Homes is exactly what the real estate market needed. Highly recommended!",
+      image: img2,
     },
     {
       name: "Amina Muhammed",
       role: "Business Consultant",
       comment: "Starting my real estate investment journey with fractional ownership was the best decision. The customer service is exceptional!",
-      image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+      image: img3,
     }
   ];
 
