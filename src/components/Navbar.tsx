@@ -145,7 +145,7 @@ const {isAuthenticated, logout, user} = useAuth();
               {!isAuthenticated && (
                 <button
                   onClick={() => navigate("/signup")}
-                  className="text-base border border-blue-600 text-blue-600 px-5 py-2 rounded-md hover:bg-blue-50 transition"
+                  className="bg-blue-900 text-white font-sans px-5 py-2 rounded-md transition-all duration-500 hover:bg-blue-500 text-base"
                 >
                   Join Us
                 </button>
