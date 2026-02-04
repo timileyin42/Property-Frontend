@@ -10,6 +10,7 @@ export const mockInvestments: InvestmentResponse = {
     current_value: 120000,
     growth_percentage: 20,
     growth_amount: 20000,
+    image_url: "https://via.placeholder.com/300x200",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     property_title: `Property ${i + 1}`,

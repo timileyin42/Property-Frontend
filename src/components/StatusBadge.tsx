@@ -67,6 +67,11 @@ const STATUS_CONFIG: Record<InterestStatus, StatusConfig> = {
       icon: <IoClose size={14} className="mr-1.5 border rounded-full" />,
       label: "Closed",
     },
+    INVESTED: {
+      color: "bg-blue-600 text-white",
+      icon: <SuccessCheckIcon size={14} className="mr-1.5" />,
+      label: "Invested",
+    },
 };
 
 // 5. Define the component with proper TypeScript typing
@@ -95,6 +100,7 @@ const STATUS_STYLES: Record<InterestStatus, string> = {
   APPROVED: "bg-green-900 text-green-700",
   CONTACTED: "bg-black text-white",
   CLOSED: "bg-red-100 text-white",
+  INVESTED: "bg-blue-600 text-white",
 };
 interface SimpleBadgeProps {
   status: InterestStatus;

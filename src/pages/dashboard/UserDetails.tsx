@@ -15,9 +15,8 @@ const UserDetails = () => {
 
   const {
     register,
-    handleSubmit,
     reset,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<AdminUserUpdateValues>({
     resolver: zodResolver(adminUserUpdateSchema) as any,
     defaultValues: {
@@ -51,19 +50,6 @@ const UserDetails = () => {
 
     loadUser();
   }, [id, reset]);
-
-  const onSubmit = async (values: AdminUserUpdateValues) => {
-    if (!id) return;
-
-    try {
-      const updated = await updateAdminUser(Number(id), values);
-      setUser(updated);
-      toast.success("User updated successfully");
-    } catch (error: any) {
-      console.error("Failed to update user:", error);
-      toast.error(error?.response?.data?.message || "Failed to update user");
-    }
-  };
 
   const handleDeactivate = async () => {
     if (!id) return;

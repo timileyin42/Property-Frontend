@@ -138,7 +138,6 @@ const InvestorDashboard = () => {
         : "+0% overall",
     },
     {
-      id: 1,
       id: 2,
       title: "Fractions Owned",
       value:

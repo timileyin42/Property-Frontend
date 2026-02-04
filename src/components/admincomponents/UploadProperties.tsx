@@ -10,33 +10,10 @@ import { api } from "../../api/axios";
 import { fetchProperties } from "../../api/properties";
 import { updateAdminProperty } from "../../api/admin.properties";
 import { PropertyTable } from "../../components/PropertyTable";
-// Remove this import since it's causing conflicts
-// import type { ApiProperty as ImportedApiProperty, PropertyStatus as ImportedPropertyStatus } from "../../types/property";
+import type { ApiProperty } from "../../types/property";
+import type { InterestStatus } from "../../types/investment";
 
-// Use your LOCAL types that are already defined in this file
-export type PropertyStatus = "AVAILABLE" | "SOLD" | "PENDING";
-
-export interface ApiProperty {
-  id: number;
-  title: string;
-  location: string;
-  description: string;
-  status: PropertyStatus;
-  image_urls: string[];
-  primary_image: string;
-  bedrooms: number;
-  bathrooms: number;
-  area_sqft: number;
-  expected_roi: number;
-  total_fractions: number;
-  fraction_price: number;
-  project_value: number;
-  fractions_sold: number;
-  fractions_available: number;
-  is_fractional: boolean;
-  created_at: string;
-  updated_at: string;
-}
+export type PropertyStatus = InterestStatus;
 
 /* =======================
    Schema Definition
@@ -52,9 +29,7 @@ const propertySchema = z.object({
   location: z.string().min(1, "Location is required"),
   description: z.string().min(1, "Description is required"),
   project_value: optionalNumber,
-  total_fractions: z.coerce
-    .number({ invalid_type_error: "Total fractions is required" })
-    .min(1, "Total fractions is required"),
+  total_fractions: z.coerce.number().min(1, "Total fractions is required"),
   fraction_price: optionalNumber,
   bedrooms: optionalNumber,
   bathrooms: optionalNumber,
@@ -177,9 +152,7 @@ const AdminInvestmentsPage: React.FC = () => {
      Upload to Cloudinary
   ======================= */
 
-  const uploadImages = async (
-    propertyId?: number
-  ): Promise<string[]> => {
+  const uploadImages = async (propertyId?: number): Promise<string[]> => {
     const token = localStorage.getItem("token");
     if (!token) {
       throw new Error("Unauthorized");
@@ -189,7 +162,15 @@ const AdminInvestmentsPage: React.FC = () => {
 
     const uploadVideoInChunks = async (
       file: File,
-      sig: any
+      sig: {
+        api_key: string;
+        timestamp: string | number;
+        signature: string;
+        folder: string;
+        resource_type: string;
+        upload_url: string;
+        allowed_formats?: string;
+      }
     ): Promise<string> => {
       const totalSize = file.size;
       let start = 0;
