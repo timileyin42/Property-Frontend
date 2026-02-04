@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import Navbar from "../components/Navbar";
 import { useAuth } from "../context/AuthContext";
-import { Heart } from "lucide-react";
+import { Heart, MessageCircle } from "lucide-react";
 import {
   deleteAdminUpdateComment,
   deleteUserUpdateComment,
@@ -41,6 +41,7 @@ const UpdateDetail = () => {
   const [likeLoading, setLikeLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [hasLiked, setHasLiked] = useState(false);
+  const [isCommentOpen, setIsCommentOpen] = useState(false);
 
   const mediaUrls = useMemo(() => (update ? getMediaUrls(update) : []), [update]);
 
@@ -95,6 +96,7 @@ const UpdateDetail = () => {
         setComments((prev) => [res, ...prev]);
       }
       setCommentText("");
+      setIsCommentOpen(false);
     } catch (error: any) {
       toast.error(error?.message || "Failed to post comment");
     }
@@ -215,7 +217,13 @@ const UpdateDetail = () => {
               />
               <span>{update.likes_count ?? 0}</span>
             </button>
-            <span>{comments.length} comments</span>
+            <button
+              onClick={() => setIsCommentOpen((prev) => !prev)}
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-md border border-gray-300 hover:bg-gray-50 transition"
+            >
+              <MessageCircle className="h-4 w-4 text-gray-400" />
+              <span>{comments.length}</span>
+            </button>
           </div>
 
           <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
@@ -251,28 +259,30 @@ const UpdateDetail = () => {
               )}
             </div>
 
-            {!isAuthenticated && (
+            {!isAuthenticated && isCommentOpen && (
               <p className="text-xs text-gray-500">
                 Login to like or comment on updates.
               </p>
             )}
-            <div className="pt-2">
-              <textarea
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-                placeholder={isAuthenticated ? "Write a comment..." : "Login to comment"}
-                className="w-full border border-gray-300 rounded-lg p-2 text-sm"
-                disabled={!isAuthenticated}
-                rows={3}
-              />
-              <button
-                onClick={handlePostComment}
-                className="mt-2 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg"
-                disabled={!isAuthenticated}
-              >
-                Post Comment
-              </button>
-            </div>
+            {isCommentOpen && (
+              <div className="pt-2">
+                <textarea
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  placeholder={isAuthenticated ? "Write a comment..." : "Login to comment"}
+                  className="w-full border border-gray-300 rounded-lg p-2 text-sm"
+                  disabled={!isAuthenticated}
+                  rows={3}
+                />
+                <button
+                  onClick={handlePostComment}
+                  className="mt-2 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg"
+                  disabled={!isAuthenticated}
+                >
+                  Post Comment
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}

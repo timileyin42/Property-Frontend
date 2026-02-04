@@ -1,7 +1,5 @@
 @import "tailwindcss";
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
-
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
 }
@@ -28,6 +26,40 @@
 
 .animate-fade-in {
   animation: fade-in 0.2s ease-in-out;
+}
+
+@keyframes featured-marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.featured-marquee {
+  overflow: hidden;
+}
+
+.featured-track {
+  display: flex;
+  gap: 1.5rem;
+  width: max-content;
+  animation: featured-marquee-scroll 35s linear infinite;
+}
+
+.featured-marquee:hover .featured-track {
+  animation-play-state: paused;
+}
+
+.featured-item {
+  flex: 0 0 auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .featured-track {
+    animation: none;
+  }
 }
 
   

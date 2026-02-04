@@ -24,7 +24,7 @@ const FAQ = () => {
     {
       id: 3,
       question: "What is the minimum investment amount?",
-      answer: "The minimum investment varies by property, but you can start with as low as one fraction. Most properties have fractions ranging from ₦1,500,000 to ₦3,500,000 per fraction."
+      answer: "The minimum investment varies by property, but you can start with as low as one fraction. Pricing is defined per property and may change—please check back later for current rates."
     },
     {
       id: 4,
@@ -40,6 +40,11 @@ const FAQ = () => {
       id: 6,
       question: "Are the properties verified?",
       answer: "Absolutely. All properties listed on Elycapvest Luxury Homes undergo thorough verification including legal documentation checks, property inspections, and market valuation assessments."
+    },
+    {
+      id: 7,
+      question: "How does partnership work?",
+      answer: "We’re finalizing our partnership model and onboarding details. Please check back later for the full process and requirements."
     }
   ];
 
@@ -108,8 +113,8 @@ const FAQ = () => {
                   {item.id === 3 && (
                     <div className="mt-4 p-4 bg-blue-50 rounded-lg">
                       <div className="flex items-center gap-2 text-sm text-blue-700">
-                        <span className="font-medium">Current available fractions:</span>
-                        <span>Starting from ₦1,500,000</span>
+                        <span className="font-medium">Pricing updates:</span>
+                        <span>Check back later</span>
                       </div>
                     </div>
                   )}

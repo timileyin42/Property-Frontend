@@ -13,6 +13,20 @@ export interface PortfolioSummaryResponse {
   trend_values?: number[];
 }
 
+export type PortfolioTrendInterval = "monthly" | "weekly";
+
+export interface PortfolioTrendResponse {
+  total_current_value: number;
+  total_initial_value: number;
+  total_growth_percentage: number;
+  trend_labels: string[];
+  trend_values: number[];
+  interval?: PortfolioTrendInterval;
+  start_date?: string;
+  end_date?: string;
+  data_points?: number;
+}
+
 export const fetchInvestorInvestments = async (): Promise<InvestmentResponse> => {
   const res = await api.get("/investor/investments");
   return res.data;
@@ -20,6 +34,14 @@ export const fetchInvestorInvestments = async (): Promise<InvestmentResponse> =>
 
 export const fetchPortfolioSummary = async (): Promise<PortfolioSummaryResponse> => {
   const res = await api.get("/investor/portfolio/summary");
+  return res.data;
+};
+
+export const fetchPortfolioTrend = async (params?: {
+  interval?: PortfolioTrendInterval;
+  months?: number;
+}): Promise<PortfolioTrendResponse> => {
+  const res = await api.get("/investor/portfolio/trend", { params });
   return res.data;
 };
 

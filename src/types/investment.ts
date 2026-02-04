@@ -60,7 +60,7 @@ export interface InvestmentFilters {
 
 
 
-export type InterestStatus = "NEW" | "PENDING" | "APPROVED" | "REJECTED" | "ACTIVE" | "SOLD" | "AVAILABLE" | "CONTACTED" | "CLOSED";
+export type InterestStatus = "NEW" | "PENDING" | "APPROVED" | "REJECTED" | "ACTIVE" | "SOLD" | "AVAILABLE" | "INVESTED" | "CONTACTED" | "CLOSED";
 
 export interface InvestorInterest {
   id: number;

@@ -76,19 +76,38 @@ const {isAuthenticated, logout, user} = useAuth();
   }
 
 
+  const gridIcon = (
+    <svg
+      className="h-6 w-6"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeDasharray="2 2"
+      viewBox="0 0 24 24"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M5 5h6v6H5V5zm8 0h6v6h-6V5zM5 13h6v6H5v-6zm8 0h6v6h-6v-6z"
+      />
+    </svg>
+  );
+
   return (
     <header className="fixed top-0 left-0 w-full z-50 bg-white border-b border-gray-200">
       <nav className="max-w-7xl mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link
-            to="/"
-            className="flex flex-row items-center gap-1 text-lg font-semibold font-inter text-blue-900 whitespace-nowrap "
-          >
-	        <BuildingIcon/>
+          <div className="flex items-center gap-3">
+            <Link
+              to="/"
+              className="flex flex-row items-center gap-1 text-lg font-semibold font-inter text-blue-900 whitespace-nowrap "
+            >
+              <BuildingIcon />
 
-            <span>{logoText}</span>
-          </Link>
+              <span>{logoText}</span>
+            </Link>
+          </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6">
@@ -105,6 +124,23 @@ const {isAuthenticated, logout, user} = useAuth();
                 </div>
               ))}
 
+            {isUserMenu && user?.role !== "ADMIN" && (
+              <div className="flex items-center gap-4">
+                <Link
+                  to="/about"
+                  className="text-md text-gray-700 hover:text-blue-600 transition"
+                >
+                  About
+                </Link>
+                <Link
+                  to="/contact"
+                  className="text-md text-gray-700 hover:text-blue-600 transition"
+                >
+                  Contact Us
+                </Link>
+              </div>
+            )}
+
             <div className="flex items-center gap-3">
               {!isAuthenticated && (
                 <button
@@ -120,19 +156,7 @@ const {isAuthenticated, logout, user} = useAuth();
                   className="flex items-center justify-center h-11 w-11 rounded-md border border-blue-900 text-blue-900 hover:bg-blue-50 transition"
                   aria-label="Open menu"
                 >
-                  <svg
-                    className="h-6 w-6"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M5 5h6v6H5V5zm8 0h6v6h-6V5zM5 13h6v6H5v-6zm8 0h6v6h-6v-6z"
-                    />
-                  </svg>
+                  {gridIcon}
                 </button>
               ) : (
                 <button
@@ -176,19 +200,7 @@ const {isAuthenticated, logout, user} = useAuth();
               className="md:hidden inline-flex items-center justify-center rounded-md p-2 text-blue-900 hover:bg-blue-50 focus:outline-none"
               aria-label="Open menu"
             >
-              <svg
-                className="h-6 w-6"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M5 5h6v6H5V5zm8 0h6v6h-6V5zM5 13h6v6H5v-6zm8 0h6v6h-6v-6z"
-                />
-              </svg>
+              {gridIcon}
             </button>
           )}
         </div>

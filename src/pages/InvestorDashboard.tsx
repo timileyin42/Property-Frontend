@@ -13,7 +13,7 @@ import LineChart from "../components/charts/LineChart"
 import toast, { Toaster } from "react-hot-toast";
 import {useAuth} from "../context/AuthContext"
 import {useState, useEffect, useMemo} from "react";
-import { fetchInvestorInvestments, fetchPortfolioSummary, fetchInvestorInvestmentDetail } from "../api/investor.investments";
+import { fetchInvestorInvestments, fetchPortfolioSummary, fetchInvestorInvestmentDetail, fetchPortfolioTrend } from "../api/investor.investments";
 import type { Investment } from "../types/investment";
 import { normalizeMediaUrl, isVideoUrl } from "../util/normalizeMediaUrl";
 
@@ -42,6 +42,9 @@ const InvestorDashboard = () => {
     trend_labels?: string[];
     trend_values?: number[];
   } | null>(null);
+  const [trend, setTrend] = useState<{ labels: string[]; values: number[] }>(
+    { labels: [], values: [] }
+  );
 
   useEffect(() => {
     if (user?.full_name) {
@@ -50,13 +53,18 @@ const InvestorDashboard = () => {
 
     const loadInvestorData = async () => {
       try {
-        const [investmentRes, summaryRes] = await Promise.all([
+        const [investmentRes, summaryRes, trendRes] = await Promise.all([
           fetchInvestorInvestments(),
           fetchPortfolioSummary(),
+          fetchPortfolioTrend({ interval: "monthly", months: 6 }),
         ]);
 
         setInvestments(investmentRes.investments ?? []);
         setSummary(summaryRes ?? null);
+        setTrend({
+          labels: trendRes.trend_labels ?? [],
+          values: trendRes.trend_values ?? [],
+        });
       } catch (error) {
         console.error("Failed to fetch investor dashboard data:", error);
       }
@@ -195,10 +203,9 @@ const InvestorDashboard = () => {
 // 	]
 // graph demo data
 
-  const chartLabels =
-    summary?.trend_labels?.length ? summary.trend_labels : ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
-  const chartValues =
-    summary?.trend_values?.length ? summary.trend_values : [20000, 40000, 60000, 80000, 75000, 90000];
+  const chartLabels = trend.labels;
+  const chartValues = trend.values;
+  const hasTrendData = chartLabels.length > 0 && chartValues.length > 0;
 
   const investmentCards = useMemo(
     () =>
@@ -274,9 +281,15 @@ const InvestorDashboard = () => {
           <h2 className="font-bold text-blue-900 text-lg mb-2">
             Portfolio Growth
           </h2>
-          <div className=" rounded-xl  flex w-full text-gray-400 p-4">
-                  <LineChart labels={chartLabels} data={chartValues} />
-          </div>
+          {hasTrendData ? (
+            <div className=" rounded-xl  flex w-full text-gray-400 p-4">
+              <LineChart labels={chartLabels} data={chartValues} />
+            </div>
+          ) : (
+            <p className="text-sm text-gray-500">
+              Portfolio growth data isn&apos;t available yet.
+            </p>
+          )}
         </section>
       )}
 

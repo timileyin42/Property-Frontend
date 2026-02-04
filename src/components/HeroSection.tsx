@@ -3,11 +3,12 @@ import {ShieldIcon, TrendUpIcon, UsersIcon} from "../components/svgs/ShieldIcon"
 import { GoGoal } from "react-icons/go";
 import { IoEye } from "react-icons/io5";
 import { IoIosHeartEmpty } from "react-icons/io";
+import { FaInstagram } from "react-icons/fa6";
 // import {ShieldIcon} from "../components/svgs/ShieldIcon"
 import { useNavigate } from 'react-router-dom';
 import img1 from "../assets/img1.jpg";
 import {fetchFeaturedProperties} from "../api/properties";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ApiProperty } from "../types/property";
 import LandingPropertyCard from "../components/LandingPropertyCard";
 import TestimonialsSimple from "../components/TestimonialsSimple";
@@ -35,7 +36,7 @@ function HeroSection(){
     const loadProperties = async () => {
       try {
         // setLoading(true);
-        const data = await fetchFeaturedProperties(3);
+		const data = await fetchFeaturedProperties(12);
         setProperties(data);
       } catch (err) {
         // setError("Failed to load featured properties");
@@ -74,6 +75,11 @@ function HeroSection(){
   //   };
 
   //   const dashboardLink = getDashboardLink();
+	const sliderItems = useMemo(() => {
+		if (properties.length === 0) return [];
+		return [...properties, ...properties];
+	}, [properties]);
+
 	return (
 		<>
 			<div className="flex items-center justify-center">
@@ -145,7 +151,7 @@ function HeroSection(){
 					
 					<section className="my-16">
 						<div className="flex items-center justify-center my-6">
-							<h2 className="text-blue-900 font-bold font-inter text-[clamp(1.25rem,4vw,1.875rem)]">Why Choose POL Properties?</h2>
+							<h2 className="text-blue-900 font-bold font-inter text-[clamp(1.25rem,4vw,1.875rem)]">Why Choose Elycapvest?</h2>
 						</div>
 						<div className="grid grid-cols-1 md:grid-cols-3 px-5 gap-7 mx-auto ">
 							{whatWeOffer.map((item)=>(
@@ -164,20 +170,28 @@ function HeroSection(){
 							<h2 className="text-blue-900 font-bold font-inter text-[clamp(1.25rem,4vw,1.875rem)]">Featured Properties</h2>
 							<p>Explore our curated selection of premium shortlet properties</p>
 						</div>
-					 		<section className="max-w-7xl flex flex-col items-center mx-auto px-4 py-12">
-     	
-
-
-     						 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-       						 {properties.map((property) => (
-        						  <LandingPropertyCard key={property.id} property={property} />
-        						))}
-     						 </div>
-     						 <button 
-     						 	className="flex flex-col items-center justify-center py-2 px-4 rounded-lg cursor-pointer my-7 border border-2 border-blue-900 bg-white text-blue-900" 
-     						 	onClick={()=>navigate("/properties")}>View All Properties
-     						 </button>
-   							 </section>
+							<section className="max-w-7xl flex flex-col items-center mx-auto px-4 py-12">
+								<div className="featured-marquee w-full">
+									{sliderItems.length === 0 ? (
+										<p className="text-gray-500 text-sm">Loading properties...</p>
+									) : (
+										<div className="featured-track">
+											{sliderItems.map((property, index) => (
+												<div
+													key={`${property.id}-${index}`}
+													className="featured-item w-[280px] sm:w-[320px] lg:w-[360px]"
+												>
+													<LandingPropertyCard property={property} />
+												</div>
+											))}
+										</div>
+									)}
+								</div>
+								<button 
+									className="flex flex-col items-center justify-center py-2 px-4 rounded-lg cursor-pointer my-7 border border-2 border-blue-900 bg-white text-blue-900" 
+									onClick={()=>navigate("/properties")}>View All Properties
+								</button>
+							</section>
 					
    							 	{/*ABOUT US*/}
 
@@ -206,7 +220,7 @@ function HeroSection(){
 							
 						</div>
 						<p className="text-center text-sm md:text-sm text-gray-200 font-inter">
-							Join POL Properties today and get access to premium shortlet properties.
+							Join Elycapvest Properties today and get access to premium shortlet properties.
 							</p>
 						<button
 								onClick={()=>navigate("/signup")}
@@ -215,6 +229,48 @@ function HeroSection(){
 								py-4 cursor-pointer rounded rounded-xl hover:from-blue-700 hover:to-indigo-800 transition-all duration-300 hover:shadow-lg font-bold text-sm"
 							>Create Your Account</button>
 						
+					</section>
+
+					<section className="mt-0 rounded-[20px] bg-blue-900 text-white px-6 py-10">
+						<div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+							<div>
+								<h3 className="text-lg font-semibold">Quick Links</h3>
+								<ul className="mt-4 space-y-2 text-sm text-white/80">
+									<li><a className="hover:text-white" href="/properties">Properties</a></li>
+									<li><a className="hover:text-white" href="/updates">Updates</a></li>
+									<li><a className="hover:text-white" href="/about">About Us</a></li>
+									<li><a className="hover:text-white" href="/contact">Contact Us</a></li>
+									<li><a className="hover:text-white" href="/partnership">Partnership</a></li>
+								</ul>
+							</div>
+							<div>
+								<h3 className="text-lg font-semibold">Contact Us</h3>
+								<div className="mt-4 space-y-3 text-sm text-white/80">
+									<p>partnerships@elycapvest.com</p>
+									<p>University Road Akoka Yaba, Lagos</p>
+									<p>+234 8133101607</p>
+								</div>
+							</div>
+							<div>
+								<h3 className="text-lg font-semibold">Follow us</h3>
+								<div className="mt-4 flex items-center gap-4 text-white/90">
+									<a
+										href="https://www.instagram.com/elycap_luxuryhomes/"
+										target="_blank"
+										rel="noreferrer"
+										className="hover:text-white"
+										aria-label="Instagram"
+									>
+										<FaInstagram size={18} />
+									</a>
+									<span className="text-xs text-white/60">@elycap_luxuryhomes</span>
+								</div>
+							</div>
+						</div>
+						<div className="mt-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-t border-white/10 pt-6 text-xs text-white/60">
+							<p>© {new Date().getFullYear()} Elycapvest Luxury Homes. All rights reserved.</p>
+							<p>Trusted by investors building wealth through shortlet properties.</p>
+						</div>
 					</section>
 				</main>
 			</div>

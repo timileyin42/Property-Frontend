@@ -109,7 +109,6 @@ console.log(err)
             <label className="text-sm font-semibold mb-1 text-gray-700">Full Name</label>
             <input
               {...register("full_name")}
-              placeholder="John Doe"
               className={`border p-3 rounded-lg bg-gray-50 outline-none focus:ring-2 focus:ring-blue-900/20 ${errors.full_name ? 'border-red-500' : 'border-gray-200'}`}
             />
             {errors.full_name && <span className="text-red-500 text-xs mt-1">{errors.full_name.message}</span>}
@@ -121,7 +120,6 @@ console.log(err)
             <input
               {...register("email")}
               type="email"
-              placeholder="you@example.com"
               className={`border p-3 rounded-lg bg-gray-50 outline-none focus:ring-2 focus:ring-blue-900/20 ${errors.email ? 'border-red-500' : 'border-gray-200'}`}
             />
             {errors.email && <span className="text-red-500 text-xs mt-1">{errors.email.message}</span>}
@@ -133,7 +131,6 @@ console.log(err)
             <input
               {...register("phone")}
               type="tel"
-              placeholder="+234..."
               className={`border p-3 rounded-lg bg-gray-50 outline-none focus:ring-2 focus:ring-blue-900/20 ${errors.phone ? 'border-red-500' : 'border-gray-200'}`}
             />
             {errors.phone && <span className="text-red-500 text-xs mt-1">{errors.phone.message}</span>}
@@ -145,7 +142,6 @@ console.log(err)
             <input
               {...register("password")}
               type="password"
-              placeholder="••••••••"
               className={`border p-3 rounded-lg bg-gray-50 outline-none focus:ring-2 focus:ring-blue-900/20 ${errors.password ? 'border-red-500' : 'border-gray-200'}`}
             />
             {errors.password && <span className="text-red-500 text-xs mt-1">{errors.password.message}</span>}

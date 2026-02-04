@@ -1,6 +1,6 @@
 // services/property.service.ts
 import { api } from "../api/axios";
-import { ApiProperty } from "../types/property";
+import { ApiProperty, PropertiesResponse } from "../types/property";
 
 
 
@@ -29,5 +29,36 @@ export const fetchFeaturedProperties = async (limit: number = 3): Promise<ApiPro
   } catch (error) {
     console.error("Failed to fetch featured properties:", error);
     return [];
+  }
+};
+
+export type PropertySearchStatus = "AVAILABLE" | "SOLD" | "INVESTED";
+
+export interface PropertySearchParams {
+  location?: string;
+  bedrooms?: number;
+  status?: PropertySearchStatus;
+  min_price?: number;
+  max_price?: number;
+  page?: number;
+  page_size?: number;
+}
+
+export const searchPublicProperties = async (
+  params: PropertySearchParams
+): Promise<PropertiesResponse> => {
+  try {
+    const res = await api.get("/properties/search", {
+      params,
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Failed to search properties:", error);
+    return {
+      properties: [],
+      total: 0,
+      page: params.page ?? 1,
+      page_size: params.page_size ?? 10,
+    };
   }
 };

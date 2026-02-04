@@ -27,6 +27,8 @@ import UpdateDetail from "./pages/UpdateDetail"
 import AdminUpdates from "./pages/dashboard/AdminUpdates"
 import AssignInvestment from "./pages/dashboard/AssignInvestment"
 import UserDetails from "./pages/dashboard/UserDetails"
+import About from "./pages/About"
+import Contact from "./pages/Contact"
 
 
 function App() {
@@ -63,6 +65,14 @@ function App() {
   {
     path: "/partnership",
     element: <ComingSoonPage />,
+  },
+  {
+    path: "/about",
+    element: <About />,
+  },
+  {
+    path: "/contact",
+    element: <Contact />,
   },
   {
     path: "/interest-success",
