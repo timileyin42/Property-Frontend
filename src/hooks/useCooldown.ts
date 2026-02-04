@@ -27,7 +27,7 @@ export const useCooldown = (
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [remaining]);
+  }, [remaining, key]);
 
   const start = () => {
     const expiresAt = Date.now() + duration * 1000;

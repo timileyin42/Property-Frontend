@@ -119,13 +119,19 @@ const InterestForm: React.FC<InterestFormProps> = ({ property }) => {
         // Optionally show login prompt or redirect
         // navigate("/thank-you");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Reset idempotency key on error
       idempotencyKeyRef.current = uuidv4();
       
-      const errorMessage = err?.response?.data?.message || 
-                          err?.message || 
-                          "Something went wrong. Please try again.";
+      const error = err as {
+        response?: { data?: { detail?: string; message?: string } };
+        message?: string;
+      };
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data?.detail ||
+        error.message ||
+        "Something went wrong. Please try again.";
       toast.error(errorMessage);
     }
   };

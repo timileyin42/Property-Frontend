@@ -15,6 +15,7 @@ import {useAuth} from "../context/AuthContext"
 import {useState, useEffect, useMemo} from "react";
 import { fetchInvestorInvestments, fetchPortfolioSummary, fetchInvestorInvestmentDetail, fetchPortfolioTrend } from "../api/investor.investments";
 import type { Investment } from "../types/investment";
+import type { ApiProperty } from "../types/property";
 import { normalizeMediaUrl, isVideoUrl } from "../util/normalizeMediaUrl";
 
 
@@ -85,17 +86,24 @@ const InvestorDashboard = () => {
         const entries = await Promise.all(
           missingMedia.map(async (item) => {
             const detail = await fetchInvestorInvestmentDetail(item.id);
-            const property: any = detail.property ?? {};
+            const property = detail.property as
+              | (Partial<ApiProperty> & {
+                  images?: string[];
+                  videos?: string[];
+                  media?: string[];
+                  media_files?: Array<{ url?: string; file_url?: string; secure_url?: string }>;
+                })
+              | undefined;
             const urls = [
               detail.image_url,
-              property.primary_image,
-              ...(property.image_urls ?? []),
-              ...(property.media_urls ?? []),
-              ...(property.media_files?.map((file: any) => file.url ?? file.file_url ?? file.secure_url) ?? []),
-              ...(property.images ?? []),
-              ...(property.videos ?? []),
-              ...(property.media ?? []),
-              property.image_url,
+              property?.primary_image,
+              ...(property?.image_urls ?? []),
+              ...(property?.media_urls ?? []),
+              ...(property?.media_files?.map((file) => file.url ?? file.file_url ?? file.secure_url) ?? []),
+              ...(property?.images ?? []),
+              ...(property?.videos ?? []),
+              ...(property?.media ?? []),
+              property?.image_url,
             ]
               .map((url) => normalizeMediaUrl(url))
               .filter(Boolean) as string[];
@@ -165,43 +173,6 @@ const InvestorDashboard = () => {
       description: "6 month average",
     },
   ];
-// const demoProperties = [
-		
-// 		{
-// 			id: "1",
-// 			title: "Luxury Apartment Lagos", 
-// 			location: "Victoria Island Lagos", 
-// 			img: img1,
-// 			logo_address: <CiLocationOn size={20} />,
-//     	value: 38000000,
-//       growth: "+12.5%" 
-
-// 		},
-//     {
-//       id: "2",
-//       title: "Beachfront Villa Lekki", 
-//       location: "Lekki Phase 1, Lagos", 
-//       img: img2,
-//       logo_address: <CiLocationOn size={20} />,
-//       value: 75000000,
-//       growth: "+8.3%" 
-
-//     },
-//     {
-//       id: "3",
-//       title: "Modern Penthouse VI", 
-//       location: "Victoria Island Lagos", 
-//       img: img3,
-//       logo_address: <CiLocationOn size={20} />,
-//       value: 30000000,
-//       growth: "+15.2%" 
-
-//     },
-
-		 
-// 	]
-// graph demo data
-
   const chartLabels = trend.labels;
   const chartValues = trend.values;
   const hasTrendData = chartLabels.length > 0 && chartValues.length > 0;
@@ -246,32 +217,33 @@ const InvestorDashboard = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-7">
           {portfolioStats.map((item, index) => {
-          	const isLast = index === portfolioStats.length - 1;
+            const isLast = index === portfolioStats.length - 1;
 
+            return (
+              <div
+                key={item.id}
+                className="border border-gray-200 bg-white shadow-lg rounded-xl"
+              >
+                <div className="p-8 flex flex-col gap-4">
+                  <h3 className="text-gray-400">
+                    {item.title}
+                  </h3>
 
-          	return (
+                  <p
+                    className={`text-2xl font-semibold ${
+                      isLast ? "text-green-600" : "text-blue-900"
+                    }`}
+                  >
+                    {item.value}
+                  </p>
 
-            <div
-              key={item.id}
-              className="border border-gray-200 bg-white shadow-lg rounded-xl"
-            >
-              <div className="p-8 flex flex-col gap-4">
-              
-
-                <h3 className="text-gray-400">
-                  {item.title}
-                </h3>
-
-                <p className={`text-2xl font-semibold ${isLast ? "text-green-600" : "text-blue-900"}`}>
-            {item.value}
-          </p>
-
-                <p className="text-gray-400 text-sm">
-                  {item.description}
-                </p>
+                  <p className="text-gray-400 text-sm">
+                    {item.description}
+                  </p>
+                </div>
               </div>
-            </div>
-          )})}
+            );
+          })}
         </div>
       </section>
         {/* ===== GRAPH SECTION (Placeholder) ===== */}

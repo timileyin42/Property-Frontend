@@ -54,10 +54,18 @@ export const SignupForm = () => {
       state: { email: data.email },
       replace: true // Prevents user from clicking 'back' to the signup form
     });
-    } catch (err: any) {
-
-console.log(err)
-      toast.error(err.response?.data?.detail || "Something went wrong.");
+    } catch (err: unknown) {
+      console.log(err);
+      const error = err as {
+        response?: { data?: { detail?: string; message?: string } };
+        message?: string;
+      };
+      toast.error(
+        error.response?.data?.detail ||
+          error.response?.data?.message ||
+          error.message ||
+          "Something went wrong."
+      );
     }
   };
 

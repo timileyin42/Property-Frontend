@@ -16,7 +16,7 @@ const {user} = useAuth();
     if (user?.full_name) {
    toast.success(`Welcome ${user?.full_name}`)
         }
-  },[])
+  }, [user?.full_name])
   
   return (
     <div className="mx-auto px-1 w-full flex flex-col">

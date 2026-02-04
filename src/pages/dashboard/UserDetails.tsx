@@ -18,7 +18,7 @@ const UserDetails = () => {
     reset,
     formState: { errors },
   } = useForm<AdminUserUpdateValues>({
-    resolver: zodResolver(adminUserUpdateSchema) as any,
+    resolver: zodResolver(adminUserUpdateSchema),
     defaultValues: {
       full_name: "",
       email: "",

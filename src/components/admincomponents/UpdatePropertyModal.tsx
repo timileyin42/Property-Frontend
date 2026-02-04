@@ -16,6 +16,16 @@ interface UpdatePropertyModalProps {
   onUpdate: (updatedProperty: ApiProperty) => void;
 }
 
+interface UploadSignature {
+  api_key: string;
+  timestamp: number | string;
+  signature: string;
+  folder: string;
+  resource_type: string;
+  upload_url: string;
+  allowed_formats?: string;
+}
+
 const STATUS_OPTIONS: PropertyStatusFilter[] = [
   "AVAILABLE",
   "SOLD",
@@ -89,7 +99,7 @@ export const UpdatePropertyModal: React.FC<UpdatePropertyModalProps> = ({
     setMediaUrls((prev) => prev.filter((item) => item !== url));
   };
 
-  const uploadVideoInChunks = async (file: File, sig: any): Promise<string> => {
+  const uploadVideoInChunks = async (file: File, sig: UploadSignature): Promise<string> => {
     const totalSize = file.size;
     let start = 0;
     let end = Math.min(CHUNK_SIZE, totalSize);
@@ -162,7 +172,7 @@ export const UpdatePropertyModal: React.FC<UpdatePropertyModalProps> = ({
           ...(property?.id ? { property_id: property.id } : {}),
         };
 
-        const { data: sig } = await axios.post(
+        const { data: sig } = await axios.post<UploadSignature>(
           `${import.meta.env.VITE_API_BASE_URL ?? "https://api.elycapfracprop.com/api"}/media/upload-signature`,
           payload,
           {
@@ -206,10 +216,15 @@ export const UpdatePropertyModal: React.FC<UpdatePropertyModalProps> = ({
         setMediaUrls((prev) => [...prev, ...uploadedUrls]);
         toast.success("Media uploaded");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as {
+        response?: { data?: { detail?: string; message?: string } };
+        message?: string;
+      };
       const message =
-        error?.response?.data?.message ||
-        error?.message ||
+        err.response?.data?.message ||
+        err.response?.data?.detail ||
+        err.message ||
         "Failed to upload media";
       toast.error(message);
     } finally {
@@ -250,10 +265,15 @@ export const UpdatePropertyModal: React.FC<UpdatePropertyModalProps> = ({
       toast.success("Property updated successfully");
       onUpdate(updated);
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as {
+        response?: { data?: { detail?: string; message?: string } };
+        message?: string;
+      };
       const message =
-        error?.response?.data?.message ||
-        error?.message ||
+        err.response?.data?.message ||
+        err.response?.data?.detail ||
+        err.message ||
         "Failed to update property";
       toast.error(message);
     } finally {

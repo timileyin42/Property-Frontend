@@ -47,7 +47,7 @@ const TestimonialsSimple = () => {
     }, 4000);
 
     return () => clearInterval(interval);
-  }, [isHovered]);
+  }, [isHovered, nextSlide]);
 
   //  useEffect(() => {
   //   if (isHovered) return;

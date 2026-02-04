@@ -14,12 +14,21 @@ const Updates = () => {
       try {
         const res = await fetchUpdates({ page: 1, page_size: 20 });
         setUpdates(res.updates ?? []);
-      } catch (error: any) {
-        if (error?.response?.status === 401) {
+      } catch (error: unknown) {
+        const err = error as {
+          response?: { status?: number; data?: { detail?: string; message?: string } };
+          message?: string;
+        };
+        if (err.response?.status === 401) {
           toast.error("Please login to view updates");
           return;
         }
-        toast.error(error?.message || "Failed to load updates");
+        toast.error(
+          err.response?.data?.detail ||
+            err.response?.data?.message ||
+            err.message ||
+            "Failed to load updates"
+        );
       } finally {
         setLoading(false);
       }

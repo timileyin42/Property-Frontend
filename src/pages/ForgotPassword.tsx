@@ -29,10 +29,20 @@ const ForgotPassword = () => {
       state: { email },
       replace: true,
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.log(err);
+    const error = err as {
+      response?: { data?: { detail?: string; message?: string } };
+      data?: { detail?: string; message?: string };
+      message?: string;
+    };
     toast.error(
-      err?.data?.detail || "Something went wrong"
+      error.response?.data?.detail ||
+        error.response?.data?.message ||
+        error.data?.detail ||
+        error.data?.message ||
+        error.message ||
+        "Something went wrong"
     );
   } finally {
     setLoading(false);

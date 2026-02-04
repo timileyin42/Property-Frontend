@@ -103,9 +103,18 @@ const ChangePassword = () => {
 
       toast.success(data.message || "Password reset successful");
       navigate("/login", { replace: true });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.log(error);
-      toast.error(error?.response?.data?.detail || error.message || "An unexpected error occurred");
+      const err = error as {
+        response?: { data?: { detail?: string; message?: string } };
+        message?: string;
+      };
+      toast.error(
+        err.response?.data?.detail ||
+          err.response?.data?.message ||
+          err.message ||
+          "An unexpected error occurred"
+      );
     } finally {
       setLoading(false);
     }

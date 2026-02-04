@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { api } from "../api/axios";
 import { SignupPayload, SigninPayload, User } from "../types/auth.types";
 
@@ -42,7 +42,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [access_token, setAccessToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchUser = async (token: string) => {
+  const logout = useCallback(() => {
+    setUser(null);
+    setAccessToken(null);
+    localStorage.removeItem("token");
+    sessionStorage.removeItem("token");
+  }, []);
+
+  const fetchUser = useCallback(async (token: string) => {
     try {
       const { data } = await api.get("/auth/me", {
         headers: { Authorization: `Bearer ${token}` },
@@ -53,7 +60,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [logout]);
 
   // 🔁 Restore auth on app load
   useEffect(() => {
@@ -66,7 +73,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } else {
       setLoading(false);
     }
-  }, []);
+  }, [fetchUser]);
 
   const signin = async (payload: SigninPayload) => {
     const formData = new URLSearchParams();
@@ -160,15 +167,6 @@ const confirmResetPassword = async (payload: {
     const { data } = await api.post<{ message: string }>("/auth/reset-password", payload);
     return data;
 };
-
-
-// logout
-  const logout = () => {
-    setUser(null);
-    setAccessToken(null);
-    localStorage.removeItem("token");
-    sessionStorage.removeItem("token");
-  };
 
 
   return (

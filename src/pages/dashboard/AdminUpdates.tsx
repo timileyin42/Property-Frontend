@@ -16,8 +16,17 @@ const AdminUpdates = () => {
       setLoading(true);
       const res = await fetchUpdates({ page: 1, page_size: 50 });
       setUpdates(res.updates ?? []);
-    } catch (error: any) {
-      toast.error(error?.message || "Failed to load updates");
+    } catch (error: unknown) {
+      const err = error as {
+        response?: { data?: { detail?: string; message?: string } };
+        message?: string;
+      };
+      toast.error(
+        err.response?.data?.detail ||
+          err.response?.data?.message ||
+          err.message ||
+          "Failed to load updates"
+      );
     } finally {
       setLoading(false);
     }

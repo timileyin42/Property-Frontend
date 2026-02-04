@@ -14,8 +14,9 @@ export const useUsers = () => {
       const res = await fetchAdminUsers();
 
       setUsers(res);
-    } catch (err: any) {
-      setError(err.message || "Failed to load users");
+    } catch (err: unknown) {
+      const error = err as { message?: string };
+      setError(error?.message || "Failed to load users");
     } finally {
       setLoading(false);
     }

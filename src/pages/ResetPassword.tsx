@@ -49,8 +49,17 @@ const ResetPassword = () => {
       });
       toast.success("Password reset successful. Please log in.");
       navigate("/login");
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message || "Failed to reset password");
+    } catch (err: unknown) {
+      const error = err as {
+        response?: { data?: { detail?: string; message?: string } };
+        message?: string;
+      };
+      toast.error(
+        error.response?.data?.message ||
+          error.response?.data?.detail ||
+          error.message ||
+          "Failed to reset password"
+      );
     }
   };
 

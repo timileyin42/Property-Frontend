@@ -45,8 +45,9 @@ const typedNonAuthData = Array.isArray(nonAuthRes)
 
         setAuthenticatedData(typedAuthData);
         setNonAuthenticatedData(typedNonAuthData);
-      } catch (err: any) {
-        toast.error(err?.message || "Failed to load interests");
+      } catch (err: unknown) {
+        const error = err as { message?: string };
+        toast.error(error.message || "Failed to load interests");
       } finally {
         setLoading(false);
       }

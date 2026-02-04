@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm, SubmitHandler, type Resolver } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
@@ -19,7 +19,7 @@ export type PropertyStatus = InterestStatus;
    Schema Definition
 ======================= */
 
-const optionalNumber = z.preprocess(
+const optionalNumber: z.ZodType<number | undefined> = z.preprocess(
   (value) => (value === "" || value === null ? undefined : value),
   z.coerce.number().optional()
 );
@@ -37,19 +37,7 @@ const propertySchema = z.object({
   expected_roi: optionalNumber,
 });
 
-// Explicitly define the type to match the schema
-type PropertyFormValues = {
-  title: string;
-  location: string;
-  description: string;
-  project_value?: number;
-  total_fractions: number;
-  fraction_price?: number;
-  bedrooms?: number;
-  bathrooms?: number;
-  area_sqft?: number;
-  expected_roi?: number;
-};
+type PropertyFormValues = z.infer<typeof propertySchema>;
 
 /* =======================
    Constants
@@ -85,7 +73,7 @@ const AdminInvestmentsPage: React.FC = () => {
     reset, 
     formState: { errors } 
   } = useForm<PropertyFormValues>({
-    resolver: zodResolver(propertySchema) as any, // Type assertion to fix the resolver issue
+    resolver: zodResolver(propertySchema) as Resolver<PropertyFormValues>,
     defaultValues: {
       title: "",
       location: "",
@@ -293,7 +281,7 @@ const AdminInvestmentsPage: React.FC = () => {
 
       try {
         res = await api.post<ApiProperty>("/admin/properties", payload);
-      } catch (createError: any) {
+      } catch (createError: unknown) {
         // Fallback to blocking upload if server requires images on create
         const imageUrls = await uploadPromise;
         const retryPayload = {
@@ -335,13 +323,22 @@ const AdminInvestmentsPage: React.FC = () => {
         setFiles([]);
         previews.forEach((p) => URL.revokeObjectURL(p.url));
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      if (err.response?.status === 401) {
+      const error = err as {
+        response?: { status?: number; data?: { detail?: string; message?: string } };
+        message?: string;
+      };
+      if (error.response?.status === 401) {
         toast.error("Please login as admin to upload media");
         return;
       }
-      toast.error(err.response?.data?.message || "Failed to create property");
+      toast.error(
+        error.response?.data?.message ||
+          error.response?.data?.detail ||
+          error.message ||
+          "Failed to create property"
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -475,11 +472,7 @@ const AdminInvestmentsPage: React.FC = () => {
         </div>
       </form>
 
-      {/* Type assertion for PropertyTable to handle the type mismatch */}
-      <PropertyTable 
-        properties={properties as any} 
-        loading={loadingProperties} 
-      />
+      <PropertyTable properties={properties} loading={loadingProperties} />
     </div>
   );
 };

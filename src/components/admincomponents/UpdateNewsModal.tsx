@@ -12,6 +12,33 @@ interface UpdateNewsModalProps {
   onSuccess: (item: UpdateItem) => void;
 }
 
+interface UploadSignature {
+  api_key: string;
+  timestamp: number | string;
+  signature: string;
+  folder: string;
+  resource_type: string;
+  upload_url: string;
+  allowed_formats?: string;
+}
+
+const getErrorMessage = (error: unknown, fallback: string) => {
+  if (typeof error === "string") return error;
+  if (error && typeof error === "object") {
+    const err = error as {
+      response?: { data?: { detail?: string; message?: string } };
+      message?: string;
+    };
+    return (
+      err.response?.data?.detail ||
+      err.response?.data?.message ||
+      err.message ||
+      fallback
+    );
+  }
+  return fallback;
+};
+
 const MAX_IMAGE_SIZE = 100 * 1024 * 1024;
 const MAX_VIDEO_SIZE = 500 * 1024 * 1024;
 const CHUNK_SIZE = 6 * 1024 * 1024;
@@ -101,7 +128,7 @@ const UpdateNewsModal: React.FC<UpdateNewsModalProps> = ({
     };
   }, [previews]);
 
-  const uploadVideoInChunks = async (file: File, sig: any): Promise<string> => {
+  const uploadVideoInChunks = async (file: File, sig: UploadSignature): Promise<string> => {
     const totalSize = file.size;
     let start = 0;
     let end = Math.min(CHUNK_SIZE, totalSize);
@@ -176,7 +203,7 @@ const UpdateNewsModal: React.FC<UpdateNewsModalProps> = ({
         file_size_bytes: file.size,
       };
 
-      const { data: sig } = await axios.post(
+      const { data: sig } = await axios.post<UploadSignature>(
         `${import.meta.env.VITE_API_BASE_URL ?? "https://api.elycapfracprop.com/api"}/media/upload-signature`,
         payload,
         {
@@ -284,12 +311,12 @@ const UpdateNewsModal: React.FC<UpdateNewsModalProps> = ({
             setMediaUrls((prev) => [...prev, ...updated.media_files?.map((item) => item.url) ?? []]);
             onSuccess(updated);
           })
-          .catch((error: any) => {
-            toast.error(error?.message || "Background upload failed");
+          .catch((error: unknown) => {
+            toast.error(getErrorMessage(error, "Background upload failed"));
           });
       }
-    } catch (error: any) {
-      toast.error(error?.message || "Failed to save update");
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, "Failed to save update"));
     } finally {
       setLoading(false);
     }

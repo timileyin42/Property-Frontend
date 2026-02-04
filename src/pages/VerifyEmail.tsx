@@ -75,9 +75,16 @@ export const VerifyEmail = () => {
       await verifyEmail({ email, code }); // ✅ no unused variable
       toast.success("Email verified successfully!");
       navigate("/investor/dashboard");
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as {
+        response?: { data?: { detail?: string; message?: string } };
+        message?: string;
+      };
       toast.error(
-        error?.response?.data?.detail || "Invalid or expired code"
+        err.response?.data?.detail ||
+          err.response?.data?.message ||
+          err.message ||
+          "Invalid or expired code"
       );
     }
   };
@@ -100,9 +107,16 @@ export const VerifyEmail = () => {
       await resendOtp({email});
       toast.success("Verification code resent");
       start();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as {
+        response?: { data?: { detail?: string; message?: string } };
+        message?: string;
+      };
       toast.error(
-        error?.response?.data?.detail || "Failed to resend code"
+        err.response?.data?.detail ||
+          err.response?.data?.message ||
+          err.message ||
+          "Failed to resend code"
       );
     }
   };

@@ -3,6 +3,7 @@ import { Link, useLocation, useParams } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 import { fetchInvestorInvestmentDetail } from "../../api/investor.investments";
 import type { InvestmentDetail } from "../../types/investment";
+import type { ApiProperty } from "../../types/property";
 import { CiLocationOn } from "react-icons/ci";
 import { isVideoUrl, normalizeMediaUrl } from "../../util/normalizeMediaUrl";
 
@@ -29,7 +30,14 @@ const InvestmentDetails = () => {
     load();
   }, [investmentId]);
 
-  const property: any = investment?.property ?? {};
+  const property = investment?.property as
+    | (Partial<ApiProperty> & {
+        images?: string[];
+        videos?: string[];
+        media?: string[];
+        media_files?: Array<{ url?: string; file_url?: string; secure_url?: string }>;
+      })
+    | undefined;
   const fractionsOwnedFromState = (location.state as { fractionsOwned?: number } | null)?.fractionsOwned;
   const fractionsOwned = investment?.fractions_owned ?? fractionsOwnedFromState ?? 0;
 
@@ -40,7 +48,7 @@ const InvestmentDetails = () => {
       property.primary_image,
       ...(property.image_urls ?? []),
       ...(property.media_urls ?? []),
-      ...(property.media_files?.map((item: any) => item.url ?? item.file_url ?? item.secure_url) ?? []),
+      ...(property.media_files?.map((item) => item.url ?? item.file_url ?? item.secure_url) ?? []),
       ...(property.images ?? []),
       ...(property.videos ?? []),
       ...(property.media ?? []),
@@ -49,7 +57,7 @@ const InvestmentDetails = () => {
       .map((url) => normalizeMediaUrl(url))
       .filter(Boolean);
     return Array.from(new Set(urls));
-  }, [property]);
+  }, [property, investment?.image_url]);
 
   if (loading) {
     return <p className="text-center py-10">Loading investment...</p>;
@@ -57,6 +65,10 @@ const InvestmentDetails = () => {
 
   if (!investment) {
     return <p className="text-center py-10">Investment not found.</p>;
+  }
+
+  if (!property) {
+    return <p className="text-center py-10">Property details unavailable.</p>;
   }
 
   return (
@@ -76,15 +88,15 @@ const InvestmentDetails = () => {
           ← Back to dashboard
         </Link>
         <h2 className="font-inter font-bold text-blue-900 text-[clamp(1.25rem,4vw,2rem)]">
-          {property.title}
+          {property.title ?? "Property"}
         </h2>
         <div className="flex flex-wrap items-center gap-3 text-gray-500 text-sm">
           <span className="flex items-center gap-1">
             <CiLocationOn />
-            {property.location}
+            {property.location ?? "Location unavailable"}
           </span>
           <span className="inline-flex items-center bg-green-600 text-white text-xs font-medium px-2 py-1 rounded-full">
-            {property.expected_roi}% ROI
+            {property.expected_roi ?? 0}% ROI
           </span>
         </div>
       </div>
@@ -107,7 +119,7 @@ const InvestmentDetails = () => {
                 ) : (
                   <img
                     src={mediaItems[0]}
-                    alt={property.title}
+                    alt={property.title ?? "Property"}
                     className="w-full h-[320px] object-cover"
                   />
                 )}
@@ -125,7 +137,7 @@ const InvestmentDetails = () => {
                     ) : (
                       <img
                         src={item}
-                        alt={property.title}
+                        alt={property.title ?? "Property"}
                         className="w-full h-48 object-cover"
                       />
                     )}
@@ -140,20 +152,24 @@ const InvestmentDetails = () => {
               Property Details
             </h3>
             <p className="text-gray-600 text-sm leading-6">
-              {property.description}
+              {property.description ?? "Description unavailable."}
             </p>
 
             <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
               <div className="bg-gray-50 rounded-xl p-4">
                 <p className="text-gray-500">Total Value</p>
                 <p className="text-blue-900 font-semibold">
-                  ₦{property.project_value.toLocaleString()}
+                  {property.project_value !== undefined
+                    ? `₦${property.project_value.toLocaleString()}`
+                    : "N/A"}
                 </p>
               </div>
               <div className="bg-gray-50 rounded-xl p-4">
                 <p className="text-gray-500">Per Fraction</p>
                 <p className="text-blue-900 font-semibold">
-                  ₦{property.fraction_price.toLocaleString()}
+                  {property.fraction_price !== undefined
+                    ? `₦${property.fraction_price.toLocaleString()}`
+                    : "N/A"}
                 </p>
               </div>
               <div className="bg-gray-50 rounded-xl p-4">
@@ -164,15 +180,21 @@ const InvestmentDetails = () => {
               </div>
               <div className="bg-gray-50 rounded-xl p-4">
                 <p className="text-gray-500">Bedrooms</p>
-                <p className="text-blue-900 font-semibold">{property.bedrooms}</p>
+                <p className="text-blue-900 font-semibold">
+                  {property.bedrooms ?? "N/A"}
+                </p>
               </div>
               <div className="bg-gray-50 rounded-xl p-4">
                 <p className="text-gray-500">Bathrooms</p>
-                <p className="text-blue-900 font-semibold">{property.bathrooms}</p>
+                <p className="text-blue-900 font-semibold">
+                  {property.bathrooms ?? "N/A"}
+                </p>
               </div>
               <div className="bg-gray-50 rounded-xl p-4">
                 <p className="text-gray-500">Area</p>
-                <p className="text-blue-900 font-semibold">{property.area_sqft} sqft</p>
+                <p className="text-blue-900 font-semibold">
+                  {property.area_sqft !== undefined ? `${property.area_sqft} sqft` : "N/A"}
+                </p>
               </div>
             </div>
           </div>

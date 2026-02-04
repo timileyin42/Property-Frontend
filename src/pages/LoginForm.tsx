@@ -99,10 +99,15 @@ useEffect(() => {
       });
 
       // toast.success("Welcome back!");
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as {
+        response?: { data?: { detail?: string; message?: string } };
+        message?: string;
+      };
       toast.error(
-        err?.response?.data?.detail ||
-          err?.message ||
+        error.response?.data?.detail ||
+          error.response?.data?.message ||
+          error.message ||
           "Invalid credentials"
       );
     }

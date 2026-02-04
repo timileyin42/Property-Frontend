@@ -29,6 +29,31 @@ const getMediaUrls = (update: UpdateItem) => {
   return urls.map((url) => normalizeMediaUrl(url)).filter(Boolean) as string[];
 };
 
+const getErrorMessage = (error: unknown, fallback: string) => {
+  if (typeof error === "string") return error;
+  if (error && typeof error === "object") {
+    const err = error as {
+      response?: { data?: { detail?: string; message?: string }; status?: number };
+      message?: string;
+    };
+    return (
+      err.response?.data?.detail ||
+      err.response?.data?.message ||
+      err.message ||
+      fallback
+    );
+  }
+  return fallback;
+};
+
+const getErrorStatus = (error: unknown) => {
+  if (error && typeof error === "object") {
+    const err = error as { response?: { status?: number } };
+    return err.response?.status;
+  }
+  return undefined;
+};
+
 const UpdateDetail = () => {
   const { id } = useParams<{ id: string }>();
   const updateId = id ? Number(id) : NaN;
@@ -65,12 +90,13 @@ const UpdateDetail = () => {
             : await fetchPublicUpdateComments(updateId, { page: 1, page_size: 20 });
 
         setComments(commentsRes.comments ?? []);
-      } catch (error: any) {
-        if (error?.response?.status === 404) {
+      } catch (error: unknown) {
+        const status = getErrorStatus(error);
+        if (status === 404) {
           setErrorMessage("Update not found.");
           return;
         }
-        if (error?.response?.status === 401) {
+        if (status === 401) {
           setErrorMessage("Please login to view this update.");
           return;
         }
@@ -97,8 +123,8 @@ const UpdateDetail = () => {
       }
       setCommentText("");
       setIsCommentOpen(false);
-    } catch (error: any) {
-      toast.error(error?.message || "Failed to post comment");
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, "Failed to post comment"));
     }
   };
 
@@ -110,8 +136,8 @@ const UpdateDetail = () => {
         await deleteUserUpdateComment(commentId);
       }
       setComments((prev) => prev.filter((comment) => comment.id !== commentId));
-    } catch (error: any) {
-      toast.error(error?.message || "Failed to delete comment");
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, "Failed to delete comment"));
     }
   };
 
@@ -143,8 +169,8 @@ const UpdateDetail = () => {
             }
           : prev
       );
-    } catch (error: any) {
-      toast.error(error?.message || "Failed to like update");
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, "Failed to like update"));
     } finally {
       setLikeLoading(false);
     }

@@ -53,10 +53,16 @@ export const UpdateInterestModal: React.FC<UpdateInterestModalProps> = ({
       toast.success("Interest updated successfully");
       onUpdate(updatedInterest);
       onClose();
-    } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || 
-                          error?.message || 
-                          "Failed to update interest";
+    } catch (error: unknown) {
+      const err = error as {
+        response?: { data?: { detail?: string; message?: string } };
+        message?: string;
+      };
+      const errorMessage =
+        err.response?.data?.message ||
+        err.response?.data?.detail ||
+        err.message ||
+        "Failed to update interest";
       toast.error(errorMessage);
     } finally {
       setLoading(false);

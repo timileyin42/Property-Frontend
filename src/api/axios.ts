@@ -49,7 +49,7 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
   (res) => res,
-  (error: AxiosError<any>) => {
+  (error: AxiosError<unknown>) => {
     if (error.response?.status === 401) {
       localStorage.removeItem("token");
       sessionStorage.removeItem("token");

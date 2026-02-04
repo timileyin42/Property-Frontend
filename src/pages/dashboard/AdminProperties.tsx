@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 
 import { ApiProperty } from "../../types/property";
@@ -23,7 +23,7 @@ const AdminProperties = () => {
   const [selectedProperty, setSelectedProperty] = useState<ApiProperty | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const loadProperties = async () => {
+  const loadProperties = useCallback(async () => {
     setLoading(true);
     try {
       const response = await fetchAdminProperties({
@@ -32,20 +32,25 @@ const AdminProperties = () => {
         status: activeStatus === "ALL" ? undefined : activeStatus,
       });
       setProperties(response.properties ?? []);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as {
+        response?: { data?: { detail?: string; message?: string } };
+        message?: string;
+      };
       const message =
-        error?.response?.data?.message ||
-        error?.message ||
+        err.response?.data?.message ||
+        err.response?.data?.detail ||
+        err.message ||
         "Failed to load properties";
       toast.error(message);
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeStatus]);
 
   useEffect(() => {
     loadProperties();
-  }, [activeStatus]);
+  }, [loadProperties]);
 
   const handleOpenModal = (property: ApiProperty) => {
     setSelectedProperty(property);
@@ -161,7 +166,7 @@ const AdminProperties = () => {
                       </div>
                     </td>
                     <td className="p-4">
-                      <StatusBadge status={property.status as any} />
+                      <StatusBadge status={property.status} />
                     </td>
                     <td className="p-4 text-gray-600">{property.location}</td>
                     <td className="p-4 text-right text-gray-600">
