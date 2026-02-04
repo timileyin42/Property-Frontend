@@ -5,7 +5,9 @@ COPY package*.json ./
 RUN npm ci
 COPY . .
 ARG VITE_API_BASE_URL
+ARG NODE_OPTIONS=--max_old_space_size=2048
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+ENV NODE_OPTIONS=$NODE_OPTIONS
 RUN npm run build
 
 # Serve stage
