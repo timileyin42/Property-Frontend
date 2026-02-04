@@ -82,7 +82,7 @@ function HeroSection(){
 
 	return (
 		<>
-			<div className="flex items-center justify-center">
+			<div className="flex flex-col items-center">
 				<Navbar
 					logoText="Elycapvest Luxury Homes"
 					links={[
@@ -90,24 +90,26 @@ function HeroSection(){
 						{ label: "Partnership", href: "/partnership" },
 					]}
 				/>
-				<main className="pt-16 text-base">
-					<div className={` h-screen bg-[url(./assets/pol_hero.avif)] bg-cover bg-center`}>
-						<div className="h-screen flex flex-col gap-8 items-center justify-center text-center bg-gradient-to-t from-gray-950 to-zinc-950/20">
-							<h1 className="text-white font-inter font-bold text-5xl sm:text-6xl md:text-7xl leading-none ">Shortlet Transparency <br /> Through Fractional Ownership</h1>
-							<p className="w-2/4 space-y-4 text-lg md:text-[20px] text-gray-200 font-inter">
+				<main className="pt-16 text-base w-full">
+					<div className="min-h-screen bg-[url(./assets/pol_hero.avif)] bg-cover bg-center">
+						<div className="min-h-screen flex flex-col gap-6 sm:gap-8 items-center justify-center text-center bg-gradient-to-t from-gray-950 to-zinc-950/20 px-4 py-16">
+							<h1 className="text-white font-inter font-bold text-3xl sm:text-5xl md:text-6xl lg:text-7xl leading-tight max-w-4xl">
+								Shortlet Transparency <br /> Through Fractional Ownership
+							</h1>
+							<p className="w-full max-w-2xl text-base sm:text-lg md:text-xl text-gray-200 font-inter">
 								Invest in premium real estate with complete transparency. Monitor your shortlet properties in real-time and watch your investment grow.
 							</p>
-							<div className="flex gap-2 items-center justify-center">
+							<div className="flex flex-col sm:flex-row gap-3 items-center justify-center w-full sm:w-auto">
 								<button
-									className="bg-blue-900 text-white font-sans px-10 py-4 cursor-pointer rounded rounded-xl transition-all duration-500 hover:bg-blue-500 font-bold text-sm"
+									className="w-full sm:w-auto bg-blue-900 text-white font-sans px-8 py-3 sm:px-10 sm:py-4 cursor-pointer rounded rounded-xl transition-all duration-500 hover:bg-blue-500 font-bold text-sm"
 									onClick={() => navigate("/signup")}
 								>
 									Get Started
 								</button>
 							<button
 								onClick={()=>navigate("/properties")}
-								className="bg-white text-blue-900 font-sans px-10 
-								py-4 cursor-pointer rounded rounded-xl transition-all duration-500
+								className="w-full sm:w-auto bg-white text-blue-900 font-sans px-8 
+								py-3 sm:px-10 sm:py-4 cursor-pointer rounded rounded-xl transition-all duration-500
 								hover:bg-gray-200 border-1 border-blue-900 font-bold text-sm"
 							>View Properties
 							</button>
@@ -207,7 +209,7 @@ function HeroSection(){
 						<FAQ />
 					</section>
 
-					<section className="flex  flex-col gap-4 items-center justify-center bg-blue-900 rounded rounded-xl p-13">
+					<section className="flex flex-col gap-4 items-center justify-center bg-blue-900 rounded rounded-xl px-6 py-10 md:py-12 mx-4 md:mx-8">
 						<div>
 							<h1 className="text-center text-white font-inter font-bold text-2xl  md:text-[clamp(1.2rem,4vw,1.85rem)] leading-none ">Ready to Start Investing?</h1>
 							
