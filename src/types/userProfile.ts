@@ -6,6 +6,10 @@ export interface User {
   email: string;
   full_name: string;
   phone: string | null;
+  gender?: string | null;
+  address?: string | null;
+  city?: string | null;
+  state?: string | null;
   role: UserRole;
   created_at: string;
   updated_at: string;
@@ -14,6 +18,10 @@ export interface User {
 export interface ProfileUpdatePayload {
   full_name?: string;
   phone?: string;
+  gender?: string;
+  address?: string;
+  city?: string;
+  state?: string;
 }
 
 export interface Inquiry {

@@ -2,6 +2,7 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import Home from "./pages/Home"
 import Properties from "./pages/Properties"
 import InvestorDashboard from "./pages/InvestorDashboard"
+import InvestmentDetails from "./pages/investor/InvestmentDetails"
 import {SignupForm} from "./pages/SignupForm";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
@@ -85,6 +86,7 @@ function App() {
     element: <ProtectedRoutes allowedRole="INVESTOR" />,
     children: [
       { path: "/investor/dashboard", element: <InvestorDashboard /> },
+      { path: "/investor/investments/:investmentId", element: <InvestmentDetails /> },
       { path: "/investor/interest", element: <InterestPage /> },
       { path: "/portfolio", element: <InvestorDashboard /> },
     ],

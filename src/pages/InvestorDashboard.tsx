@@ -1,5 +1,6 @@
 
 import Navbar from "../components/Navbar";
+import { Link } from "react-router-dom";
 // import { LuLogOut } from "react-icons/lu";
 // import type { PortfolioStat } from "../types/dashboard";
 // import {ShieldIcon, TrendUpIcon, UsersIcon} from "../components/svgs/ShieldIcon"
@@ -12,7 +13,7 @@ import LineChart from "../components/charts/LineChart"
 import toast, { Toaster } from "react-hot-toast";
 import {useAuth} from "../context/AuthContext"
 import {useState, useEffect, useMemo} from "react";
-import { fetchInvestorInvestments, fetchPortfolioSummary } from "../api/investor.investments";
+import { fetchInvestorInvestments, fetchPortfolioSummary, fetchInvestorInvestmentDetail } from "../api/investor.investments";
 import type { Investment } from "../types/investment";
 import { normalizeMediaUrl, isVideoUrl } from "../util/normalizeMediaUrl";
 
@@ -29,6 +30,7 @@ export interface PortfolioStat {
 const InvestorDashboard = () => {
   const {user} = useAuth();
   const [investments, setInvestments] = useState<Investment[]>([]);
+  const [investmentMediaMap, setInvestmentMediaMap] = useState<Record<number, string>>({});
   const [summary, setSummary] = useState<{
     total: number;
     total_initial_value: number;
@@ -63,21 +65,80 @@ const InvestorDashboard = () => {
     loadInvestorData();
   }, [user?.full_name]);
 
+  useEffect(() => {
+    const missingMedia = investments.filter((item) => {
+      const normalized = normalizeMediaUrl(item.image_url || "");
+      return !normalized;
+    });
+    if (missingMedia.length === 0) return;
+
+    const loadMedia = async () => {
+      try {
+        const entries = await Promise.all(
+          missingMedia.map(async (item) => {
+            const detail = await fetchInvestorInvestmentDetail(item.id);
+            const property: any = detail.property ?? {};
+            const urls = [
+              detail.image_url,
+              property.primary_image,
+              ...(property.image_urls ?? []),
+              ...(property.media_urls ?? []),
+              ...(property.media_files?.map((file: any) => file.url ?? file.file_url ?? file.secure_url) ?? []),
+              ...(property.images ?? []),
+              ...(property.videos ?? []),
+              ...(property.media ?? []),
+              property.image_url,
+            ]
+              .map((url) => normalizeMediaUrl(url))
+              .filter(Boolean) as string[];
+
+            const imageFirst = urls.find((url) => !isVideoUrl(url));
+            const media = imageFirst ?? urls[0] ?? "";
+            return [item.id, media] as const;
+          })
+        );
+
+        setInvestmentMediaMap((prev) => {
+          const next = { ...prev };
+          entries.forEach(([investmentId, media]) => {
+            if (media) next[investmentId] = media;
+          });
+          return next;
+        });
+      } catch (error) {
+        console.error("Failed to load investment media:", error);
+      }
+    };
+
+    loadMedia();
+  }, [investments]);
+
   const portfolioStats: PortfolioStat[] = [
     {
       id: 1,
       title: "Total Investment",
-      value: summary
-        ? `₦${summary.total_current_value?.toLocaleString() ?? "0"}`
-        : "₦0",
+      value: (() => {
+        const computedTotal = investments.reduce(
+          (sum, item) => sum + (item.current_value ?? 0),
+          0
+        );
+        const totalValue = summary?.total_current_value ?? computedTotal;
+        return `₦${Number(totalValue || 0).toLocaleString()}`;
+      })(),
       description: summary
         ? `+${summary.total_growth_percentage ?? 0}% overall`
         : "+0% overall",
     },
     {
+      id: 1,
       id: 2,
       title: "Fractions Owned",
-      value: summary?.total_fractions_owned ?? 0,
+      value:
+        summary?.total_fractions_owned ??
+        investments.reduce(
+          (sum, item) => sum + (item.fractions_owned ?? 0),
+          0
+        ),
       description: summary?.properties_count
         ? `Across ${summary.properties_count} properties`
         : "Across 0 properties",
@@ -142,14 +203,17 @@ const InvestorDashboard = () => {
   const investmentCards = useMemo(
     () =>
       investments.map((investment) => {
-        const normalized = normalizeMediaUrl(investment.image_url);
+        const fallbackMedia = investmentMediaMap[investment.id];
+        const normalized =
+          normalizeMediaUrl(investment.image_url || "") ||
+          normalizeMediaUrl(fallbackMedia || "");
         return {
           ...investment,
           mediaUrl: normalized,
           isVideo: normalized ? isVideoUrl(normalized) : false,
         };
       }),
-    [investments]
+    [investments, investmentMediaMap]
   );
  
   return (
@@ -292,6 +356,15 @@ const InvestorDashboard = () => {
                       <p className="text-gray-400">Fractions</p>
                       <p className="font-semibold">{investment.fractions_owned}</p>
                     </div>
+                  </div>
+                  <div className="pt-2">
+                    <Link
+                      to={`/investor/investments/${investment.id}`}
+                      state={{ fractionsOwned: investment.fractions_owned }}
+                      className="inline-flex items-center justify-center rounded-md border border-blue-900 px-3 py-2 text-xs font-semibold text-blue-900 transition hover:bg-blue-900 hover:text-white"
+                    >
+                      View investment details
+                    </Link>
                   </div>
                 </div>
               </div>

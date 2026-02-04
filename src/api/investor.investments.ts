@@ -1,5 +1,5 @@
 import { api } from "./axios";
-import type { InvestmentResponse } from "../types/investment";
+import type { InvestmentDetail, InvestmentResponse } from "../types/investment";
 
 export interface PortfolioSummaryResponse {
   total: number;
@@ -20,5 +20,12 @@ export const fetchInvestorInvestments = async (): Promise<InvestmentResponse> =>
 
 export const fetchPortfolioSummary = async (): Promise<PortfolioSummaryResponse> => {
   const res = await api.get("/investor/portfolio/summary");
+  return res.data;
+};
+
+export const fetchInvestorInvestmentDetail = async (
+  investmentId: number
+): Promise<InvestmentDetail> => {
+  const res = await api.get(`/investor/investments/${investmentId}`);
   return res.data;
 };

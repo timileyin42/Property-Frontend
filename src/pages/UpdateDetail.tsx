@@ -40,6 +40,7 @@ const UpdateDetail = () => {
   const [commentText, setCommentText] = useState("");
   const [likeLoading, setLikeLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [hasLiked, setHasLiked] = useState(false);
 
   const mediaUrls = useMemo(() => (update ? getMediaUrls(update) : []), [update]);
 
@@ -52,6 +53,9 @@ const UpdateDetail = () => {
         setErrorMessage(null);
         const detail = await fetchUpdateDetail(updateId);
         setUpdate(detail);
+        const storageKey = `update_like_${updateId}_${user?.id ?? "guest"}`;
+        const storedLike = localStorage.getItem(storageKey) === "true";
+        setHasLiked(typeof detail.liked_by_user === "boolean" ? detail.liked_by_user : storedLike);
 
         const commentsRes = user?.role === "ADMIN"
           ? await fetchAdminUpdateComments(updateId, { page: 1, page_size: 20 })
@@ -76,7 +80,7 @@ const UpdateDetail = () => {
     };
 
     loadDetail();
-  }, [updateId, isAuthenticated, user?.role]);
+  }, [updateId, isAuthenticated, user?.role, user?.id]);
 
   const handlePostComment = async () => {
     if (!isAuthenticated) {
@@ -117,6 +121,15 @@ const UpdateDetail = () => {
     try {
       setLikeLoading(true);
       const res = await toggleUpdateLike(updateId);
+      const nextLiked =
+        typeof res?.liked === "boolean"
+          ? res.liked
+          : typeof res?.is_liked === "boolean"
+            ? res.is_liked
+            : !hasLiked;
+      setHasLiked(nextLiked);
+      const storageKey = `update_like_${updateId}_${user?.id ?? "guest"}`;
+      localStorage.setItem(storageKey, String(nextLiked));
       setUpdate((prev) =>
         prev
           ? {
@@ -124,7 +137,7 @@ const UpdateDetail = () => {
               likes_count:
                 typeof res?.likes_count === "number"
                   ? res.likes_count
-                  : (prev.likes_count ?? 0) + 1,
+                  : (prev.likes_count ?? 0) + (nextLiked ? 1 : -1),
             }
           : prev
       );
@@ -190,10 +203,16 @@ const UpdateDetail = () => {
           <div className="flex items-center gap-4 text-sm text-gray-500">
             <button
               onClick={handleToggleLike}
-              className="inline-flex items-center gap-2 px-3 py-1 rounded-md border border-gray-300 hover:bg-gray-50"
+              className={`inline-flex items-center gap-2 px-3 py-1 rounded-md border transition ${
+                hasLiked
+                  ? "border-red-200 bg-red-50 text-red-600"
+                  : "border-gray-300 hover:bg-gray-50"
+              }`}
               disabled={likeLoading}
             >
-              <Heart className="h-4 w-4" />
+              <Heart
+                className={`h-4 w-4 ${hasLiked ? "text-red-500 fill-red-500" : "text-gray-400"}`}
+              />
               <span>{update.likes_count ?? 0}</span>
             </button>
             <span>{comments.length} comments</span>

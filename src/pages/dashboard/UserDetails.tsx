@@ -117,14 +117,12 @@ const UserDetails = () => {
           <p className="text-xs text-gray-400 mt-1">Role: {user.role}</p>
         </div>
 
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="bg-white border border-gray-200 rounded-xl p-6 space-y-4 max-w-2xl"
-        >
+        <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-4 max-w-2xl">
           <div>
             <label className="text-sm text-gray-600">Full Name</label>
             <input
               {...register("full_name")}
+              disabled
               className="w-full bg-gray-50 border border-gray-300 rounded-md p-2 text-sm"
             />
             <p className="text-red-500 text-xs mt-1">
@@ -137,6 +135,7 @@ const UserDetails = () => {
             <input
               {...register("email")}
               type="email"
+              disabled
               className="w-full bg-gray-50 border border-gray-300 rounded-md p-2 text-sm"
             />
             <p className="text-red-500 text-xs mt-1">{errors.email?.message}</p>
@@ -146,23 +145,17 @@ const UserDetails = () => {
             <label className="text-sm text-gray-600">Phone</label>
             <input
               {...register("phone")}
+              disabled
               className="w-full bg-gray-50 border border-gray-300 rounded-md p-2 text-sm"
             />
           </div>
 
           <div className="flex items-center gap-2">
-            <input type="checkbox" {...register("is_active")} />
+            <input type="checkbox" {...register("is_active")} disabled />
             <span className="text-sm text-gray-600">Active</span>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3">
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="bg-blue-900 text-white rounded-md px-4 py-2 text-sm disabled:opacity-50"
-            >
-              {isSubmitting ? "Saving..." : "Save Changes"}
-            </button>
             <button
               type="button"
               onClick={handleDeactivate}
@@ -171,7 +164,7 @@ const UserDetails = () => {
               Deactivate
             </button>
           </div>
-        </form>
+        </div>
       </section>
     </div>
   );

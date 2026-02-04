@@ -13,7 +13,6 @@ const updateProfileSchema = z.object({
   email: z.string().email("Invalid email"),
   phone: z.string().min(6, "Phone number is required"),
   gender: z.string().optional(),
-  dateOfBirth: z.string().optional(),
   address: z.string().optional(),
   city: z.string().optional(),
   state: z.string().optional(),
@@ -45,11 +44,10 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
       lastName,
       email: user.email,
       phone: user.phone ?? "",
-      gender: "",
-      dateOfBirth: "",
-      address: "",
-      city: "",
-      state: "",
+      gender: user.gender ?? "",
+      address: user.address ?? "",
+      city: user.city ?? "",
+      state: user.state ?? "",
     };
   }, [user]);
 
@@ -71,6 +69,10 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
     const payload: ProfileUpdatePayload = {
       full_name: `${values.firstName} ${values.lastName}`.trim(),
       phone: values.phone,
+      gender: values.gender,
+      address: values.address,
+      city: values.city,
+      state: values.state,
     };
 
     try {
@@ -179,29 +181,7 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
           </label>
           <input
             {...register("gender")}
-            disabled
-            className="bg-[#f3f3f5] rounded-[8px] h-9 px-3 text-[14px] leading-[20px] text-[#0a0a0a] disabled:opacity-50"
-          />
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <label className="text-[14px] font-medium leading-[14px] text-[#0a0a0a]">
-            Date of Birth
-          </label>
-          <input
-            {...register("dateOfBirth")}
-            disabled
-            className="bg-[#f3f3f5] rounded-[8px] h-9 px-3 text-[14px] leading-[20px] text-[#0a0a0a] disabled:opacity-50"
-          />
-        </div>
-
-        <div className="flex flex-col gap-2 md:col-span-2">
-          <label className="text-[14px] font-medium leading-[14px] text-[#0a0a0a]">
-            Address
-          </label>
-          <input
-            {...register("address")}
-            disabled
+            disabled={!isEditing}
             className="bg-[#f3f3f5] rounded-[8px] h-9 px-3 text-[14px] leading-[20px] text-[#0a0a0a] disabled:opacity-50"
           />
         </div>
@@ -212,7 +192,18 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
           </label>
           <input
             {...register("city")}
-            disabled
+            disabled={!isEditing}
+            className="bg-[#f3f3f5] rounded-[8px] h-9 px-3 text-[14px] leading-[20px] text-[#0a0a0a] disabled:opacity-50"
+          />
+        </div>
+
+        <div className="flex flex-col gap-2 md:col-span-2">
+          <label className="text-[14px] font-medium leading-[14px] text-[#0a0a0a]">
+            Address
+          </label>
+          <input
+            {...register("address")}
+            disabled={!isEditing}
             className="bg-[#f3f3f5] rounded-[8px] h-9 px-3 text-[14px] leading-[20px] text-[#0a0a0a] disabled:opacity-50"
           />
         </div>
@@ -223,7 +214,7 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
           </label>
           <input
             {...register("state")}
-            disabled
+            disabled={!isEditing}
             className="bg-[#f3f3f5] rounded-[8px] h-9 px-3 text-[14px] leading-[20px] text-[#0a0a0a] disabled:opacity-50"
           />
         </div>

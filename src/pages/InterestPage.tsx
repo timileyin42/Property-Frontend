@@ -130,31 +130,47 @@ console.log("nonAuthRes");
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <div>
-          <h2 className="text-lg font-semibold">Interest Received</h2>
+          <h2 className="text-lg font-semibold">Investor Interests</h2>
           <p className="text-sm text-gray-500">
-            Manage investor interest in properties
+            Review authenticated interests and public inquiries
           </p>
         </div>
 
         {/* Search & Filters */}
         <div className="flex flex-wrap gap-3">
           {/* User Type Filter */}
-          <select
-            value={userTypeFilter}
-            onChange={(e) => setUserTypeFilter(e.target.value as UserTypeFilter)}
-            className="bg-gray-100 rounded-lg px-3 py-2 text-sm"
-          >
-            <option value="authenticated">Authenticated Users</option>
-            <option value="nonAuthenticated">Non-Authenticated Users</option>
-          </select>
+          <div className="inline-flex rounded-lg border border-gray-200 bg-gray-50 p-1">
+            <button
+              type="button"
+              onClick={() => setUserTypeFilter("authenticated")}
+              className={`px-3 py-1.5 text-sm rounded-md transition ${
+                userTypeFilter === "authenticated"
+                  ? "bg-white text-blue-900 shadow"
+                  : "text-gray-500"
+              }`}
+            >
+              Admin - Interests
+            </button>
+            <button
+              type="button"
+              onClick={() => setUserTypeFilter("nonAuthenticated")}
+              className={`px-3 py-1.5 text-sm rounded-md transition ${
+                userTypeFilter === "nonAuthenticated"
+                  ? "bg-white text-blue-900 shadow"
+                  : "text-gray-500"
+              }`}
+            >
+              Admin - Inquiries
+            </button>
+          </div>
 
           {/* Search Input */}
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={
-              userTypeFilter === "authenticated" 
-                ? "Search by name or property..." 
+              userTypeFilter === "authenticated"
+                ? "Search by name or property..."
                 : "Search by name, email, or property..."
             }
             className="bg-gray-100 rounded-lg px-3 py-2 text-sm"
@@ -179,11 +195,11 @@ console.log("nonAuthRes");
       <div className="flex gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
         <div className="text-center">
           <div className="text-lg font-semibold">{authenticatedData.length}</div>
-          <div className="text-sm text-gray-500">Authenticated</div>
+          <div className="text-sm text-gray-500">Admin - Interests</div>
         </div>
         <div className="text-center">
           <div className="text-lg font-semibold">{nonAuthenticatedData.length}</div>
-          <div className="text-sm text-gray-500">Non-Authenticated</div>
+          <div className="text-sm text-gray-500">Admin - Inquiries</div>
         </div>
         <div className="text-center">
           <div className="text-lg font-semibold">{authenticatedData.length + nonAuthenticatedData.length}</div>

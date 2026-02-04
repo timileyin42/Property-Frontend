@@ -34,6 +34,22 @@ export interface InvestmentResponse {
   total_current_value: number;
   total_growth_percentage: number;
 }
+
+export interface InvestmentDetail {
+  id: number;
+  user_id: number;
+  property_id: number;
+  fractions_owned: number;
+  initial_value: number;
+  current_value: number;
+  ownership_percentage?: number;
+  growth_percentage: number;
+  growth_amount: number;
+  image_url?: string;
+  created_at: string;
+  updated_at: string;
+  property: import("./property").ApiProperty;
+}
 export interface InvestmentFilters {
   search: string;
   sortBy: "date" | "name";

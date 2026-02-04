@@ -57,7 +57,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // 🔁 Restore auth on app load
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token =
+      localStorage.getItem("token") ?? sessionStorage.getItem("token");
 
     if (token) {
       setAccessToken(token);
@@ -80,7 +81,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const token: string = data.access_token;
 
-    localStorage.setItem("token", token);
+    if (payload.rememberMe) {
+      localStorage.setItem("token", token);
+      sessionStorage.removeItem("token");
+    } else {
+      sessionStorage.setItem("token", token);
+      localStorage.removeItem("token");
+    }
     setAccessToken(token);
 
     await fetchUser(token);
@@ -160,6 +167,7 @@ const confirmResetPassword = async (payload: {
     setUser(null);
     setAccessToken(null);
     localStorage.removeItem("token");
+    sessionStorage.removeItem("token");
   };
 
 

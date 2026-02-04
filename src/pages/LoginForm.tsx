@@ -66,7 +66,11 @@ export const LoginForm = () => {
     formState: { errors, isSubmitting },
   } = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { rememberMe: false }
+    defaultValues: {
+      username: localStorage.getItem("remembered_email") ?? "",
+      password: localStorage.getItem("remembered_password") ?? "",
+      rememberMe: !!localStorage.getItem("remembered_email"),
+    }
   });
 
 useEffect(() => {
@@ -80,9 +84,18 @@ useEffect(() => {
 
   const onSubmit = async (data: LoginValues) => {
     try {
+      if (data.rememberMe) {
+        localStorage.setItem("remembered_email", data.username);
+        localStorage.setItem("remembered_password", data.password);
+      } else {
+        localStorage.removeItem("remembered_email");
+        localStorage.removeItem("remembered_password");
+      }
+
       await signin({
         username: data.username,
         password: data.password,
+        rememberMe: data.rememberMe,
       });
 
       // toast.success("Welcome back!");

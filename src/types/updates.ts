@@ -12,6 +12,7 @@ export interface UpdateItem {
   image_url?: string;
   video_url?: string;
   likes_count?: number;
+  liked_by_user?: boolean;
   comments_count?: number;
   created_at: string;
   updated_at: string;

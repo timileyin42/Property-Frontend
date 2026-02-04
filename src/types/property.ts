@@ -29,6 +29,9 @@ export interface ApiProperty {
 
   image_urls: string[];
   primary_image: string;
+  media_urls?: string[];
+  media_files?: Array<{ url: string }>;
+  image_url?: string;
 
   bedrooms: number;
   bathrooms: number;

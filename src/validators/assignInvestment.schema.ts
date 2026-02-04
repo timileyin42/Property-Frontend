@@ -6,7 +6,7 @@ export const assignInvestmentSchema = z.object({
   fractions_owned: z.coerce.number().int().positive(),
   initial_value: z.coerce.number().positive(),
   current_value: z.coerce.number().positive(),
-  image_url: z.string().min(1, "Image URL is required"),
+  image_url: z.string().optional(),
 });
 
 export type AssignInvestmentValues = z.infer<typeof assignInvestmentSchema>;

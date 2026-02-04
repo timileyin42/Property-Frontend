@@ -68,6 +68,13 @@ const AssignInvestment = () => {
     return candidate ?? "";
   }, [selectedProperty]);
 
+  const selectedMediaUrls = useMemo(() => {
+    if (!selectedProperty) return [] as string[];
+    return [selectedProperty.primary_image, ...(selectedProperty.image_urls ?? [])]
+      .map((url) => normalizeMediaUrl(url))
+      .filter(Boolean) as string[];
+  }, [selectedProperty]);
+
   useEffect(() => {
     if (!selectedProperty) return;
     setValue("property_id", selectedProperty.id);
@@ -78,7 +85,10 @@ const AssignInvestment = () => {
 
   const onSubmit = async (data: AssignInvestmentValues) => {
     try {
-      await api.post("/admin/investments", data);
+      await api.post("/admin/investments", {
+        ...data,
+        image_url: selectedImage,
+      });
       toast.success("Investment assigned successfully");
       navigate("/admindashboard/user_management");
     } catch (error: any) {
@@ -216,15 +226,37 @@ const AssignInvestment = () => {
               </div>
 
               <div>
-                <label className="text-sm text-gray-600">Image URL</label>
-                <input
-                  type="text"
-                  {...register("image_url")}
-                  className="w-full bg-gray-50 border border-gray-300 rounded-md p-2 text-sm"
-                />
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.image_url?.message}
-                </p>
+                <label className="text-sm text-gray-600">Media</label>
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  {selectedMediaUrls.length > 0 ? (
+                    selectedMediaUrls.map((url) => (
+                      <div
+                        key={url}
+                        className="h-24 w-full rounded-md border border-gray-200 bg-gray-50 overflow-hidden"
+                      >
+                        {isVideoUrl(url) ? (
+                          <video
+                            className="h-full w-full object-cover"
+                            src={url}
+                            muted
+                            playsInline
+                            loop
+                          />
+                        ) : (
+                          <img
+                            src={url}
+                            alt={selectedProperty?.title ?? "Selected property"}
+                            className="h-full w-full object-cover"
+                          />
+                        )}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="col-span-2 h-24 w-full rounded-md border border-gray-200 bg-gray-50 flex items-center justify-center text-xs text-gray-400">
+                      No media available
+                    </div>
+                  )}
+                </div>
               </div>
 
               <button
