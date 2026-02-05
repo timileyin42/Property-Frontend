@@ -26,7 +26,11 @@ const getMediaUrls = (update: UpdateItem) => {
     update.video_url,
   ].filter(Boolean) as string[];
 
-  return urls.map((url) => normalizeMediaUrl(url)).filter(Boolean) as string[];
+  const normalized = urls
+    .map((url) => normalizeMediaUrl(url))
+    .filter(Boolean) as string[];
+
+  return Array.from(new Set(normalized));
 };
 
 const getErrorMessage = (error: unknown, fallback: string) => {
