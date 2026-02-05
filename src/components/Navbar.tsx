@@ -205,6 +205,31 @@ const {isAuthenticated, logout, user} = useAuth();
           )}
         </div>
 
+        {isUserMenu && user?.role !== "ADMIN" && (
+          <div className="md:hidden flex flex-wrap items-center gap-3 pb-3">
+            <Link
+              to="/about"
+              className="text-sm text-gray-700 hover:text-blue-600 transition"
+            >
+              About
+            </Link>
+            <Link
+              to="/contact"
+              className="text-sm text-gray-700 hover:text-blue-600 transition"
+            >
+              Contact Us
+            </Link>
+            {!isAuthenticated && (
+              <button
+                onClick={() => navigate("/signup")}
+                className="text-sm border border-blue-600 text-blue-600 px-3 py-1.5 rounded-md hover:bg-blue-50 transition"
+              >
+                Join Us
+              </button>
+            )}
+          </div>
+        )}
+
         {/* Mobile Menu */}
         {isOpen && (
           <div className="md:hidden py-4 space-y-4">
