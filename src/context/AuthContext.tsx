@@ -12,7 +12,10 @@ interface AuthContextType {
   signup: (payload: SignupPayload) => Promise<void>;
   signin: (payload: SigninPayload) => Promise<void>;
 
-  verifyEmail: (payload: { email: string; code: string }) => Promise<void>;
+  verifyEmail: (payload: { email: string; code: string }) => Promise<{
+    access_token?: string;
+    refresh_token?: string;
+  }>;
 
    forgotPassword: (payload: { email: string }) => Promise<{ message: string }>;
 
@@ -110,10 +113,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // verify email api endpoint
   const verifyEmail = async (payload: { email: string; code: string }) => {
-    await api.post("/auth/verify-email", {
+    const { data } = await api.post<{ access_token?: string; refresh_token?: string }>("/auth/verify-email", {
       email: payload.email,
       otp_code: payload.code,
     });
+
+    if (data?.access_token) {
+      localStorage.setItem("token", data.access_token);
+      sessionStorage.removeItem("token");
+      setAccessToken(data.access_token);
+      await fetchUser(data.access_token);
+    }
+    return data ?? {};
   };
 
 // resend otp 

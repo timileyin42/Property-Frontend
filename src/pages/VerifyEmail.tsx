@@ -72,9 +72,14 @@ export const VerifyEmail = () => {
     }
 
     try {
-      await verifyEmail({ email, code }); // ✅ no unused variable
+      const res = await verifyEmail({ email, code }); // ✅ no unused variable
       toast.success("Email verified successfully!");
-      navigate("/investor/dashboard");
+      if (!res?.access_token) {
+        toast.success("Email verified. Please log in to continue.");
+        navigate("/login", { replace: true });
+        return;
+      }
+      navigate("/", { replace: true });
     } catch (error: unknown) {
       const err = error as {
         response?: { data?: { detail?: string; message?: string } };
