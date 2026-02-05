@@ -101,7 +101,7 @@ function HeroSection(){
 							</p>
 							<div className="flex flex-col sm:flex-row gap-3 items-center justify-center w-full sm:w-auto">
 								<button
-									className="w-full sm:w-auto bg-blue-900 text-white font-sans px-8 py-3 sm:px-10 sm:py-4 cursor-pointer rounded rounded-xl transition-all duration-500 hover:bg-blue-500 font-bold text-sm"
+									className="w-full sm:w-auto bg-blue-900 text-white font-sans px-8 py-3 sm:px-10 sm:py-4 cursor-pointer rounded rounded-xl transition-all duration-500 hover:bg-blue-500 font-bold text-base"
 									onClick={() => navigate("/signup")}
 								>
 									Get Started
@@ -110,7 +110,7 @@ function HeroSection(){
 								onClick={()=>navigate("/properties")}
 								className="w-full sm:w-auto bg-white text-blue-900 font-sans px-8 
 								py-3 sm:px-10 sm:py-4 cursor-pointer rounded rounded-xl transition-all duration-500
-								hover:bg-gray-200 border-1 border-blue-900 font-bold text-sm"
+								hover:bg-gray-200 border-1 border-blue-900 font-bold text-base"
 							>View Properties
 							</button>
 						</div>
@@ -135,7 +135,7 @@ function HeroSection(){
 												<h3 className="text-xl text-white font-bold mb-2">
 													{item.label}
 												</h3>
-												<p className="text-gray-100">
+												<p className="text-gray-100 text-sm sm:text-base">
 													{item.desc}
 												</p>
 											</div>
@@ -156,7 +156,7 @@ function HeroSection(){
 								<div className="p-8 inline-flex flex-col items-start gap-4">
 									<div className=" bg-blue-900 flex-start  justify-center p-4 rounded rounded-xl">{item.icon}</div>
 								<h2 className="font-inter font-bold text-blue-900 text-[clamp(1rem,4vw,1.25rem)]">{item.label}</h2>
-								<p className="text-gray-400 text-sm">{item.desc}</p>
+								<p className="text-gray-400 text-sm sm:text-base">{item.desc}</p>
 								</div>
 							</div>
 							))}
@@ -170,7 +170,7 @@ function HeroSection(){
 							<section className="max-w-7xl flex flex-col items-center mx-auto px-4 py-12">
 								<div className="featured-marquee w-full">
 									{sliderItems.length === 0 ? (
-										<p className="text-gray-500 text-sm">Loading properties...</p>
+										<p className="text-gray-500 text-base">Loading properties...</p>
 									) : (
 										<div className="featured-track">
 											{sliderItems.map((property, index) => (
@@ -199,7 +199,7 @@ function HeroSection(){
 							<h2 className="text-2xl md:text-4xl font-bold text-blue-900 mb-2">
 								What Our Investors Say
 							</h2>
-							<p className="text-gray-600 text-sm md:text-base text-center">
+							<p className="text-gray-600 text-base text-center">
 								Hear from investors who trust us with their real estate investments
 							</p>
 						</div>
@@ -214,12 +214,12 @@ function HeroSection(){
 							<h1 className="text-center text-white font-inter font-bold text-2xl  md:text-[clamp(1.2rem,4vw,1.85rem)] leading-none ">Ready to Start Investing?</h1>
 							
 						</div>
-						<p className="text-center text-sm md:text-sm text-gray-200 font-inter">
+						<p className="text-center text-base text-gray-200 font-inter">
 							Join Elycapvest Properties today and get access to premium shortlet properties.
 							</p>
 						<button
 							onClick={() => navigate("/signup")}
-							className="bg-white text-blue-900 font-sans px-10 py-4 cursor-pointer rounded rounded-xl hover:from-blue-700 hover:to-indigo-800 transition-all duration-300 hover:shadow-lg font-bold text-sm"
+							className="bg-white text-blue-900 font-sans px-10 py-4 cursor-pointer rounded rounded-xl hover:from-blue-700 hover:to-indigo-800 transition-all duration-300 hover:shadow-lg font-bold text-base"
 						>
 							Create Your Account
 						</button>
@@ -230,7 +230,7 @@ function HeroSection(){
 						<div className="grid grid-cols-1 md:grid-cols-3 gap-8">
 							<div>
 								<h3 className="text-lg font-semibold">Quick Links</h3>
-								<ul className="mt-4 space-y-2 text-sm text-white/80">
+								<ul className="mt-4 space-y-2 text-base text-white/80">
 									<li><a className="hover:text-white" href="/properties">Properties</a></li>
 									<li><a className="hover:text-white" href="/updates">Updates</a></li>
 									<li><a className="hover:text-white" href="/about">About Us</a></li>
@@ -240,7 +240,7 @@ function HeroSection(){
 							</div>
 							<div>
 								<h3 className="text-lg font-semibold">Contact Us</h3>
-								<div className="mt-4 space-y-3 text-sm text-white/80">
+								<div className="mt-4 space-y-3 text-base text-white/80">
 									<p>partnerships@elycapvest.com</p>
 									<p>University Road Akoka Yaba, Lagos</p>
 									<p>+234 8133101607</p>
@@ -258,11 +258,11 @@ function HeroSection(){
 									>
 										<FaInstagram size={18} />
 									</a>
-									<span className="text-xs text-white/60">@elycap_luxuryhomes</span>
+									<span className="text-sm text-white/60">@elycap_luxuryhomes</span>
 								</div>
 							</div>
 						</div>
-						<div className="mt-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-t border-white/10 pt-6 text-xs text-white/60">
+						<div className="mt-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-t border-white/10 pt-6 text-sm text-white/60">
 							<p>© {new Date().getFullYear()} Elycapvest Luxury Homes. All rights reserved.</p>
 							<p>Trusted by investors building wealth through shortlet properties.</p>
 						</div>

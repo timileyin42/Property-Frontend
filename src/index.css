@@ -1,17 +1,20 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap");
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Manrope", "Inter", ui-sans-serif, system-ui, sans-serif;
 }
 
 @layer base {
   html {
     font-optical-sizing: auto;
-    font-size: 14px;
+    font-size: 16px;
   }
   
   body {
     font-family: var(--font-sans);
+    line-height: 1.6;
+    overflow-x: hidden;
   }
 @keyframes fade-in {
   from {

@@ -28,6 +28,16 @@ export interface PortfolioStat {
   description: string;
 }
 
+const percentFormatter = new Intl.NumberFormat("en-NG", {
+  maximumFractionDigits: 2,
+});
+
+const formatPercent = (value?: number) => {
+  const numeric = Number(value ?? 0);
+  if (!Number.isFinite(numeric)) return "0";
+  return percentFormatter.format(numeric);
+};
+
 const InvestorDashboard = () => {
   const {user} = useAuth();
   const [investments, setInvestments] = useState<Investment[]>([]);
@@ -129,6 +139,49 @@ const InvestorDashboard = () => {
     loadMedia();
   }, [investments]);
 
+  const chartLabels = trend.labels;
+  const chartValues = trend.values;
+  const hasTrendData = chartLabels.length > 0 && chartValues.length > 0;
+
+  const investmentCards = useMemo(
+    () =>
+      investments.map((investment) => {
+        const fallbackMedia = investmentMediaMap[investment.id];
+        const normalized =
+          normalizeMediaUrl(investment.image_url || "") ||
+          normalizeMediaUrl(fallbackMedia || "");
+        return {
+          ...investment,
+          mediaUrl: normalized,
+          isVideo: normalized ? isVideoUrl(normalized) : false,
+        };
+      }),
+    [investments, investmentMediaMap]
+  );
+
+  const computedAverageGrowth =
+    investments.length > 0
+      ? investments.reduce(
+          (sum, item) => sum + (Number(item.growth_percentage) || 0),
+          0
+        ) / investments.length
+      : 0;
+
+  const resolvedAverageGrowth = (() => {
+    const summaryAverage = summary?.average_growth_percentage;
+    if (Number.isFinite(summaryAverage) && summaryAverage !== 0) {
+      return summaryAverage;
+    }
+    if (computedAverageGrowth !== 0) {
+      return computedAverageGrowth;
+    }
+    const summaryTotal = summary?.total_growth_percentage;
+    if (Number.isFinite(summaryTotal)) {
+      return summaryTotal;
+    }
+    return 0;
+  })();
+
   const portfolioStats: PortfolioStat[] = [
     {
       id: 1,
@@ -142,7 +195,7 @@ const InvestorDashboard = () => {
         return `₦${Number(totalValue || 0).toLocaleString()}`;
       })(),
       description: summary
-        ? `+${summary.total_growth_percentage ?? 0}% overall`
+        ? `+${formatPercent(summary.total_growth_percentage)}% overall`
         : "+0% overall",
     },
     {
@@ -167,31 +220,10 @@ const InvestorDashboard = () => {
     {
       id: 4,
       title: "Avg. Growth",
-      value: summary?.average_growth_percentage
-        ? `+${summary.average_growth_percentage}%`
-        : `+${summary?.total_growth_percentage ?? 0}%`,
+      value: `+${formatPercent(resolvedAverageGrowth)}%`,
       description: "6 month average",
     },
   ];
-  const chartLabels = trend.labels;
-  const chartValues = trend.values;
-  const hasTrendData = chartLabels.length > 0 && chartValues.length > 0;
-
-  const investmentCards = useMemo(
-    () =>
-      investments.map((investment) => {
-        const fallbackMedia = investmentMediaMap[investment.id];
-        const normalized =
-          normalizeMediaUrl(investment.image_url || "") ||
-          normalizeMediaUrl(fallbackMedia || "");
-        return {
-          ...investment,
-          mediaUrl: normalized,
-          isVideo: normalized ? isVideoUrl(normalized) : false,
-        };
-      }),
-    [investments, investmentMediaMap]
-  );
  
   return (
     <div className="mx-auto px-4 my-16">
@@ -333,7 +365,7 @@ const InvestorDashboard = () => {
                     <div>
                       <p className="text-gray-400">Growth</p>
                       <p className="font-semibold text-emerald-600">
-                        +{investment.growth_percentage}%
+                        +{formatPercent(investment.growth_percentage)}%
                       </p>
                     </div>
                     <div>

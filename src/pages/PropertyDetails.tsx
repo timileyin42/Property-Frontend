@@ -6,11 +6,15 @@ import { ApiProperty } from "../types/property";
 import { useAuth } from "../context/AuthContext";
 import { CiLocationOn } from "react-icons/ci";
 import { isVideoUrl, normalizeMediaUrl } from "../util/normalizeMediaUrl";
+import toast, { Toaster } from "react-hot-toast";
+import type { WishlistListResponse } from "../types/userProfile";
 
 const PropertyDetails = () => {
   const { id } = useParams<{ id: string }>();
   const [property, setProperty] = useState<ApiProperty | null>(null);
   const [loading, setLoading] = useState(true);
+  const [wishlistId, setWishlistId] = useState<number | null>(null);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, user } = useAuth();
@@ -24,6 +28,53 @@ const PropertyDetails = () => {
       .catch((error) => console.error("Failed to fetch property:", error))
       .finally(() => setLoading(false));
   }, [id]);
+
+  useEffect(() => {
+    if (!isAuthenticated || !id) return;
+
+    const fetchWishlist = async () => {
+      try {
+        const res = await api.get<WishlistListResponse>("/user/wishlist");
+        const match = res.data.items.find(
+          (item) => item.property_id === Number(id)
+        );
+        setWishlistId(match?.id ?? null);
+      } catch (error) {
+        console.error("Failed to fetch wishlist:", error);
+      }
+    };
+
+    fetchWishlist();
+  }, [id, isAuthenticated]);
+
+  const handleWishlistToggle = async () => {
+    if (!isAuthenticated) {
+      navigate("/login");
+      return;
+    }
+    if (!property || wishlistLoading) return;
+
+    setWishlistLoading(true);
+    try {
+      if (wishlistId) {
+        await api.delete(`/user/wishlist/${wishlistId}`);
+        setWishlistId(null);
+        toast.success("Removed from wishlist");
+      } else {
+        const res = await api.post("/user/wishlist", {
+          property_id: property.id,
+          notify_on_update: true,
+          notify_on_price_change: true,
+        });
+        setWishlistId(res.data.id);
+        toast.success("Added to wishlist");
+      }
+    } catch (error) {
+      toast.error("Wishlist update failed");
+    } finally {
+      setWishlistLoading(false);
+    }
+  };
 
   const mediaItems = useMemo(() => {
     if (!property) return [];
@@ -48,6 +99,7 @@ const PropertyDetails = () => {
 
   return (
     <div className="mx-auto px-4 my-16">
+      <Toaster position="top-right" />
       <Navbar
         links={[
           { label: "Home", href: "/" },
@@ -185,6 +237,17 @@ const PropertyDetails = () => {
                 {ctaLabel}
               </button>
             )}
+            <button
+              onClick={handleWishlistToggle}
+              disabled={wishlistLoading}
+              className="w-full border border-blue-600 text-blue-600 hover:bg-blue-50 rounded-md py-3 text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {wishlistLoading
+                ? "Updating..."
+                : wishlistId
+                  ? "Saved to Wishlist"
+                  : "Add to Wishlist"}
+            </button>
           </div>
         </div>
       </section>

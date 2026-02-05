@@ -85,8 +85,8 @@ const TestimonialsSimple = () => {
                     ))}
                   </div>
                   <h4 className="font-bold text-gray-900">{testimonial.name}</h4>
-                  <p className="text-blue-600 text-sm mb-3">{testimonial.role}</p>
-                  <p className="text-gray-700 text-sm italic">"{testimonial.comment}"</p>
+                  <p className="text-blue-600 text-base mb-3">{testimonial.role}</p>
+                  <p className="text-gray-700 text-base italic">"{testimonial.comment}"</p>
                 </div>
               </div>
             </div>

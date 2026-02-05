@@ -101,11 +101,11 @@ const {isAuthenticated, logout, user} = useAuth();
           <div className="flex items-center gap-3">
             <Link
               to="/"
-              className="flex flex-row items-center gap-1 text-lg font-semibold font-inter text-blue-900 whitespace-nowrap "
+              className="flex flex-row items-center gap-2 text-base sm:text-lg font-semibold font-inter text-blue-900 min-w-0"
             >
               <BuildingIcon />
 
-              <span>{logoText}</span>
+              <span className="truncate max-w-[11rem] sm:max-w-none">{logoText}</span>
             </Link>
           </div>
 
@@ -117,7 +117,7 @@ const {isAuthenticated, logout, user} = useAuth();
                   <a
                     key={link.href}
                     href={link.href}
-                    className="text-md text-gray-700 hover:text-blue-600 transition"
+                    className="text-base text-gray-700 hover:text-blue-600 transition"
                   >
                     {link.label}
                   </a>
@@ -128,13 +128,13 @@ const {isAuthenticated, logout, user} = useAuth();
               <div className="flex items-center gap-4">
                 <Link
                   to="/about"
-                  className="text-md text-gray-700 hover:text-blue-600 transition"
+                  className="text-base text-gray-700 hover:text-blue-600 transition"
                 >
                   About
                 </Link>
                 <Link
                   to="/contact"
-                  className="text-md text-gray-700 hover:text-blue-600 transition"
+                  className="text-base text-gray-700 hover:text-blue-600 transition"
                 >
                   Contact Us
                 </Link>
@@ -164,7 +164,7 @@ const {isAuthenticated, logout, user} = useAuth();
                     logout();
                     navigate("/login");
                   }}
-                  className="flex gap-2 items-center text-sm text-red-600 px-4 py-1.5 rounded-md hover:bg-red-50 transition"
+                className="flex gap-2 items-center text-base text-red-600 px-4 py-1.5 rounded-md hover:bg-red-50 transition"
                 >
                   <LogoutIcon />
                   <span>Logout</span>

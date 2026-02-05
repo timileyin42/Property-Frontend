@@ -57,6 +57,7 @@ export interface WishlistItem {
   property_location?: string;
   property_status?: string;
   property_image?: string;
+  property_video?: string;
 }
 
 export interface WishlistListResponse {

@@ -19,16 +19,16 @@ const AboutUsMinimal = () => {
               />
               
               {/* Floating badges */}
-              <div className="absolute -top-4 -right-4 bg-white p-4 rounded-xl shadow-lg animate-float">
+              <div className="absolute top-2 right-2 sm:-top-4 sm:-right-4 bg-white p-3 sm:p-4 rounded-xl shadow-lg animate-float">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-green-600">500+</div>
-                  <div className="text-xs text-gray-600">Investors</div>
+                  <div className="text-sm text-gray-600">Investors</div>
                 </div>
               </div>
               
-              <div className="absolute -bottom-4 -left-4 bg-blue-900 text-white p-4 rounded-xl shadow-lg animate-float-delayed">
+              <div className="absolute bottom-2 left-2 sm:-bottom-4 sm:-left-4 bg-blue-900 text-white p-3 sm:p-4 rounded-xl shadow-lg animate-float-delayed">
                 <div className="text-sm font-medium">NGN500B+</div>
-                <div className="text-xs opacity-90">Invested</div>
+                <div className="text-sm opacity-90">Invested</div>
               </div>
             </div>
           </div>
@@ -36,7 +36,7 @@ const AboutUsMinimal = () => {
           {/* Right Column - Content */}
           <div className="space-y-8">
             <div>
-              <span className="inline-block text-gray-900 font-semibold text-sm tracking-wider mb-4">
+              <span className="inline-block text-gray-900 font-semibold text-base tracking-wider mb-4">
                 ABOUT ELYCAPVEST LUXURY HOMES
               </span>
               <h1 className="text-4xl md:text-5xl font-bold text-blue-900 mb-6">

@@ -62,15 +62,15 @@ const LandingPropertyCard: React.FC<LandingPropertyCardProps> = ({ property }) =
         
         <div className="flex gap-1 items-center mt-2">
           <CiLocationOn className="text-gray-400" />
-          <span className="text-sm text-gray-500 truncate">
+          <span className="text-base text-gray-500 truncate">
             {property.location}
           </span>
         </div>
 
         <div className="mt-auto pt-4">
           <div className="flex justify-between items-center mb-3">
-            <span className="text-xs text-gray-600">Total Value</span>
-            <span className="font-semibold text-xs">
+            <span className="text-sm text-gray-600">Total Value</span>
+            <span className="font-semibold text-sm">
               ₦{property.project_value.toLocaleString()}
             </span>
             
