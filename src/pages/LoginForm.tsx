@@ -148,7 +148,6 @@ useEffect(() => {
               <input
                 {...register("username")}
                 type="email"
-                placeholder="you@example.com"
                 className={`border p-3 rounded-lg bg-gray-50 outline-none focus:ring-2 focus:ring-blue-900/20 ${errors.username ? 'border-red-500' : 'border-gray-200'}`}
               />
               {errors.username && <span className="text-red-500 text-xs mt-1">{errors.username.message}</span>}
@@ -163,7 +162,6 @@ useEffect(() => {
                 <input
                   {...register("password")}
                   type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
                   className={`w-full border p-3 rounded-lg bg-gray-50 outline-none focus:ring-2 focus:ring-blue-900/20 ${errors.password ? 'border-red-500' : 'border-gray-200'}`}
                 />
                 <button
