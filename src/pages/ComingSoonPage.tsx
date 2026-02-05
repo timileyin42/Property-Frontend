@@ -1,9 +1,10 @@
 // pages/ComingSoonPage.tsx (Simple Version)
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const ComingSoonPage: React.FC = () => {
   const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col items-center justify-center p-4">
@@ -44,7 +45,7 @@ const ComingSoonPage: React.FC = () => {
         <div className="mb-12">
           <p className="text-gray-500 mb-4">Want to be the first to know?</p>
           <button
-            onClick={() => alert('You will be notified when we launch!')}
+            onClick={() => setIsModalOpen(true)}
             className="px-8 py-3 bg-blue-900 text-white font-medium rounded-lg hover:bg-blue-800 transition-colors shadow-sm"
           >
             Subscribe for Updates
@@ -64,6 +65,28 @@ const ComingSoonPage: React.FC = () => {
           © {new Date().getFullYear()} Elycapvest. All rights reserved.
         </p>
       </div>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+            <h2 className="text-xl font-semibold text-gray-900">
+              You&apos;re on the list
+            </h2>
+            <p className="mt-2 text-sm text-gray-600">
+              You will be notified when we launch!
+            </p>
+            <div className="mt-6 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(false)}
+                className="px-5 py-2 rounded-lg bg-blue-900 text-white text-sm font-medium hover:bg-blue-800"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Decorative Dots */}
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
