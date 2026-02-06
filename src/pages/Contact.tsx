@@ -29,7 +29,7 @@ const Contact = () => {
           </p>
           <div className="text-sm text-gray-600">
             <p>Phone: +234 8133101607</p>
-            <p>Email: partnerships@elycapvest.com</p>
+            <p>Email: Elycapluxuryhomes@gmail.com</p>
           </div>
           <a
             href="https://www.instagram.com/elycap_luxuryhomes/"
@@ -48,7 +48,7 @@ const Contact = () => {
             Our support team is available Monday to Friday, 9am to 6pm.
           </p>
           <div className="text-sm text-gray-600">
-            <p>Email: support@elycapvest.com</p>
+            <p>Email: Elycapluxuryhomes@gmail.com</p>
             <p>Phone: +234 809 876 5432</p>
           </div>
         </div>

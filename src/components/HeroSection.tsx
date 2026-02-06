@@ -96,11 +96,8 @@ function HeroSection(){
 					<div className="min-h-screen bg-[url(./assets/pol_hero.avif)] bg-cover bg-center">
 						<div className="min-h-screen flex flex-col gap-6 sm:gap-8 items-center justify-center text-center bg-gradient-to-t from-gray-950 to-zinc-950/20 px-4 py-16">
 							<h1 className="text-white font-inter font-bold text-3xl sm:text-5xl md:text-6xl lg:text-7xl leading-tight max-w-4xl">
-								Own Fractions of Real Estate. Earn While You Sleep.
+								Own Fractions of Real Estate Earn While You Sleep
 							</h1>
-							<p className="w-full max-w-2xl text-base sm:text-lg md:text-xl text-gray-200 font-inter">
-								Professionally managed, income-generating properties
-							</p>
 							<p className="w-full max-w-2xl text-sm sm:text-base md:text-lg text-gray-200 font-inter">
 								Invest in premium real estate with complete transparency. Monitor your properties make money for you in real-time and watch your investment grow
 							</p>
