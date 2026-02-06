@@ -19,6 +19,9 @@ const Updates = () => {
           response?: { status?: number; data?: { detail?: string; message?: string } };
           message?: string;
         };
+        if (err.response?.status === 403) {
+          return;
+        }
         if (err.response?.status === 401) {
           toast.error("Please login to view updates");
           return;

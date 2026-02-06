@@ -71,6 +71,7 @@ const UpdateDetail = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [hasLiked, setHasLiked] = useState(false);
   const [isCommentOpen, setIsCommentOpen] = useState(false);
+  const [accessDeniedMessage, setAccessDeniedMessage] = useState<string | null>(null);
 
   const mediaUrls = useMemo(() => (update ? getMediaUrls(update) : []), [update]);
 
@@ -102,6 +103,11 @@ const UpdateDetail = () => {
         }
         if (status === 401) {
           setErrorMessage("Please login to view this update.");
+          return;
+        }
+        if (status === 403) {
+          setAccessDeniedMessage("Sorry, this update is visible to investors of this project.");
+          setErrorMessage(null);
           return;
         }
         setErrorMessage("Failed to load update.");
@@ -313,6 +319,30 @@ const UpdateDetail = () => {
                 </button>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {accessDeniedMessage && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+            <h2 className="text-xl font-semibold text-gray-900">Access Restricted</h2>
+            <p className="mt-2 text-sm text-gray-600">{accessDeniedMessage}</p>
+            <div className="mt-6 flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setAccessDeniedMessage(null)}
+                className="px-4 py-2 rounded-lg border border-gray-200 text-sm text-gray-700"
+              >
+                Close
+              </button>
+              <a
+                href="/properties"
+                className="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm"
+              >
+                View Properties
+              </a>
+            </div>
           </div>
         </div>
       )}
