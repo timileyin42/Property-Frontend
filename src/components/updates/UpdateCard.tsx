@@ -1,12 +1,13 @@
 import { Link } from "react-router-dom";
 import type { UpdateItem } from "../../types/updates";
-import { isVideoUrl, normalizeMediaUrl } from "../../util/normalizeMediaUrl";
+import { isVideoUrl, usePresignedUrls } from "../../util/normalizeMediaUrl";
+import { useMemo } from "react";
 
 interface UpdateCardProps {
   update: UpdateItem;
 }
 
-const getMediaUrls = (update: UpdateItem) => {
+const getMediaKeys = (update: UpdateItem) => {
   const urls = [
     ...(update.media_files?.map((item) => item.url) ?? []),
     ...(update.media_urls ?? []),
@@ -15,11 +16,12 @@ const getMediaUrls = (update: UpdateItem) => {
     update.video_url,
   ].filter(Boolean) as string[];
 
-  return urls.map((url) => normalizeMediaUrl(url)).filter(Boolean) as string[];
+  return urls;
 };
 
 const UpdateCard: React.FC<UpdateCardProps> = ({ update }) => {
-  const mediaUrls = getMediaUrls(update);
+  const mediaKeys = useMemo(() => getMediaKeys(update), [update]);
+  const mediaUrls = usePresignedUrls(mediaKeys);
   const imageUrl = mediaUrls.find((url) => !isVideoUrl(url));
   const videoUrl = mediaUrls.find((url) => isVideoUrl(url));
 

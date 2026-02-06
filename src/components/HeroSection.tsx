@@ -65,7 +65,7 @@ function HeroSection(){
 	const statement: StatementItem[] = [
 		{id: 1, icon: <GoGoal  className="text-white"  />, img: img1, label: "Our Mission", desc: "To democratize real estate investment by making premium properties accessible to everyone through fractional ownership and complete transparency."},
 		{id: 2, icon: <IoEye  className="text-white" />, img: img1, label: "Our Vision", desc: "To become Africa's leading platform for transparent fractional real estate investment, empowering thousands of investors to build wealth through property."},
-		{id: 3, icon: <IoIosHeartEmpty className="text-white" />, img: img1, label: "Our Values", desc: "JTransparency, integrity, and investor success are at the core of everything we do. We believe in honest, ethical business practices."},
+		{id: 3, icon: <IoIosHeartEmpty className="text-white" />, img: img1, label: "Our Values", desc: "Transparency, integrity, and investor success are at the core of everything we do. We believe in honest, ethical business practices."},
 	]
 	
 	// // navigation logic
@@ -96,10 +96,13 @@ function HeroSection(){
 					<div className="min-h-screen bg-[url(./assets/pol_hero.avif)] bg-cover bg-center">
 						<div className="min-h-screen flex flex-col gap-6 sm:gap-8 items-center justify-center text-center bg-gradient-to-t from-gray-950 to-zinc-950/20 px-4 py-16">
 							<h1 className="text-white font-inter font-bold text-3xl sm:text-5xl md:text-6xl lg:text-7xl leading-tight max-w-4xl">
-								Shortlet Transparency <br /> Through Fractional Ownership
+								Own Fractions of Real Estate. Earn While You Sleep.
 							</h1>
 							<p className="w-full max-w-2xl text-base sm:text-lg md:text-xl text-gray-200 font-inter">
-								Invest in premium real estate with complete transparency. Monitor your shortlet properties in real-time and watch your investment grow.
+								Professionally managed, income-generating properties
+							</p>
+							<p className="w-full max-w-2xl text-sm sm:text-base md:text-lg text-gray-200 font-inter">
+								Invest in premium real estate with complete transparency. Monitor your properties make money for you in real-time and watch your investment grow
 							</p>
 							<div className="flex flex-col sm:flex-row gap-3 items-center justify-center w-full sm:w-auto">
 								{!isAuthenticated && (

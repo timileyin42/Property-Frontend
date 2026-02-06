@@ -4,7 +4,7 @@ import TabsHeader, { UserProfileTab } from "../../components/user-profile/TabsHe
 import ProfileSummaryCard from "../../components/user-profile/ProfileSummaryCard";
 import UpdateProfileForm from "../../components/user-profile/UpdateProfileForm";
 import InquiriesTab from "../../components/user-profile/InquiriesTab";
-import SavedPropertiesTab from "../../components/user-profile/SavedPropertiesTab";
+import SavedPropertiesTab from "../../components/user-profile/SavedPropertiesTab.tsx";
 import { api } from "../../api/axios";
 import type { User } from "../../types/userProfile";
 

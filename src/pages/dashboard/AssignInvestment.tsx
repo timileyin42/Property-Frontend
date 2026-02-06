@@ -8,7 +8,7 @@ import { fetchProperties } from "../../api/properties";
 import { ApiProperty } from "../../types/property";
 import { AdminUser } from "../../types/user";
 import { assignInvestmentSchema, AssignInvestmentValues } from "../../validators/assignInvestment.schema";
-import { isVideoUrl, normalizeMediaUrl } from "../../util/normalizeMediaUrl";
+import { getPresignedUrl, getCachedPresignedUrl, isVideoUrl } from "../../util/normalizeMediaUrl";
 
 const AssignInvestment = () => {
   const [searchParams] = useSearchParams();
@@ -55,13 +55,20 @@ const AssignInvestment = () => {
     fetchData();
   }, [userId]);
 
-  const selectedImage = useMemo(() => {
+  useEffect(() => {
+    const mediaKeys = properties.flatMap((property) =>
+      [property.primary_image, ...(property.image_urls ?? [])].filter(Boolean)
+    ) as string[];
+    if (mediaKeys.length === 0) return;
+    Promise.all(mediaKeys.map((key) => getPresignedUrl(key))).catch(() => null);
+  }, [properties]);
+
+  const selectedImageKey = useMemo(() => {
     if (!selectedProperty) return "";
     const candidate = [
       selectedProperty.primary_image,
       ...(selectedProperty.image_urls ?? []),
     ]
-      .map((url) => normalizeMediaUrl(url))
       .filter(Boolean)
       .find((url) => !isVideoUrl(url));
 
@@ -71,23 +78,23 @@ const AssignInvestment = () => {
   const selectedMediaUrls = useMemo(() => {
     if (!selectedProperty) return [] as string[];
     return [selectedProperty.primary_image, ...(selectedProperty.image_urls ?? [])]
-      .map((url) => normalizeMediaUrl(url))
+      .map((url) => getCachedPresignedUrl(url))
       .filter(Boolean) as string[];
   }, [selectedProperty]);
 
   useEffect(() => {
     if (!selectedProperty) return;
     setValue("property_id", selectedProperty.id);
-    setValue("image_url", selectedImage);
+    setValue("image_url", selectedImageKey);
     setValue("initial_value", selectedProperty.project_value);
     setValue("current_value", selectedProperty.project_value);
-  }, [selectedProperty, selectedImage, setValue]);
+  }, [selectedProperty, selectedImageKey, setValue]);
 
   const onSubmit = async (data: AssignInvestmentValues) => {
     try {
       await api.post("/admin/investments", {
         ...data,
-        image_url: selectedImage,
+        image_url: selectedImageKey,
       });
       toast.success("Investment assigned successfully");
       navigate("/admindashboard/user_management");
@@ -140,7 +147,7 @@ const AssignInvestment = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {properties.map((property) => {
                 const mediaUrls = [property.primary_image, ...(property.image_urls ?? [])]
-                  .map((url) => normalizeMediaUrl(url))
+                  .map((url) => getCachedPresignedUrl(url))
                   .filter(Boolean) as string[];
                 const imageSrc = mediaUrls.find((url) => !isVideoUrl(url));
                 const videoSrc = mediaUrls.find((url) => isVideoUrl(url));

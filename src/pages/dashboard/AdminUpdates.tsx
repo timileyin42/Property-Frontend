@@ -3,7 +3,7 @@ import toast, { Toaster } from "react-hot-toast";
 import { fetchUpdates } from "../../api/updates";
 import type { UpdateItem } from "../../types/updates";
 import UpdateNewsModal from "../../components/admincomponents/UpdateNewsModal";
-import { isVideoUrl, normalizeMediaUrl } from "../../util/normalizeMediaUrl";
+import { isVideoUrl, getPresignedUrl, getCachedPresignedUrl } from "../../util/normalizeMediaUrl";
 
 const AdminUpdates = () => {
   const [updates, setUpdates] = useState<UpdateItem[]>([]);
@@ -35,6 +35,20 @@ const AdminUpdates = () => {
   useEffect(() => {
     loadUpdates();
   }, []);
+
+  useEffect(() => {
+    const mediaKeys = updates.flatMap((update) =>
+      [
+        ...(update.media_files?.map((item) => item.url) ?? []),
+        ...(update.media_urls ?? []),
+        ...(update.image_urls ?? []),
+        update.image_url,
+        update.video_url,
+      ].filter(Boolean)
+    ) as string[];
+    if (mediaKeys.length === 0) return;
+    Promise.all(mediaKeys.map((key) => getPresignedUrl(key))).catch(() => null);
+  }, [updates]);
 
   const handleOpen = (update?: UpdateItem) => {
     setSelectedUpdate(update ?? null);
@@ -102,7 +116,7 @@ const AdminUpdates = () => {
                   update.video_url,
                 ].filter(Boolean) as string[];
                 const normalized = urls
-                  .map((url) => normalizeMediaUrl(url))
+                  .map((url) => getCachedPresignedUrl(url))
                   .filter(Boolean) as string[];
                 const imageUrl = normalized.find((url) => !isVideoUrl(url));
                 const videoUrl = normalized.find((url) => isVideoUrl(url));

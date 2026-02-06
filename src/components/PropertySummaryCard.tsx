@@ -1,5 +1,6 @@
 import { ApiProperty } from "../types/property";
-import { isVideoUrl, normalizeMediaUrl } from "../util/normalizeMediaUrl";
+import { isVideoUrl, usePresignedUrl } from "../util/normalizeMediaUrl";
+import { useMemo } from "react";
 
 
 interface Props {
@@ -7,15 +8,34 @@ interface Props {
 }
 
 const PropertySummaryCard: React.FC<Props> = ({ property }) => {
-  const mediaUrls = [
-    property.primary_image,
-    ...(property.image_urls ?? []),
-  ]
-    .map((url) => normalizeMediaUrl(url))
-    .filter(Boolean) as string[];
+  const primaryMediaKey = useMemo(() => {
+    const mediaFiles = property.media_files ?? [];
+    const mediaFromFiles = mediaFiles
+      .map((item) => item.url ?? item.file_url ?? item.secure_url)
+      .filter(Boolean) as string[];
 
-  const imageUrl = mediaUrls.find((url) => !isVideoUrl(url));
-  const videoUrl = mediaUrls.find((url) => isVideoUrl(url));
+    return (
+      property.primary_image ||
+      property.image_urls?.[0] ||
+      property.image_url ||
+      property.media_urls?.[0] ||
+      mediaFromFiles[0] ||
+      ""
+    );
+  }, [property]);
+  const resolvedUrl = usePresignedUrl(primaryMediaKey);
+  const imageUrl = resolvedUrl && !isVideoUrl(resolvedUrl) ? resolvedUrl : "";
+  const videoUrl = resolvedUrl && isVideoUrl(resolvedUrl) ? resolvedUrl : "";
+  const totalFractions = property.total_fractions ?? 0;
+  const fractionsSold = property.fractions_sold ?? 0;
+  const fractionsAvailable =
+    property.fractions_available ?? Math.max(totalFractions - fractionsSold, 0);
+  const isSoldOut = totalFractions > 0 && fractionsSold >= totalFractions;
+  const pricePerFraction =
+    property.fraction_price ??
+    (totalFractions > 0
+      ? Math.floor(property.project_value / totalFractions)
+      : 0);
   return (
 
     <div className="bg-white rounded-xl border border-gray-200 shadow shadow-lg p-4 space-y-4">
@@ -40,7 +60,14 @@ const PropertySummaryCard: React.FC<Props> = ({ property }) => {
         </div>
       )}
 
-      <h2 className="font-semibold text-lg">{property.title}</h2>
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="font-semibold text-lg">{property.title}</h2>
+        {isSoldOut && (
+          <span className="rounded-full bg-gray-900 px-3 py-1 text-xs font-medium text-white">
+            Sold
+          </span>
+        )}
+      </div>
       <p className="text-sm text-gray-500">{property.location}</p>
 
       <div className="grid grid-cols-2 gap-2  text-sm">
@@ -54,17 +81,21 @@ const PropertySummaryCard: React.FC<Props> = ({ property }) => {
         <div className="bg-gray-50 rounded-xl p-2">
           <p>Per Fraction</p>
           <p className="font-semibold">
-            ₦
-            {Math.floor(
-              property.project_value / property.total_fractions
-            ).toLocaleString()}
+            ₦{pricePerFraction.toLocaleString()}
           </p>
         </div>
 
         <div className="bg-gray-50 rounded-xl p-2">
-          <p>Available</p>
+          <p>Fractions Available</p>
           <p className="font-semibold">
-            {property.fractions_available} fractions
+            {fractionsAvailable} fractions
+          </p>
+        </div>
+
+        <div className="bg-gray-50 rounded-xl p-2">
+          <p>Fractions Sold</p>
+          <p className="font-semibold">
+            {fractionsSold}/{totalFractions}
           </p>
         </div>
 

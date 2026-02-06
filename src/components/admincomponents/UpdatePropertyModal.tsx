@@ -7,7 +7,7 @@ import {
   UpdateAdminPropertyPayload,
   updateAdminProperty,
 } from "../../api/admin.properties";
-import { normalizeMediaUrl, isVideoUrl } from "../../util/normalizeMediaUrl";
+import { getPresignedUrl, getCachedPresignedUrl, isVideoUrl } from "../../util/normalizeMediaUrl";
 
 interface UpdatePropertyModalProps {
   isOpen: boolean;
@@ -87,10 +87,15 @@ export const UpdatePropertyModal: React.FC<UpdatePropertyModalProps> = ({
     setProjectValue(property.project_value?.toString() ?? "");
   }, [property]);
 
+  useEffect(() => {
+    if (mediaUrls.length === 0) return;
+    Promise.all(mediaUrls.map((url) => getPresignedUrl(url))).catch(() => null);
+  }, [mediaUrls]);
+
   const normalizedMediaUrls = useMemo(
     () =>
       mediaUrls
-        .map((url) => ({ raw: url, normalized: normalizeMediaUrl(url) }))
+        .map((url) => ({ raw: url, normalized: getCachedPresignedUrl(url) }))
         .filter((item) => Boolean(item.normalized)),
     [mediaUrls]
   );

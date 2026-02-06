@@ -5,7 +5,7 @@ import { api } from "../api/axios";
 import { ApiProperty } from "../types/property";
 import { useAuth } from "../context/AuthContext";
 import { CiLocationOn } from "react-icons/ci";
-import { isVideoUrl, normalizeMediaUrl } from "../util/normalizeMediaUrl";
+import { isVideoUrl, usePresignedUrls } from "../util/normalizeMediaUrl";
 import toast, { Toaster } from "react-hot-toast";
 import type { WishlistListResponse } from "../types/userProfile";
 
@@ -76,18 +76,31 @@ const PropertyDetails = () => {
     }
   };
 
-  const mediaItems = useMemo(() => {
-    if (!property) return [];
+  const mediaItems = usePresignedUrls(
+    useMemo(() => {
+      if (!property) return [] as string[];
+      const mediaFiles = property.media_files ?? [];
+      const mediaFromFiles = mediaFiles
+        .map((item) => item.url ?? item.file_url ?? item.secure_url)
+        .filter(Boolean) as string[];
 
-    const urls = [property.primary_image, ...(property.image_urls ?? [])]
-      .map((url) => normalizeMediaUrl(url))
-      .filter(Boolean);
-
-    return Array.from(new Set(urls));
-  }, [property]);
+      return [
+        property.primary_image,
+        ...(property.image_urls ?? []),
+        ...(property.media_urls ?? []),
+        ...(property.image_url ? [property.image_url] : []),
+        ...mediaFromFiles,
+      ].filter(Boolean) as string[];
+    }, [property])
+  );
 
   const ctaLabel = user?.role === "INVESTOR" ? "Invest" : "Express Interest";
   const hasInvested = Boolean((location.state as { hasInvested?: boolean } | null)?.hasInvested);
+  const totalFractions = property?.total_fractions ?? 0;
+  const fractionsSold = property?.fractions_sold ?? 0;
+  const fractionsAvailable =
+    property?.fractions_available ?? Math.max(totalFractions - fractionsSold, 0);
+  const isSoldOut = totalFractions > 0 && fractionsSold >= totalFractions;
 
   if (loading) {
     return <p className="text-center py-10">Loading property...</p>;
@@ -117,6 +130,11 @@ const PropertyDetails = () => {
             <CiLocationOn />
             {property.location}
           </span>
+          {isSoldOut && (
+            <span className="inline-flex items-center bg-gray-900 text-white text-xs font-medium px-2 py-1 rounded-full">
+              Sold
+            </span>
+          )}
           <span className="inline-flex items-center bg-green-600 text-white text-xs font-medium px-2 py-1 rounded-full">
             {property.expected_roi}% ROI
           </span>
@@ -181,37 +199,35 @@ const PropertyDetails = () => {
               <div className="bg-gray-50 rounded-xl p-4">
                 <p className="text-gray-500">Total Value</p>
                 <p className="text-blue-900 font-semibold">
-                  ₦{property.project_value.toLocaleString()}
+                  {property.project_value !== null && property.project_value !== undefined
+                    ? `₦${property.project_value.toLocaleString()}`
+                    : "-"}
                 </p>
               </div>
               <div className="bg-gray-50 rounded-xl p-4">
                 <p className="text-gray-500">Per Fraction</p>
                 <p className="text-blue-900 font-semibold">
-                  ₦{property.fraction_price.toLocaleString()}
+                  {property.fraction_price !== null && property.fraction_price !== undefined
+                    ? `₦${property.fraction_price.toLocaleString()}`
+                    : "-"}
                 </p>
               </div>
               <div className="bg-gray-50 rounded-xl p-4">
-                <p className="text-gray-500">Available Fractions</p>
+                <p className="text-gray-500">Fractions Available</p>
                 <p className="text-blue-900 font-semibold">
-                  {property.fractions_available}/{property.total_fractions}
+                  {fractionsAvailable}/{totalFractions || "-"}
                 </p>
               </div>
               <div className="bg-gray-50 rounded-xl p-4">
-                <p className="text-gray-500">Bedrooms</p>
+                <p className="text-gray-500">Fractions Sold</p>
                 <p className="text-blue-900 font-semibold">
-                  {property.bedrooms}
+                  {fractionsSold}/{totalFractions || "-"}
                 </p>
               </div>
               <div className="bg-gray-50 rounded-xl p-4">
                 <p className="text-gray-500">Bathrooms</p>
                 <p className="text-blue-900 font-semibold">
-                  {property.bathrooms}
-                </p>
-              </div>
-              <div className="bg-gray-50 rounded-xl p-4">
-                <p className="text-gray-500">Area</p>
-                <p className="text-blue-900 font-semibold">
-                  {property.area_sqft} sqft
+                  {property.bathrooms ?? "-"}
                 </p>
               </div>
             </div>
@@ -232,9 +248,10 @@ const PropertyDetails = () => {
             {!hasInvested && (
               <button
                 onClick={() => navigate(`/properties/${property.id}/interest`)}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-md py-3 text-sm font-medium"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-md py-3 text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed"
+                disabled={isSoldOut}
               >
-                {ctaLabel}
+                {isSoldOut ? "Sold Out" : ctaLabel}
               </button>
             )}
             <button

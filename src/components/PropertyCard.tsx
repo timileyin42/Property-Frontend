@@ -1,7 +1,8 @@
 import { ApiProperty } from "../types/property";
 import { CiLocationOn } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
-import { isVideoUrl, normalizeMediaUrl } from "../util/normalizeMediaUrl";
+import { isVideoUrl, usePresignedUrl } from "../util/normalizeMediaUrl";
+import { useMemo } from "react";
 
 
 interface PropertyCardProps {
@@ -12,23 +13,39 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
 
 const navigate = useNavigate();
 
-  const mediaUrls = [
-    property.primary_image,
-    ...(property.image_urls ?? []),
-  ]
-    .map((url) => normalizeMediaUrl(url))
-    .filter(Boolean) as string[];
+  const primaryMediaKey = useMemo(() => {
+    const mediaFiles = property.media_files ?? [];
+    const mediaFromFiles = mediaFiles
+      .map((item) => item.url ?? item.file_url ?? item.secure_url)
+      .filter(Boolean) as string[];
 
-  const imageUrl = mediaUrls.find((url) => !isVideoUrl(url));
-  const videoUrl = mediaUrls.find((url) => isVideoUrl(url));
+    return (
+      property.primary_image ||
+      property.image_urls?.[0] ||
+      property.image_url ||
+      property.media_urls?.[0] ||
+      mediaFromFiles[0] ||
+      ""
+    );
+  }, [property]);
+  const resolvedUrl = usePresignedUrl(primaryMediaKey);
+  const imageUrl = resolvedUrl && !isVideoUrl(resolvedUrl) ? resolvedUrl : "";
+  const videoUrl = resolvedUrl && isVideoUrl(resolvedUrl) ? resolvedUrl : "";
 
 
+  const totalFractions = property.total_fractions ?? 0;
+  const fractionsSold = property.fractions_sold ?? 0;
+  const fractionsAvailable =
+    property.fractions_available ?? Math.max(totalFractions - fractionsSold, 0);
+  const isSoldOut = totalFractions > 0 && fractionsSold >= totalFractions;
   const fractionProgress =
-    (property.fractions_sold / property.total_fractions) * 100;
+    totalFractions > 0 ? Math.min(100, (fractionsSold / totalFractions) * 100) : 0;
 
   const pricePerFraction =
     property.fraction_price ??
-    Math.floor(property.project_value / property.total_fractions);
+    (totalFractions > 0
+      ? Math.floor(property.project_value / totalFractions)
+      : 0);
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition overflow-hidden">
@@ -59,7 +76,11 @@ const navigate = useNavigate();
           </div>
         )}
 
-        {/* ROI */}
+        {isSoldOut && (
+          <span className="absolute top-3 left-3 bg-gray-900 text-white text-xs font-medium px-2 py-1 rounded-full">
+            Sold
+          </span>
+        )}
         <span className="absolute top-3 right-3 bg-green-600 text-white text-xs font-medium px-2 py-1 rounded-full">
           {property.expected_roi}% ROI
         </span>
@@ -76,13 +97,6 @@ const navigate = useNavigate();
           <span className="text-sm text-gray-500">
             {property.location}
           </span>
-        </div>
-
-        {/* Beds / Baths / Area */}
-        <div className="flex items-center gap-4 text-sm text-gray-700">
-          <span>{property.bedrooms} Beds</span>
-          <span>{property.bathrooms} Baths</span>
-          <span>{property.area_sqft} sqft</span>
         </div>
 
         <hr />
@@ -112,8 +126,13 @@ const navigate = useNavigate();
             <div className="flex justify-between text-sm">
               <span>Fractions Sold</span>
               <span>
-                {property.fractions_sold}/{property.total_fractions}
+                {fractionsSold}/{totalFractions}
               </span>
+            </div>
+
+            <div className="flex justify-between text-sm">
+              <span>Fractions Available</span>
+              <span>{fractionsAvailable}</span>
             </div>
 
             <div className="w-full bg-gray-200 rounded-full h-2.5">
@@ -127,9 +146,10 @@ const navigate = useNavigate();
 
        <button
   onClick={() => navigate(`/properties/${property.id}/interest`)}
-  className="bg-blue-600 hover:bg-blue-700 text-white rounded-md py-3"
+  className="bg-blue-600 hover:bg-blue-700 text-white rounded-md py-3 disabled:opacity-60 disabled:cursor-not-allowed"
+  disabled={isSoldOut}
 >
-  Express Interest
+  {isSoldOut ? "Sold Out" : "Express Interest"}
 </button>
       </div>
     </div>

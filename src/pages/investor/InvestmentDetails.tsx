@@ -5,7 +5,7 @@ import { fetchInvestorInvestmentDetail } from "../../api/investor.investments";
 import type { InvestmentDetail } from "../../types/investment";
 import type { ApiProperty } from "../../types/property";
 import { CiLocationOn } from "react-icons/ci";
-import { isVideoUrl, normalizeMediaUrl } from "../../util/normalizeMediaUrl";
+import { isVideoUrl, usePresignedUrls } from "../../util/normalizeMediaUrl";
 
 const InvestmentDetails = () => {
   const { investmentId } = useParams<{ investmentId: string }>();
@@ -41,23 +41,23 @@ const InvestmentDetails = () => {
   const fractionsOwnedFromState = (location.state as { fractionsOwned?: number } | null)?.fractionsOwned;
   const fractionsOwned = investment?.fractions_owned ?? fractionsOwnedFromState ?? 0;
 
-  const mediaItems = useMemo(() => {
-    if (!property) return [];
-    const urls = [
-      investment?.image_url,
-      property.primary_image,
-      ...(property.image_urls ?? []),
-      ...(property.media_urls ?? []),
-      ...(property.media_files?.map((item) => item.url ?? item.file_url ?? item.secure_url) ?? []),
-      ...(property.images ?? []),
-      ...(property.videos ?? []),
-      ...(property.media ?? []),
-      property.image_url,
-    ]
-      .map((url) => normalizeMediaUrl(url))
-      .filter(Boolean);
-    return Array.from(new Set(urls));
-  }, [property, investment?.image_url]);
+  const mediaItems = usePresignedUrls(
+    useMemo(() => {
+      if (!property) return [];
+      const urls = [
+        investment?.image_url,
+        property.primary_image,
+        ...(property.image_urls ?? []),
+        ...(property.media_urls ?? []),
+        ...(property.media_files?.map((item) => item.url ?? item.file_url ?? item.secure_url) ?? []),
+        ...(property.images ?? []),
+        ...(property.videos ?? []),
+        ...(property.media ?? []),
+        property.image_url,
+      ].filter(Boolean) as string[];
+      return Array.from(new Set(urls));
+    }, [property, investment?.image_url])
+  );
 
   if (loading) {
     return <p className="text-center py-10">Loading investment...</p>;

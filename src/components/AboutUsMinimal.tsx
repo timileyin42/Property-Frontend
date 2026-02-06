@@ -21,13 +21,13 @@ const AboutUsMinimal = () => {
               {/* Floating badges */}
               <div className="absolute top-2 right-2 sm:-top-4 sm:-right-4 bg-white p-3 sm:p-4 rounded-xl shadow-lg animate-float">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">500+</div>
+                  <div className="text-2xl font-bold text-green-600">100+</div>
                   <div className="text-sm text-gray-600">Investors</div>
                 </div>
               </div>
               
               <div className="absolute bottom-2 left-2 sm:-bottom-4 sm:-left-4 bg-blue-900 text-white p-3 sm:p-4 rounded-xl shadow-lg animate-float-delayed">
-                <div className="text-sm font-medium">NGN500B+</div>
+                <div className="text-sm font-medium">NGN150M+</div>
                 <div className="text-sm opacity-90">Invested</div>
               </div>
             </div>

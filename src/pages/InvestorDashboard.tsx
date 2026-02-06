@@ -17,7 +17,7 @@ import { Lock } from "lucide-react";
 import { fetchInvestorInvestments, fetchPortfolioSummary, fetchInvestorInvestmentDetail, fetchPortfolioTrend } from "../api/investor.investments";
 import type { Investment } from "../types/investment";
 import type { ApiProperty } from "../types/property";
-import { normalizeMediaUrl, isVideoUrl } from "../util/normalizeMediaUrl";
+import { getPresignedUrl, getCachedPresignedUrl, isVideoUrl } from "../util/normalizeMediaUrl";
 
 
 // import { ReactNode } from "react";
@@ -91,8 +91,8 @@ const InvestorDashboard = () => {
 
   useEffect(() => {
     const missingMedia = investments.filter((item) => {
-      const normalized = normalizeMediaUrl(item.image_url || "");
-      return !normalized;
+      const cached = getCachedPresignedUrl(item.image_url || "");
+      return !cached;
     });
     if (missingMedia.length === 0) return;
 
@@ -119,12 +119,14 @@ const InvestorDashboard = () => {
               ...(property?.videos ?? []),
               ...(property?.media ?? []),
               property?.image_url,
-            ]
-              .map((url) => normalizeMediaUrl(url))
-              .filter(Boolean) as string[];
+            ].filter(Boolean) as string[];
 
-            const imageFirst = urls.find((url) => !isVideoUrl(url));
-            const media = imageFirst ?? urls[0] ?? "";
+            const resolved = (await Promise.all(
+              urls.map((url) => getPresignedUrl(url))
+            )).filter(Boolean) as string[];
+
+            const imageFirst = resolved.find((url) => !isVideoUrl(url));
+            const media = imageFirst ?? resolved[0] ?? "";
             return [item.id, media] as const;
           })
         );
@@ -153,8 +155,8 @@ const InvestorDashboard = () => {
       investments.map((investment) => {
         const fallbackMedia = investmentMediaMap[investment.id];
         const normalized =
-          normalizeMediaUrl(investment.image_url || "") ||
-          normalizeMediaUrl(fallbackMedia || "");
+          getCachedPresignedUrl(investment.image_url || "") ||
+          getCachedPresignedUrl(fallbackMedia || "");
         return {
           ...investment,
           mediaUrl: normalized,

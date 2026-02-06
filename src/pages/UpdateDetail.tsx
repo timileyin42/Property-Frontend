@@ -15,9 +15,9 @@ import {
   toggleUpdateLike,
 } from "../api/updates";
 import type { UpdateComment, UpdateItem } from "../types/updates";
-import { isVideoUrl, normalizeMediaUrl } from "../util/normalizeMediaUrl";
+import { isVideoUrl, usePresignedUrls } from "../util/normalizeMediaUrl";
 
-const getMediaUrls = (update: UpdateItem) => {
+const getMediaKeys = (update: UpdateItem) => {
   const urls = [
     ...(update.media_files?.map((item) => item.url) ?? []),
     ...(update.media_urls ?? []),
@@ -26,11 +26,7 @@ const getMediaUrls = (update: UpdateItem) => {
     update.video_url,
   ].filter(Boolean) as string[];
 
-  const normalized = urls
-    .map((url) => normalizeMediaUrl(url))
-    .filter(Boolean) as string[];
-
-  return Array.from(new Set(normalized));
+  return Array.from(new Set(urls));
 };
 
 const getErrorMessage = (error: unknown, fallback: string) => {
@@ -73,7 +69,8 @@ const UpdateDetail = () => {
   const [isCommentOpen, setIsCommentOpen] = useState(false);
   const [accessDeniedMessage, setAccessDeniedMessage] = useState<string | null>(null);
 
-  const mediaUrls = useMemo(() => (update ? getMediaUrls(update) : []), [update]);
+  const mediaKeys = useMemo(() => (update ? getMediaKeys(update) : []), [update]);
+  const mediaUrls = usePresignedUrls(mediaKeys);
 
   useEffect(() => {
     if (!Number.isFinite(updateId)) return;

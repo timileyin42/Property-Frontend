@@ -11,13 +11,13 @@ const TestimonialsSimple = () => {
   
   const testimonials = [
     {
-      name: "Sarah Okonkwo",
+      name: "Ifeoma Nwosu",
       role: "Real Estate Investor",
       comment: "Elycapvest Luxury Homes has completely transformed how I invest in real estate. The transparency and real-time monitoring give me peace of mind.",
       image: img1,
     },
     {
-      name: "David Adeleke",
+      name: "Chinedu Okoro",
       role: "Tech Entrepreneur",
       comment: "As someone who values transparency, Elycapvest Luxury Homes is exactly what the real estate market needed. Highly recommended!",
       image: img2,

@@ -3,7 +3,7 @@ import toast, { Toaster } from "react-hot-toast";
 
 import { ApiProperty } from "../../types/property";
 import { StatusBadge } from "../../components/StatusBadge";
-import { normalizeMediaUrl, isVideoUrl } from "../../util/normalizeMediaUrl";
+import { getPresignedUrl, getCachedPresignedUrl, isVideoUrl } from "../../util/normalizeMediaUrl";
 import {
   fetchAdminProperties,
   PropertyStatusFilter,
@@ -51,6 +51,14 @@ const AdminProperties = () => {
   useEffect(() => {
     loadProperties();
   }, [loadProperties]);
+
+  useEffect(() => {
+    const mediaKeys = properties.flatMap((property) =>
+      [property.primary_image, ...(property.image_urls ?? [])].filter(Boolean)
+    ) as string[];
+    if (mediaKeys.length === 0) return;
+    Promise.all(mediaKeys.map((key) => getPresignedUrl(key))).catch(() => null);
+  }, [properties]);
 
   const handleOpenModal = (property: ApiProperty) => {
     setSelectedProperty(property);
@@ -123,7 +131,7 @@ const AdminProperties = () => {
                   property.primary_image,
                   ...(property.image_urls ?? []),
                 ]
-                  .map((url) => normalizeMediaUrl(url))
+                  .map((url) => getCachedPresignedUrl(url))
                   .filter(Boolean) as string[];
                 const imageUrl = mediaUrls.find((url) => !isVideoUrl(url));
                 const videoUrl = mediaUrls.find((url) => isVideoUrl(url));

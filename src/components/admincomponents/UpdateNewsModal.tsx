@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import type { UpdateItem } from "../../types/updates";
 import { createAdminUpdate, updateAdminUpdate } from "../../api/admin.updates";
-import { isVideoUrl, normalizeMediaUrl } from "../../util/normalizeMediaUrl";
+import { isVideoUrl, getPresignedUrl, getCachedPresignedUrl } from "../../util/normalizeMediaUrl";
 
 interface UpdateNewsModalProps {
   isOpen: boolean;
@@ -89,10 +89,15 @@ const UpdateNewsModal: React.FC<UpdateNewsModalProps> = ({
     setPropertyId(update.property_id ? String(update.property_id) : "");
   }, [update]);
 
+  useEffect(() => {
+    if (mediaUrls.length === 0) return;
+    Promise.all(mediaUrls.map((url) => getPresignedUrl(url))).catch(() => null);
+  }, [mediaUrls]);
+
   const normalizedMedia = useMemo(
     () =>
       mediaUrls
-        .map((url) => ({ raw: url, normalized: normalizeMediaUrl(url) }))
+        .map((url) => ({ raw: url, normalized: getCachedPresignedUrl(url) }))
         .filter((item) => Boolean(item.normalized)),
     [mediaUrls]
   );
@@ -285,7 +290,7 @@ const UpdateNewsModal: React.FC<UpdateNewsModalProps> = ({
 
             const combined = [...mediaUrls, ...newUrls];
             const combinedNormalized = combined
-              .map((url) => ({ raw: url, normalized: normalizeMediaUrl(url) }))
+              .map((url) => ({ raw: url, normalized: getCachedPresignedUrl(url) }))
               .filter((item) => Boolean(item.normalized));
 
             const image = combinedNormalized.find((item) => !isVideoUrl(item.normalized))?.raw;
