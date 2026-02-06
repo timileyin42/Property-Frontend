@@ -224,12 +224,6 @@ const PropertyDetails = () => {
                   {fractionsSold}/{totalFractions || "-"}
                 </p>
               </div>
-              <div className="bg-gray-50 rounded-xl p-4">
-                <p className="text-gray-500">Bathrooms</p>
-                <p className="text-blue-900 font-semibold">
-                  {property.bathrooms ?? "-"}
-                </p>
-              </div>
             </div>
           </div>
         </div>

@@ -179,18 +179,6 @@ const InvestmentDetails = () => {
                 </p>
               </div>
               <div className="bg-gray-50 rounded-xl p-4">
-                <p className="text-gray-500">Bedrooms</p>
-                <p className="text-blue-900 font-semibold">
-                  {property.bedrooms ?? "N/A"}
-                </p>
-              </div>
-              <div className="bg-gray-50 rounded-xl p-4">
-                <p className="text-gray-500">Bathrooms</p>
-                <p className="text-blue-900 font-semibold">
-                  {property.bathrooms ?? "N/A"}
-                </p>
-              </div>
-              <div className="bg-gray-50 rounded-xl p-4">
                 <p className="text-gray-500">Area</p>
                 <p className="text-blue-900 font-semibold">
                   {property.area_sqft !== undefined ? `${property.area_sqft} sqft` : "N/A"}
