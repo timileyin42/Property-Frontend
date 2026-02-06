@@ -31,12 +31,7 @@ const {isAuthenticated, logout, user} = useAuth();
 
   const isUserMenu = true;
 
-  const roleDashboardLink =
-    user?.role === "ADMIN"
-      ? "/admindashboard"
-      : user
-        ? "/investor/dashboard"
-        : null;
+  const roleDashboardLink = user && user.role !== "ADMIN" ? "/investor/dashboard" : null;
 
   const userMenuItems = [
     { label: "Properties", href: "/properties", icon: <HomeIcon /> },
@@ -69,7 +64,7 @@ const {isAuthenticated, logout, user} = useAuth();
 
   if (roleDashboardLink) {
     userMenuItems.unshift({
-      label: user?.role === "ADMIN" ? "Admin Dashboard" : "Investor Dashboard",
+      label: "Investor Dashboard",
       href: roleDashboardLink,
       icon: <HomeIcon />,
     });
