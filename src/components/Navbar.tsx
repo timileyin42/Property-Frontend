@@ -34,7 +34,7 @@ const {isAuthenticated, logout, user} = useAuth();
   const roleDashboardLink =
     user?.role === "ADMIN"
       ? "/admindashboard"
-      : user?.role === "INVESTOR"
+      : user
         ? "/investor/dashboard"
         : null;
 

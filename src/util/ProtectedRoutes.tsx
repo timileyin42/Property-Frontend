@@ -22,8 +22,11 @@ export const ProtectedRoutes = ({ allowedRole }: ProtectedProps) => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // FIXED LINE: Cast user.role to string to allow comparison
-  if (allowedRole && (user.role as string) !== (allowedRole as string)) {
+  if (allowedRole === "INVESTOR") {
+    if (user.role !== "INVESTOR" && user.role !== "USER") {
+      return <Navigate to="/" replace />;
+    }
+  } else if (allowedRole && (user.role as string) !== (allowedRole as string)) {
     return <Navigate to="/" replace />;
   }
 

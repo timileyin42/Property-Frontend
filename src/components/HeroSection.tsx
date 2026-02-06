@@ -6,6 +6,7 @@ import { IoIosHeartEmpty } from "react-icons/io";
 import { FaInstagram } from "react-icons/fa6";
 // import {ShieldIcon} from "../components/svgs/ShieldIcon"
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from "../context/AuthContext";
 import img1 from "../assets/img1.jpg";
 import {fetchFeaturedProperties} from "../api/properties";
 import { useEffect, useMemo, useState } from "react";
@@ -27,6 +28,7 @@ interface StatementItem {
 
 function HeroSection(){
 	const navigate = useNavigate();
+	const { isAuthenticated } = useAuth();
 	const [properties, setProperties] = useState<ApiProperty[]>([]);
   // const [loading, setLoading] = useState(true);
   // const [error, setError] = useState<string | null>(null);
@@ -100,20 +102,22 @@ function HeroSection(){
 								Invest in premium real estate with complete transparency. Monitor your shortlet properties in real-time and watch your investment grow.
 							</p>
 							<div className="flex flex-col sm:flex-row gap-3 items-center justify-center w-full sm:w-auto">
+								{!isAuthenticated && (
+									<button
+										className="w-full sm:w-auto bg-blue-900 text-white font-sans px-8 py-3 sm:px-10 sm:py-4 cursor-pointer rounded rounded-xl transition-all duration-500 hover:bg-blue-500 font-bold text-base"
+										onClick={() => navigate("/signup")}
+									>
+										Get Started
+									</button>
+								)}
 								<button
-									className="w-full sm:w-auto bg-blue-900 text-white font-sans px-8 py-3 sm:px-10 sm:py-4 cursor-pointer rounded rounded-xl transition-all duration-500 hover:bg-blue-500 font-bold text-base"
-									onClick={() => navigate("/signup")}
-								>
-									Get Started
-								</button>
-							<button
-								onClick={()=>navigate("/properties")}
+									onClick={()=>navigate("/properties")}
 								className="w-full sm:w-auto bg-white text-blue-900 font-sans px-8 
 								py-3 sm:px-10 sm:py-4 cursor-pointer rounded rounded-xl transition-all duration-500
 								hover:bg-gray-200 border-1 border-blue-900 font-bold text-base"
-							>View Properties
-							</button>
-						</div>
+								>View Properties
+								</button>
+							</div>
 						</div>
 						
 					</div>
@@ -217,12 +221,14 @@ function HeroSection(){
 						<p className="text-center text-base text-gray-200 font-inter">
 							Join Elycapvest Properties today and get access to premium shortlet properties.
 							</p>
-						<button
-							onClick={() => navigate("/signup")}
-							className="bg-white text-blue-900 font-sans px-10 py-4 cursor-pointer rounded rounded-xl hover:from-blue-700 hover:to-indigo-800 transition-all duration-300 hover:shadow-lg font-bold text-base"
-						>
-							Create Your Account
-						</button>
+						{!isAuthenticated && (
+							<button
+								onClick={() => navigate("/signup")}
+								className="bg-white text-blue-900 font-sans px-10 py-4 cursor-pointer rounded rounded-xl hover:from-blue-700 hover:to-indigo-800 transition-all duration-300 hover:shadow-lg font-bold text-base"
+							>
+								Create Your Account
+							</button>
+						)}
 						
 					</section>
 

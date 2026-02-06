@@ -38,6 +38,13 @@ const InterestForm: React.FC<InterestFormProps> = ({ property }) => {
   const idempotencyKeyRef = useRef<string>(uuidv4());
   // const [isGuestMode, setIsGuestMode] = useState(false);
 
+  const messageOptions = [
+    `I am interested in investing in ${property.title}. Please share next steps.`,
+    `Please send me more details about ${property.title} and available fractions.`,
+    `I would like a call to discuss investment options for ${property.title}.`,
+    `Kindly share the expected returns and payment plan for ${property.title}.`,
+  ];
+
   // Initialize form with user data if authenticated
   const {
     register,
@@ -200,11 +207,20 @@ const InterestForm: React.FC<InterestFormProps> = ({ property }) => {
           </div>
 
           <div>
-            <textarea
+            <select
               {...register("message")}
-              placeholder="Message *"
-              className="w-full bg-gray-50 border border-gray-300 rounded-md p-2 outline-none transition-all focus:border-blue-500 focus:ring-1 focus:ring-blue-500 min-h-[100px]"
-            />
+              className="w-full bg-gray-50 border border-gray-300 rounded-md p-2 outline-none transition-all focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              defaultValue=""
+            >
+              <option value="" disabled>
+                Select a message *
+              </option>
+              {messageOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
             <p className="text-red-500 text-sm mt-1">{errors.message?.message}</p>
           </div>
 
@@ -274,11 +290,20 @@ const InterestForm: React.FC<InterestFormProps> = ({ property }) => {
         </div>
 
         <div>
-          <textarea
+          <select
             {...register("message")}
-            placeholder="Message *"
-            className="w-full border border-gray-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md p-2 min-h-[100px]"
-          />
+            className="w-full border border-gray-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md p-2"
+            defaultValue=""
+          >
+            <option value="" disabled>
+              Select a message *
+            </option>
+            {messageOptions.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
           <p className="text-red-500 text-sm mt-1">{errors.message?.message}</p>
         </div>
 

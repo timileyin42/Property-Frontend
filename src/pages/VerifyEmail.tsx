@@ -79,7 +79,7 @@ export const VerifyEmail = () => {
         navigate("/login", { replace: true });
         return;
       }
-      navigate("/", { replace: true });
+      navigate("/profile", { replace: true });
     } catch (error: unknown) {
       const err = error as {
         response?: { data?: { detail?: string; message?: string } };

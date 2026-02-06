@@ -13,6 +13,7 @@ import LineChart from "../components/charts/LineChart"
 import toast, { Toaster } from "react-hot-toast";
 import {useAuth} from "../context/AuthContext"
 import {useState, useEffect, useMemo} from "react";
+import { Lock } from "lucide-react";
 import { fetchInvestorInvestments, fetchPortfolioSummary, fetchInvestorInvestmentDetail, fetchPortfolioTrend } from "../api/investor.investments";
 import type { Investment } from "../types/investment";
 import type { ApiProperty } from "../types/property";
@@ -56,6 +57,7 @@ const InvestorDashboard = () => {
   const [trend, setTrend] = useState<{ labels: string[]; values: number[] }>(
     { labels: [], values: [] }
   );
+  const [isDashboardLoading, setIsDashboardLoading] = useState(true);
 
   useEffect(() => {
     if (user?.full_name) {
@@ -64,6 +66,7 @@ const InvestorDashboard = () => {
 
     const loadInvestorData = async () => {
       try {
+        setIsDashboardLoading(true);
         const [investmentRes, summaryRes, trendRes] = await Promise.all([
           fetchInvestorInvestments(),
           fetchPortfolioSummary(),
@@ -78,6 +81,8 @@ const InvestorDashboard = () => {
         });
       } catch (error) {
         console.error("Failed to fetch investor dashboard data:", error);
+      } finally {
+        setIsDashboardLoading(false);
       }
     };
 
@@ -236,8 +241,25 @@ const InvestorDashboard = () => {
       />
 
       <Toaster position="top-right" />
-    
-      <section>
+      <div className="relative">
+        {!isDashboardLoading && investments.length === 0 && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-white/80 backdrop-blur-sm">
+            <div className="flex flex-col items-center gap-3 text-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-50 text-blue-900">
+                <Lock className="h-8 w-8" />
+              </div>
+              <h3 className="text-lg font-semibold text-blue-900">
+                Portfolio Locked
+              </h3>
+              <p className="text-sm text-gray-500 max-w-sm">
+                Your dashboard will unlock after your first investment. Browse
+                properties to get started.
+              </p>
+            </div>
+          </div>
+        )}
+
+        <section>
         <div className="pt-6 mb-8">
           <h2 className="font-bold text-blue-900 text-3xl">
             My Portfolio
@@ -277,7 +299,7 @@ const InvestorDashboard = () => {
             );
           })}
         </div>
-      </section>
+        </section>
         {/* ===== GRAPH SECTION (Placeholder) ===== */}
       {investments.length > 0 && (
         <section className="my-12 w-full border border-gray-300 p-6 rounded-xl">
@@ -297,7 +319,7 @@ const InvestorDashboard = () => {
       )}
 
       {/* ===== AVAILABLE PROPERTIES / STATS ===== */}
-      <section>
+        <section>
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-bold text-blue-900 text-lg">My Investments</h2>
           <span className="text-sm text-gray-500">
@@ -387,7 +409,8 @@ const InvestorDashboard = () => {
             ))}
           </div>
         )}
-      </section>
+        </section>
+      </div>
     </div>
   );
 };
