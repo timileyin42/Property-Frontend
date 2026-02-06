@@ -1,4 +1,4 @@
-export type UserRole = "USER" | "INVESTOR" | "ADMIN";
+export type UserRole = "INVESTOR" | "ADMIN";
 export type InquiryStatus = "NEW" | "CONTACTED" | "CLOSED";
 
 export interface User {

@@ -2,7 +2,7 @@ import { Outlet, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 interface ProtectedProps {
-  allowedRole?: "USER" | "INVESTOR" | "ADMIN" | "PROPERTY_OWNER";
+  allowedRole?: "INVESTOR" | "ADMIN";
 }
 
 export const ProtectedRoutes = ({ allowedRole }: ProtectedProps) => {
@@ -22,11 +22,7 @@ export const ProtectedRoutes = ({ allowedRole }: ProtectedProps) => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (allowedRole === "INVESTOR") {
-    if (user.role !== "INVESTOR" && user.role !== "USER") {
-      return <Navigate to="/" replace />;
-    }
-  } else if (allowedRole && (user.role as string) !== (allowedRole as string)) {
+  if (allowedRole && user.role !== allowedRole) {
     return <Navigate to="/" replace />;
   }
 

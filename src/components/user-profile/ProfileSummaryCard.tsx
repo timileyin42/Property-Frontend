@@ -34,9 +34,6 @@ const ProfileSummaryCard: React.FC<ProfileSummaryCardProps> = ({
         <p className="text-[#717182] text-[16px] leading-[24px]">
           {user.email}
         </p>
-        <span className="mt-3 inline-flex items-center justify-center border border-[#1e3a8a] bg-[#eff6ff] text-[#1e3a8a] text-[12px] font-medium leading-[16px] px-[9px] py-[3px] rounded-[8px]">
-          {user.role}
-        </span>
       </div>
 
       <div className="mt-10 flex flex-col gap-3">
