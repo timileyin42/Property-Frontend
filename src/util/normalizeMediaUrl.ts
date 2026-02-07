@@ -12,7 +12,15 @@ const normalizeAbsolute = (value: string) =>
 const MEDIA_BASE_URL =
   import.meta.env.VITE_MEDIA_BASE_URL ?? "https://elycapfracprop.com";
 
+const normalizeMediaPath = (value: string) => {
+  if (value.startsWith("/media/")) return `${MEDIA_BASE_URL}${value}`;
+  if (value.startsWith("media/")) return `${MEDIA_BASE_URL}/${value}`;
+  return "";
+};
+
 const buildMediaUrl = (fileKey: string): string => {
+  const directPath = normalizeMediaPath(fileKey);
+  if (directPath) return directPath;
   const encoded = encodeURIComponent(fileKey);
   return `${MEDIA_BASE_URL}/media/${encoded}`;
 };

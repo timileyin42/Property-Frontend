@@ -1,4 +1,3 @@
-
 import { ApiProperty } from "../types/property";
 import { CiLocationOn } from "react-icons/ci";
 import { isVideoUrl, usePresignedUrl } from "../util/normalizeMediaUrl";
