@@ -1,8 +1,5 @@
 import { useEffect, useState } from "react";
-import { api, API_BASE_URL } from "../api/axios";
-
-const presignCache = new Map<string, string>();
-const presignInFlight = new Map<string, Promise<string>>();
+import { API_BASE_URL } from "../api/axios";
 
 const isAbsoluteUrl = (value: string) =>
   value.startsWith("http://") ||
@@ -15,12 +12,9 @@ const normalizeAbsolute = (value: string) =>
 
 const FILES_BASE_URL = API_BASE_URL.replace(/\/api\/?$/, "");
 
-const presignDownload = async (fileKey: string): Promise<string> => {
+const buildMediaUrl = (fileKey: string): string => {
   const encoded = encodeURIComponent(fileKey);
-  const res = await api.get<{ url?: string }>(
-    `${FILES_BASE_URL}/media/${encoded}`
-  );
-  return res.data?.url ?? "";
+  return `${FILES_BASE_URL}/media/${encoded}`;
 };
 
 export const getPresignedUrl = async (value?: string): Promise<string> => {
@@ -29,25 +23,7 @@ export const getPresignedUrl = async (value?: string): Promise<string> => {
     return normalizeAbsolute(value);
   }
 
-  const cached = presignCache.get(value);
-  if (cached) return cached;
-
-  const existing = presignInFlight.get(value);
-  if (existing) return existing;
-
-  const request = presignDownload(value)
-    .then((url) => {
-      if (url) presignCache.set(value, url);
-      presignInFlight.delete(value);
-      return url;
-    })
-    .catch(() => {
-      presignInFlight.delete(value);
-      return "";
-    });
-
-  presignInFlight.set(value, request);
-  return request;
+  return buildMediaUrl(value);
 };
 
 export const getCachedPresignedUrl = (value?: string): string => {
@@ -55,7 +31,7 @@ export const getCachedPresignedUrl = (value?: string): string => {
   if (isAbsoluteUrl(value) || value.startsWith("//")) {
     return normalizeAbsolute(value);
   }
-  return presignCache.get(value) ?? "";
+  return buildMediaUrl(value);
 };
 
 export const usePresignedUrl = (value?: string) => {
