@@ -15,11 +15,15 @@ interface PropertyRowProps {
 
 export const PropertyRow = ({ property }: PropertyRowProps) => {
   console.log(property);
+  const projectValue =
+    typeof property.project_value === "number" ? property.project_value : null;
   return (
     <tr className="">
       <td className="py-3 font-medium ">{property.title}</td>
       <td className="text-gray-400">{property.location}</td>
-      <td className="text-gray-400">₦{property.project_value.toLocaleString()}</td>
+      <td className="text-gray-400">
+        {projectValue !== null ? `₦${projectValue.toLocaleString()}` : "-"}
+      </td>
       <td className="text-gray-400">{property.total_fractions}</td>
       <td className="text-gray-400">{
         

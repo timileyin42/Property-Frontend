@@ -40,12 +40,14 @@ const navigate = useNavigate();
   const isSoldOut = totalFractions > 0 && fractionsSold >= totalFractions;
   const fractionProgress =
     totalFractions > 0 ? Math.min(100, (fractionsSold / totalFractions) * 100) : 0;
-
+  const projectValue =
+    typeof property.project_value === "number" ? property.project_value : null;
   const pricePerFraction =
-    property.fraction_price ??
-    (totalFractions > 0
-      ? Math.floor(property.project_value / totalFractions)
-      : 0);
+    typeof property.fraction_price === "number"
+      ? property.fraction_price
+      : projectValue !== null && totalFractions > 0
+        ? Math.floor(projectValue / totalFractions)
+        : null;
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition overflow-hidden">
@@ -106,7 +108,9 @@ const navigate = useNavigate();
           <div className="flex justify-between">
             <span>Total Value</span>
             <span className="font-semibold">
-              ₦{property.project_value.toLocaleString()}
+              {projectValue !== null
+                ? `₦${projectValue.toLocaleString()}`
+                : "N/A"}
             </span>
           </div>
 
@@ -114,7 +118,9 @@ const navigate = useNavigate();
             <div className="flex justify-between">
               <span>Per Fraction</span>
               <span className="font-semibold">
-                ₦{pricePerFraction.toLocaleString()}
+                {pricePerFraction !== null
+                  ? `₦${pricePerFraction.toLocaleString()}`
+                  : "N/A"}
               </span>
             </div>
           )}

@@ -39,6 +39,9 @@ const formatPercent = (value?: number) => {
   return percentFormatter.format(numeric);
 };
 
+const formatCurrency = (value?: number | null) =>
+  typeof value === "number" ? `₦${value.toLocaleString()}` : "N/A";
+
 const InvestorDashboard = () => {
   const {user} = useAuth();
   const [investments, setInvestments] = useState<Investment[]>([]);
@@ -377,13 +380,13 @@ const InvestorDashboard = () => {
                     <div>
                       <p className="text-gray-400">Initial Value</p>
                       <p className="font-semibold">
-                        ₦{investment.initial_value.toLocaleString()}
+                        {formatCurrency(investment.initial_value ?? null)}
                       </p>
                     </div>
                     <div>
                       <p className="text-gray-400">Current Value</p>
                       <p className="font-semibold">
-                        ₦{investment.current_value.toLocaleString()}
+                        {formatCurrency(investment.current_value ?? null)}
                       </p>
                     </div>
                     <div>

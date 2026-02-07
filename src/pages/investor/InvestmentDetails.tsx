@@ -7,6 +7,9 @@ import type { ApiProperty } from "../../types/property";
 import { CiLocationOn } from "react-icons/ci";
 import { isVideoUrl, usePresignedUrls } from "../../util/normalizeMediaUrl";
 
+const formatCurrency = (value?: number | null) =>
+  typeof value === "number" ? `₦${value.toLocaleString()}` : "N/A";
+
 const InvestmentDetails = () => {
   const { investmentId } = useParams<{ investmentId: string }>();
   const location = useLocation();
@@ -159,17 +162,13 @@ const InvestmentDetails = () => {
               <div className="bg-gray-50 rounded-xl p-4">
                 <p className="text-gray-500">Total Value</p>
                 <p className="text-blue-900 font-semibold">
-                  {property.project_value !== undefined
-                    ? `₦${property.project_value.toLocaleString()}`
-                    : "N/A"}
+                  {formatCurrency(property.project_value ?? null)}
                 </p>
               </div>
               <div className="bg-gray-50 rounded-xl p-4">
                 <p className="text-gray-500">Per Fraction</p>
                 <p className="text-blue-900 font-semibold">
-                  {property.fraction_price !== undefined
-                    ? `₦${property.fraction_price.toLocaleString()}`
-                    : "N/A"}
+                  {formatCurrency(property.fraction_price ?? null)}
                 </p>
               </div>
               <div className="bg-gray-50 rounded-xl p-4">
@@ -209,13 +208,13 @@ const InvestmentDetails = () => {
               <div>
                 <p className="text-gray-500">Initial Value</p>
                 <p className="text-blue-900 font-semibold">
-                  ₦{investment.initial_value.toLocaleString()}
+                  {formatCurrency(investment.initial_value ?? null)}
                 </p>
               </div>
               <div>
                 <p className="text-gray-500">Current Value</p>
                 <p className="text-blue-900 font-semibold">
-                  ₦{investment.current_value.toLocaleString()}
+                  {formatCurrency(investment.current_value ?? null)}
                 </p>
               </div>
               <div>
@@ -227,7 +226,7 @@ const InvestmentDetails = () => {
               <div>
                 <p className="text-gray-500">Growth Amount</p>
                 <p className="text-emerald-600 font-semibold">
-                  ₦{investment.growth_amount.toLocaleString()}
+                  {formatCurrency(investment.growth_amount ?? null)}
                 </p>
               </div>
             </div>

@@ -35,6 +35,8 @@ const LandingPropertyCard: React.FC<LandingPropertyCardProps> = ({ property }) =
   const totalFractions = property.total_fractions ?? 0;
   const fractionsSold = property.fractions_sold ?? 0;
   const isSoldOut = totalFractions > 0 && fractionsSold >= totalFractions;
+  const projectValue =
+    typeof property.project_value === "number" ? property.project_value : null;
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition overflow-hidden h-full">
@@ -89,7 +91,9 @@ const LandingPropertyCard: React.FC<LandingPropertyCardProps> = ({ property }) =
           <div className="flex justify-between items-center mb-3">
             <span className="text-sm text-gray-600">Total Value</span>
             <span className="font-semibold text-sm">
-              ₦{property.project_value.toLocaleString()}
+              {projectValue !== null
+                ? `₦${projectValue.toLocaleString()}`
+                : "N/A"}
             </span>
             
           </div>

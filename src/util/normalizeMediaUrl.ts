@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { API_BASE_URL } from "../api/axios";
 
 const isAbsoluteUrl = (value: string) =>
   value.startsWith("http://") ||
@@ -10,11 +9,12 @@ const isAbsoluteUrl = (value: string) =>
 const normalizeAbsolute = (value: string) =>
   value.startsWith("//") ? `https:${value}` : value;
 
-const FILES_BASE_URL = API_BASE_URL.replace(/\/api\/?$/, "");
+const MEDIA_BASE_URL =
+  import.meta.env.VITE_MEDIA_BASE_URL ?? "https://elycapfracprop.com";
 
 const buildMediaUrl = (fileKey: string): string => {
   const encoded = encodeURIComponent(fileKey);
-  return `${FILES_BASE_URL}/media/${encoded}`;
+  return `${MEDIA_BASE_URL}/media/${encoded}`;
 };
 
 export const getPresignedUrl = async (value?: string): Promise<string> => {

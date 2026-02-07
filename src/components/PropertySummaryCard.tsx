@@ -31,11 +31,14 @@ const PropertySummaryCard: React.FC<Props> = ({ property }) => {
   const fractionsAvailable =
     property.fractions_available ?? Math.max(totalFractions - fractionsSold, 0);
   const isSoldOut = totalFractions > 0 && fractionsSold >= totalFractions;
+  const projectValue =
+    typeof property.project_value === "number" ? property.project_value : null;
   const pricePerFraction =
-    property.fraction_price ??
-    (totalFractions > 0
-      ? Math.floor(property.project_value / totalFractions)
-      : 0);
+    typeof property.fraction_price === "number"
+      ? property.fraction_price
+      : projectValue !== null && totalFractions > 0
+        ? Math.floor(projectValue / totalFractions)
+        : null;
   return (
 
     <div className="bg-white rounded-xl border border-gray-200 shadow shadow-lg p-4 space-y-4">
@@ -74,14 +77,18 @@ const PropertySummaryCard: React.FC<Props> = ({ property }) => {
         <div className="bg-gray-50 p-2 rounded-xl">
           <p>Total Price</p>
           <p className="font-semibold">
-            ₦{property.project_value.toLocaleString()}
+            {projectValue !== null
+              ? `₦${projectValue.toLocaleString()}`
+              : "N/A"}
           </p>
         </div>
 
         <div className="bg-gray-50 rounded-xl p-2">
           <p>Per Fraction</p>
           <p className="font-semibold">
-            ₦{pricePerFraction.toLocaleString()}
+            {pricePerFraction !== null
+              ? `₦${pricePerFraction.toLocaleString()}`
+              : "N/A"}
           </p>
         </div>
 
