@@ -16,11 +16,11 @@ const normalizeAbsolute = (value: string) =>
 const FILES_BASE_URL = API_BASE_URL.replace(/\/api\/?$/, "");
 
 const presignDownload = async (fileKey: string): Promise<string> => {
-  const res = await api.post<{ download_url?: string }>(
-    `${FILES_BASE_URL}/files/presign-download`,
-    { file_key: fileKey }
+  const encoded = encodeURIComponent(fileKey);
+  const res = await api.get<{ url?: string }>(
+    `${FILES_BASE_URL}/media/${encoded}`
   );
-  return res.data?.download_url ?? "";
+  return res.data?.url ?? "";
 };
 
 export const getPresignedUrl = async (value?: string): Promise<string> => {
