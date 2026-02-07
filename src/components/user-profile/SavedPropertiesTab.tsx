@@ -11,6 +11,14 @@ const locationIcon =
 const heartIcon =
   "https://www.figma.com/api/mcp/asset/2a3b6e47-cf7c-41a8-a280-2bec0aebcd5d";
 
+const getWishlistItems = (data: unknown): WishlistItem[] => {
+  if (!data || typeof data !== "object") return [];
+  const record = data as Record<string, unknown>;
+  const items =
+    record.items ?? record.data ?? record.wishlist ?? record.wishlists;
+  return Array.isArray(items) ? (items as WishlistItem[]) : [];
+};
+
 interface SavedPropertyCardProps {
   item: WishlistItem;
   details?: ApiProperty;
@@ -170,7 +178,7 @@ const SavedPropertiesTab: React.FC = () => {
     const fetchWishlist = async () => {
       try {
         const res = await api.get<WishlistListResponse>("/user/wishlist");
-        const wishlistItems = res.data.items;
+        const wishlistItems = getWishlistItems(res.data);
         setItems(wishlistItems);
 
         const propertyIds = wishlistItems

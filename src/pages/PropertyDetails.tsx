@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { api } from "../api/axios";
@@ -7,7 +7,15 @@ import { useAuth } from "../context/AuthContext";
 import { CiLocationOn } from "react-icons/ci";
 import { isVideoUrl, usePresignedUrls } from "../util/normalizeMediaUrl";
 import toast, { Toaster } from "react-hot-toast";
-import type { WishlistListResponse } from "../types/userProfile";
+import type { WishlistItem, WishlistListResponse } from "../types/userProfile";
+
+const getWishlistItems = (data: unknown): WishlistItem[] => {
+  if (!data || typeof data !== "object") return [];
+  const record = data as Record<string, unknown>;
+  const items =
+    record.items ?? record.data ?? record.wishlist ?? record.wishlists;
+  return Array.isArray(items) ? (items as WishlistItem[]) : [];
+};
 
 const PropertyDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -29,23 +37,22 @@ const PropertyDetails = () => {
       .finally(() => setLoading(false));
   }, [id]);
 
-  useEffect(() => {
+  const fetchWishlist = useCallback(async () => {
     if (!isAuthenticated || !id) return;
 
-    const fetchWishlist = async () => {
-      try {
-        const res = await api.get<WishlistListResponse>("/user/wishlist");
-        const match = res.data.items.find(
-          (item) => item.property_id === Number(id)
-        );
-        setWishlistId(match?.id ?? null);
-      } catch (error) {
-        console.error("Failed to fetch wishlist:", error);
-      }
-    };
-
-    fetchWishlist();
+    try {
+      const res = await api.get<WishlistListResponse>("/user/wishlist");
+      const items = getWishlistItems(res.data);
+      const match = items.find((item) => item.property_id === Number(id));
+      setWishlistId(match?.id ?? null);
+    } catch (error) {
+      console.error("Failed to fetch wishlist:", error);
+    }
   }, [id, isAuthenticated]);
+
+  useEffect(() => {
+    fetchWishlist();
+  }, [fetchWishlist]);
 
   const handleWishlistToggle = async () => {
     if (!isAuthenticated) {
@@ -66,7 +73,18 @@ const PropertyDetails = () => {
           notify_on_update: true,
           notify_on_price_change: true,
         });
-        setWishlistId(res.data.id);
+        const createdId =
+          (res.data as { id?: number })?.id ??
+          (res.data as { item?: { id?: number } })?.item?.id ??
+          (res.data as { wishlist?: { id?: number } })?.wishlist?.id ??
+          (res.data as { data?: { id?: number } })?.data?.id ??
+          null;
+
+        if (typeof createdId === "number") {
+          setWishlistId(createdId);
+        } else {
+          await fetchWishlist();
+        }
         toast.success("Added to wishlist");
       }
     } catch (error) {
@@ -248,17 +266,19 @@ const PropertyDetails = () => {
                 {isSoldOut ? "Sold Out" : ctaLabel}
               </button>
             )}
-            <button
-              onClick={handleWishlistToggle}
-              disabled={wishlistLoading}
-              className="w-full border border-blue-600 text-blue-600 hover:bg-blue-50 rounded-md py-3 text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {wishlistLoading
-                ? "Updating..."
-                : wishlistId
-                  ? "Saved to Wishlist"
-                  : "Add to Wishlist"}
-            </button>
+            {wishlistId ? (
+              <div className="w-full border border-emerald-200 bg-emerald-50 text-emerald-700 rounded-md py-3 text-sm font-medium text-center">
+                Saved to Wishlist
+              </div>
+            ) : (
+              <button
+                onClick={handleWishlistToggle}
+                disabled={wishlistLoading}
+                className="w-full border border-blue-600 text-blue-600 hover:bg-blue-50 rounded-md py-3 text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {wishlistLoading ? "Updating..." : "Add to Wishlist"}
+              </button>
+            )}
           </div>
         </div>
       </section>
