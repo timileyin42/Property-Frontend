@@ -93,7 +93,7 @@ function App() {
 
   // 👤 INVESTOR ROUTES
   {
-    element: <ProtectedRoutes allowedRole="INVESTOR" />,
+    element: <ProtectedRoutes allowedRole={["INVESTOR", "ADMIN"]} />,
     children: [
       { path: "/investor/dashboard", element: <InvestorDashboard /> },
       { path: "/investor/investments/:investmentId", element: <InvestmentDetails /> },

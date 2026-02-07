@@ -31,7 +31,7 @@ const {isAuthenticated, logout, user} = useAuth();
 
   const isUserMenu = true;
 
-  const roleDashboardLink = user && user.role !== "ADMIN" ? "/investor/dashboard" : null;
+  const roleDashboardLink = user ? "/investor/dashboard" : null;
 
   const userMenuItems = [
     { label: "Properties", href: "/properties", icon: <HomeIcon /> },
