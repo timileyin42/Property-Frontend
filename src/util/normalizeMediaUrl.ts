@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const isAbsoluteUrl = (value: string) =>
   value.startsWith("http://") ||
@@ -60,8 +60,8 @@ export const usePresignedUrl = (value?: string) => {
 
 export const usePresignedUrls = (values: string[]) => {
   const [urls, setUrls] = useState<string[]>([]);
-  const stableValues = values.filter(Boolean);
-  const key = stableValues.join("|");
+  const stableValues = useMemo(() => values.filter(Boolean), [values]);
+  const key = useMemo(() => stableValues.join("|"), [stableValues]);
 
   useEffect(() => {
     let active = true;

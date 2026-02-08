@@ -15,6 +15,8 @@ export interface Investment {
   user_id: number;
   property_id: number;
   fractions_owned: number;
+  fractions_sold?: number;
+  fractions_removed?: number;
   initial_value: number;
   current_value: number;
   ownership_percentage: number;
@@ -40,6 +42,8 @@ export interface InvestmentDetail {
   user_id: number;
   property_id: number;
   fractions_owned: number;
+  fractions_sold?: number;
+  fractions_removed?: number;
   initial_value: number;
   current_value: number;
   ownership_percentage?: number;

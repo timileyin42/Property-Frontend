@@ -400,6 +400,13 @@ const InvestorDashboard = () => {
                       <p className="font-semibold">{investment.fractions_owned}</p>
                     </div>
                   </div>
+                  {((investment.fractions_sold ?? 0) > 0) && (
+                    <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-2 py-1">
+                      {investment.fractions_owned === 0
+                        ? `Sold all ${((investment.fractions_sold ?? 0) + (investment.fractions_owned ?? 0))} fractions in ${investment.property_title}.`
+                        : `Sold ${investment.fractions_sold} fractions in ${investment.property_title}.`}
+                    </p>
+                  )}
                   <div className="pt-2">
                     <Link
                       to={`/investor/investments/${investment.id}`}

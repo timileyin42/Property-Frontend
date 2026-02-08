@@ -43,6 +43,9 @@ const InvestmentDetails = () => {
     | undefined;
   const fractionsOwnedFromState = (location.state as { fractionsOwned?: number } | null)?.fractionsOwned;
   const fractionsOwned = investment?.fractions_owned ?? fractionsOwnedFromState ?? 0;
+  const fractionsSold = investment?.fractions_sold ?? 0;
+  const soldTotal = fractionsSold + fractionsOwned;
+  const hasSoldFractions = fractionsSold > 0;
 
   const mediaItems = usePresignedUrls(
     useMemo(() => {
@@ -230,6 +233,13 @@ const InvestmentDetails = () => {
                 </p>
               </div>
             </div>
+            {hasSoldFractions && (
+              <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+                {fractionsOwned === 0
+                  ? `You have sold all ${soldTotal} fractions in ${property.title ?? "this property"}.`
+                  : `You have sold ${fractionsSold} fractions in ${property.title ?? "this property"}.`}
+              </div>
+            )}
           </div>
         </div>
       </section>

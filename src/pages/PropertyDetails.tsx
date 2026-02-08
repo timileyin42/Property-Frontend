@@ -23,6 +23,7 @@ const PropertyDetails = () => {
   const [loading, setLoading] = useState(true);
   const [wishlistId, setWishlistId] = useState<number | null>(null);
   const [wishlistLoading, setWishlistLoading] = useState(false);
+  const [viewerIndex, setViewerIndex] = useState<number | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, user } = useAuth();
@@ -111,6 +112,29 @@ const PropertyDetails = () => {
       ].filter(Boolean) as string[];
     }, [property])
   );
+  const selectedMedia = viewerIndex !== null ? mediaItems[viewerIndex] : null;
+  const openViewer = useCallback((index: number) => {
+    setViewerIndex(index);
+  }, []);
+
+  useEffect(() => {
+    if (viewerIndex === null) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setViewerIndex(null);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [viewerIndex]);
+  useEffect(() => {
+    if (viewerIndex === null) return;
+    const original = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = original;
+    };
+  }, [viewerIndex]);
 
   const ctaLabel = user?.role === "INVESTOR" ? "Invest" : "Express Interest";
   const hasInvested = Boolean((location.state as { hasInvested?: boolean } | null)?.hasInvested);
@@ -169,9 +193,16 @@ const PropertyDetails = () => {
             )}
 
             {mediaItems[0] && (
-              <div className="rounded-xl overflow-hidden">
+              <div
+                className="relative rounded-xl overflow-hidden cursor-pointer"
+                onClick={() => openViewer(0)}
+              >
                 {isVideoUrl(mediaItems[0]) ? (
-                  <video controls className="w-full h-[320px] object-cover">
+                  <video
+                    controls
+                    className="w-full h-[320px] object-cover"
+                    onClick={() => openViewer(0)}
+                  >
                     <source src={mediaItems[0]} />
                   </video>
                 ) : (
@@ -179,17 +210,33 @@ const PropertyDetails = () => {
                     src={mediaItems[0]}
                     alt={property.title}
                     className="w-full h-[320px] object-cover"
+                    onClick={() => openViewer(0)}
                   />
                 )}
+                <button
+                  type="button"
+                  onClick={() => openViewer(0)}
+                  className="absolute bottom-3 right-3 rounded-md bg-black/70 px-3 py-1 text-xs font-semibold text-white"
+                >
+                  View
+                </button>
               </div>
             )}
 
             {mediaItems.length > 1 && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {mediaItems.slice(1).map((item) => (
-                  <div key={item} className="rounded-xl overflow-hidden">
+                {mediaItems.slice(1).map((item, index) => (
+                  <div
+                    key={item}
+                    className="relative rounded-xl overflow-hidden cursor-pointer"
+                    onClick={() => openViewer(index + 1)}
+                  >
                     {isVideoUrl(item) ? (
-                      <video controls className="w-full h-48 object-cover">
+                      <video
+                        controls
+                        className="w-full h-48 object-cover"
+                        onClick={() => openViewer(index + 1)}
+                      >
                         <source src={item} />
                       </video>
                     ) : (
@@ -197,8 +244,16 @@ const PropertyDetails = () => {
                         src={item}
                         alt={property.title}
                         className="w-full h-48 object-cover"
+                        onClick={() => openViewer(index + 1)}
                       />
                     )}
+                    <button
+                      type="button"
+                      onClick={() => openViewer(index + 1)}
+                      className="absolute bottom-2 right-2 rounded-md bg-black/70 px-2 py-0.5 text-xs font-semibold text-white"
+                    >
+                      View
+                    </button>
                   </div>
                 ))}
               </div>
@@ -282,6 +337,38 @@ const PropertyDetails = () => {
           </div>
         </div>
       </section>
+      {selectedMedia && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 p-4"
+          onClick={() => setViewerIndex(null)}
+        >
+          <div
+            className="relative w-full max-w-5xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              onClick={() => setViewerIndex(null)}
+              className="absolute -top-10 right-0 text-white text-sm bg-black/60 rounded-md px-3 py-1 hover:bg-black/80"
+            >
+              Close
+            </button>
+            {isVideoUrl(selectedMedia) ? (
+              <video
+                controls
+                className="w-full max-h-[80vh] rounded-xl bg-black"
+              >
+                <source src={selectedMedia} />
+              </video>
+            ) : (
+              <img
+                src={selectedMedia}
+                alt={property.title}
+                className="w-full max-h-[80vh] object-contain rounded-xl bg-black"
+              />
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
