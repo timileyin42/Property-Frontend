@@ -2,13 +2,15 @@ import { api } from "./axios";
 import type { InvestmentDetail, InvestmentResponse } from "../types/investment";
 
 export interface PortfolioSummaryResponse {
-  total: number;
+  total?: number;
   total_initial_value: number;
   total_current_value: number;
   total_growth_percentage: number;
-  total_fractions_owned?: number;
+  total_fractions?: number;
+  lifetime_investment_value?: number;
+  lifetime_fractions?: number;
   properties_count?: number;
-  average_growth_percentage?: number;
+  avg_growth?: number;
   trend_labels?: string[];
   trend_values?: number[];
 }

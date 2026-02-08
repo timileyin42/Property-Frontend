@@ -47,13 +47,15 @@ const InvestorDashboard = () => {
   const [investments, setInvestments] = useState<Investment[]>([]);
   const [investmentMediaMap, setInvestmentMediaMap] = useState<Record<number, string>>({});
   const [summary, setSummary] = useState<{
-    total: number;
+    total?: number;
     total_initial_value: number;
     total_current_value: number;
     total_growth_percentage: number;
-    total_fractions_owned?: number;
+    total_fractions?: number;
+    lifetime_investment_value?: number;
+    lifetime_fractions?: number;
     properties_count?: number;
-    average_growth_percentage?: number;
+    avg_growth?: number;
     trend_labels?: string[];
     trend_values?: number[];
   } | null>(null);
@@ -178,7 +180,7 @@ const InvestorDashboard = () => {
       : 0;
 
   const resolvedAverageGrowth = (() => {
-    const summaryAverage = summary?.average_growth_percentage;
+    const summaryAverage = summary?.avg_growth;
     if (Number.isFinite(summaryAverage) && summaryAverage !== 0) {
       return summaryAverage;
     }
@@ -192,6 +194,9 @@ const InvestorDashboard = () => {
     return 0;
   })();
 
+  const lifetimeInvestmentValue = summary?.lifetime_investment_value ?? 0;
+  const showLifetimeInvestment = Number.isFinite(lifetimeInvestmentValue) && lifetimeInvestmentValue > 0;
+
   const portfolioStats: PortfolioStat[] = [
     {
       id: 1,
@@ -201,18 +206,22 @@ const InvestorDashboard = () => {
           (sum, item) => sum + (item.current_value ?? 0),
           0
         );
-        const totalValue = summary?.total_current_value ?? computedTotal;
+        const totalValue = showLifetimeInvestment
+          ? lifetimeInvestmentValue
+          : summary?.total_current_value ?? computedTotal;
         return `₦${Number(totalValue || 0).toLocaleString()}`;
       })(),
-      description: summary
-        ? `+${formatPercent(summary.total_growth_percentage)}% overall`
-        : "+0% overall",
+      description: showLifetimeInvestment
+        ? "Lifetime invested"
+        : summary
+          ? `+${formatPercent(summary.total_growth_percentage)}% overall`
+          : "+0% overall",
     },
     {
       id: 2,
       title: "Fractions Owned",
       value:
-        summary?.total_fractions_owned ??
+        summary?.total_fractions ??
         investments.reduce(
           (sum, item) => sum + (item.fractions_owned ?? 0),
           0
