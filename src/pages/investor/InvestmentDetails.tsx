@@ -43,7 +43,7 @@ const InvestmentDetails = () => {
     | undefined;
   const fractionsOwnedFromState = (location.state as { fractionsOwned?: number } | null)?.fractionsOwned;
   const fractionsOwned = investment?.fractions_owned ?? fractionsOwnedFromState ?? 0;
-  const fractionsSold = investment?.fractions_sold ?? 0;
+  const fractionsSold = investment?.fractions_sold ?? investment?.fractions_removed ?? 0;
   const soldTotal = fractionsSold + fractionsOwned;
   const hasSoldFractions = fractionsSold > 0;
 

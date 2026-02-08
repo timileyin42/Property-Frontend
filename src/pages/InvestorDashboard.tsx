@@ -338,11 +338,16 @@ const InvestorDashboard = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {investmentCards.map((investment) => (
-              <div
-                key={investment.id}
-                className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden"
-              >
+            {investmentCards.map((investment) => {
+              const fractionsOwned = investment.fractions_owned ?? 0;
+              const fractionsSold = investment.fractions_sold ?? investment.fractions_removed ?? 0;
+              const soldTotal = fractionsOwned + fractionsSold;
+
+              return (
+                <div
+                  key={investment.id}
+                  className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden"
+                >
                 <div className="h-40 bg-gray-100">
                   {investment.mediaUrl ? (
                     investment.isVideo ? (
@@ -397,14 +402,14 @@ const InvestorDashboard = () => {
                     </div>
                     <div>
                       <p className="text-gray-400">Fractions</p>
-                      <p className="font-semibold">{investment.fractions_owned}</p>
+                      <p className="font-semibold">{fractionsOwned}</p>
                     </div>
                   </div>
-                  {((investment.fractions_sold ?? 0) > 0) && (
+                  {fractionsSold > 0 && (
                     <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-2 py-1">
-                      {investment.fractions_owned === 0
-                        ? `Sold all ${((investment.fractions_sold ?? 0) + (investment.fractions_owned ?? 0))} fractions in ${investment.property_title}.`
-                        : `Sold ${investment.fractions_sold} fractions in ${investment.property_title}.`}
+                      {fractionsOwned === 0
+                        ? `Sold all ${soldTotal} fractions in ${investment.property_title}.`
+                        : `Sold ${fractionsSold} fractions in ${investment.property_title}.`}
                     </p>
                   )}
                   <div className="pt-2">
@@ -417,8 +422,9 @@ const InvestorDashboard = () => {
                     </Link>
                   </div>
                 </div>
-              </div>
-            ))}
+                </div>
+              );
+            })}
           </div>
         )}
         </section>
