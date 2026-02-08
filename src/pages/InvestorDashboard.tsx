@@ -194,8 +194,9 @@ const InvestorDashboard = () => {
     return 0;
   })();
 
-  const lifetimeInvestmentValue = summary?.lifetime_investment_value ?? 0;
-  const showLifetimeInvestment = Number.isFinite(lifetimeInvestmentValue) && lifetimeInvestmentValue > 0;
+  const lifetimeInvestmentValue = Number(summary?.lifetime_investment_value ?? 0);
+  const showLifetimeInvestment =
+    Number.isFinite(lifetimeInvestmentValue) && lifetimeInvestmentValue > 0;
 
   const portfolioStats: PortfolioStat[] = [
     {

@@ -46,6 +46,29 @@ const InvestmentDetails = () => {
   const fractionsSold = investment?.fractions_sold ?? investment?.fractions_removed ?? 0;
   const soldTotal = fractionsSold + fractionsOwned;
   const hasSoldFractions = fractionsSold > 0;
+  const soldPricePerFraction = investment?.sold_price_per_fraction ?? null;
+  const soldValueTotal = investment?.sold_value_total ?? null;
+  const soldProfitTotal = investment?.sold_profit_total ?? null;
+  const perFractionInitial = Number.isFinite(property?.fraction_price)
+    ? Number(property?.fraction_price)
+    : null;
+  const perFractionCurrent = Number.isFinite(property?.project_value) && Number.isFinite(property?.total_fractions)
+    ? Number(property?.project_value) / Number(property?.total_fractions)
+    : perFractionInitial;
+  const lifetimeInitialValue =
+    perFractionInitial !== null ? perFractionInitial * soldTotal : null;
+  const lifetimeCurrentValue =
+    perFractionCurrent !== null ? perFractionCurrent * soldTotal : null;
+  const showLifetimeValues =
+    soldTotal > 0 &&
+    (investment?.initial_value ?? 0) === 0 &&
+    (investment?.current_value ?? 0) === 0;
+  const displayInitialValue = showLifetimeValues
+    ? lifetimeInitialValue
+    : investment?.initial_value ?? null;
+  const displayCurrentValue = showLifetimeValues
+    ? lifetimeCurrentValue
+    : investment?.current_value ?? null;
 
   const mediaItems = usePresignedUrls(
     useMemo(() => {
@@ -211,13 +234,13 @@ const InvestmentDetails = () => {
               <div>
                 <p className="text-gray-500">Initial Value</p>
                 <p className="text-blue-900 font-semibold">
-                  {formatCurrency(investment.initial_value ?? null)}
+                  {formatCurrency(displayInitialValue)}
                 </p>
               </div>
               <div>
                 <p className="text-gray-500">Current Value</p>
                 <p className="text-blue-900 font-semibold">
-                  {formatCurrency(investment.current_value ?? null)}
+                  {formatCurrency(displayCurrentValue)}
                 </p>
               </div>
               <div>
@@ -232,6 +255,30 @@ const InvestmentDetails = () => {
                   {formatCurrency(investment.growth_amount ?? null)}
                 </p>
               </div>
+              {hasSoldFractions && soldPricePerFraction !== null && (
+                <div>
+                  <p className="text-gray-500">Sold Price / Fraction</p>
+                  <p className="text-blue-900 font-semibold">
+                    {formatCurrency(soldPricePerFraction)}
+                  </p>
+                </div>
+              )}
+              {hasSoldFractions && soldValueTotal !== null && (
+                <div>
+                  <p className="text-gray-500">Sold Value</p>
+                  <p className="text-blue-900 font-semibold">
+                    {formatCurrency(soldValueTotal)}
+                  </p>
+                </div>
+              )}
+              {hasSoldFractions && soldProfitTotal !== null && (
+                <div>
+                  <p className="text-gray-500">Sold Profit</p>
+                  <p className="text-emerald-600 font-semibold">
+                    {formatCurrency(soldProfitTotal)}
+                  </p>
+                </div>
+              )}
             </div>
             {hasSoldFractions && (
               <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">

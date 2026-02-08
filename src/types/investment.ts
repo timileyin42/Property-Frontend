@@ -17,6 +17,9 @@ export interface Investment {
   fractions_owned: number;
   fractions_sold?: number;
   fractions_removed?: number;
+  sold_price_per_fraction?: number;
+  sold_value_total?: number;
+  sold_profit_total?: number;
   initial_value: number;
   current_value: number;
   ownership_percentage: number;
@@ -44,6 +47,9 @@ export interface InvestmentDetail {
   fractions_owned: number;
   fractions_sold?: number;
   fractions_removed?: number;
+  sold_price_per_fraction?: number;
+  sold_value_total?: number;
+  sold_profit_total?: number;
   initial_value: number;
   current_value: number;
   ownership_percentage?: number;
