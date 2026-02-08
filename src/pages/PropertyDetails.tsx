@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { api } from "../api/axios";
@@ -24,6 +24,7 @@ const PropertyDetails = () => {
   const [wishlistId, setWishlistId] = useState<number | null>(null);
   const [wishlistLoading, setWishlistLoading] = useState(false);
   const [viewerIndex, setViewerIndex] = useState<number | null>(null);
+  const touchStartX = useRef<number | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, user } = useAuth();
@@ -123,10 +124,16 @@ const PropertyDetails = () => {
       if (event.key === "Escape") {
         setViewerIndex(null);
       }
+      if (event.key === "ArrowLeft" && viewerIndex > 0) {
+        setViewerIndex(viewerIndex - 1);
+      }
+      if (event.key === "ArrowRight" && viewerIndex < mediaItems.length - 1) {
+        setViewerIndex(viewerIndex + 1);
+      }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [viewerIndex]);
+  }, [viewerIndex, mediaItems.length]);
   useEffect(() => {
     if (viewerIndex === null) return;
     const original = document.body.style.overflow;
@@ -135,6 +142,38 @@ const PropertyDetails = () => {
       document.body.style.overflow = original;
     };
   }, [viewerIndex]);
+
+  const goPrev = () => {
+    setViewerIndex((current) =>
+      current === null ? current : Math.max(0, current - 1)
+    );
+  };
+
+  const goNext = () => {
+    setViewerIndex((current) =>
+      current === null ? current : Math.min(mediaItems.length - 1, current + 1)
+    );
+  };
+
+  const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    touchStartX.current = event.touches[0]?.clientX ?? null;
+  };
+
+  const handleTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (touchStartX.current === null) return;
+    const endX = event.changedTouches[0]?.clientX ?? null;
+    if (endX === null) return;
+    const delta = touchStartX.current - endX;
+    if (Math.abs(delta) < 40) return;
+    if (delta > 0) {
+      if (viewerIndex !== null && viewerIndex < mediaItems.length - 1) {
+        goNext();
+      }
+    } else if (viewerIndex !== null && viewerIndex > 0) {
+      goPrev();
+    }
+    touchStartX.current = null;
+  };
 
   const ctaLabel = user?.role === "INVESTOR" ? "Invest" : "Express Interest";
   const hasInvested = Boolean((location.state as { hasInvested?: boolean } | null)?.hasInvested);
@@ -341,6 +380,8 @@ const PropertyDetails = () => {
         <div
           className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 p-4"
           onClick={() => setViewerIndex(null)}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
         >
           <div
             className="relative w-full max-w-5xl"
@@ -352,6 +393,24 @@ const PropertyDetails = () => {
             >
               Close
             </button>
+            {viewerIndex !== null && viewerIndex > 0 && (
+              <button
+                type="button"
+                onClick={goPrev}
+                className="absolute left-0 top-1/2 -translate-y-1/2 rounded-full bg-black/70 px-3 py-2 text-white text-lg"
+              >
+                ←
+              </button>
+            )}
+            {viewerIndex !== null && viewerIndex < mediaItems.length - 1 && (
+              <button
+                type="button"
+                onClick={goNext}
+                className="absolute right-0 top-1/2 -translate-y-1/2 rounded-full bg-black/70 px-3 py-2 text-white text-lg"
+              >
+                →
+              </button>
+            )}
             {isVideoUrl(selectedMedia) ? (
               <video
                 controls

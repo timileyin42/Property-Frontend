@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 import { fetchInvestorInvestmentDetail } from "../../api/investor.investments";
@@ -15,6 +15,8 @@ const InvestmentDetails = () => {
   const location = useLocation();
   const [investment, setInvestment] = useState<InvestmentDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  const [viewerIndex, setViewerIndex] = useState<number | null>(null);
+  const touchStartX = useRef<number | null>(null);
 
   useEffect(() => {
     if (!investmentId) return;
@@ -87,6 +89,65 @@ const InvestmentDetails = () => {
       return Array.from(new Set(urls));
     }, [property, investment?.image_url])
   );
+  const selectedMedia = viewerIndex !== null ? mediaItems[viewerIndex] : null;
+
+  useEffect(() => {
+    if (viewerIndex === null) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setViewerIndex(null);
+      }
+      if (event.key === "ArrowLeft" && viewerIndex > 0) {
+        setViewerIndex(viewerIndex - 1);
+      }
+      if (event.key === "ArrowRight" && viewerIndex < mediaItems.length - 1) {
+        setViewerIndex(viewerIndex + 1);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [viewerIndex, mediaItems.length]);
+
+  useEffect(() => {
+    if (viewerIndex === null) return;
+    const original = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = original;
+    };
+  }, [viewerIndex]);
+
+  const goPrev = () => {
+    setViewerIndex((current) =>
+      current === null ? current : Math.max(0, current - 1)
+    );
+  };
+
+  const goNext = () => {
+    setViewerIndex((current) =>
+      current === null ? current : Math.min(mediaItems.length - 1, current + 1)
+    );
+  };
+
+  const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    touchStartX.current = event.touches[0]?.clientX ?? null;
+  };
+
+  const handleTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (touchStartX.current === null) return;
+    const endX = event.changedTouches[0]?.clientX ?? null;
+    if (endX === null) return;
+    const delta = touchStartX.current - endX;
+    if (Math.abs(delta) < 40) return;
+    if (delta > 0) {
+      if (viewerIndex !== null && viewerIndex < mediaItems.length - 1) {
+        goNext();
+      }
+    } else if (viewerIndex !== null && viewerIndex > 0) {
+      goPrev();
+    }
+    touchStartX.current = null;
+  };
 
   if (loading) {
     return <p className="text-center py-10">Loading investment...</p>;
@@ -140,9 +201,13 @@ const InvestmentDetails = () => {
             )}
 
             {mediaItems[0] && (
-              <div className="rounded-xl overflow-hidden">
+              <div className="relative rounded-xl overflow-hidden cursor-pointer">
                 {isVideoUrl(mediaItems[0]) ? (
-                  <video controls className="w-full h-[320px] object-cover">
+                  <video
+                    controls
+                    className="w-full h-[320px] object-cover"
+                    onClick={() => setViewerIndex(0)}
+                  >
                     <source src={mediaItems[0]} />
                   </video>
                 ) : (
@@ -150,17 +215,34 @@ const InvestmentDetails = () => {
                     src={mediaItems[0]}
                     alt={property.title ?? "Property"}
                     className="w-full h-[320px] object-cover"
+                    onClick={() => setViewerIndex(0)}
                   />
+                )}
+                {mediaItems.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => setViewerIndex(0)}
+                    className="absolute bottom-3 right-3 rounded-md bg-black/70 px-3 py-1 text-xs font-semibold text-white"
+                  >
+                    View
+                  </button>
                 )}
               </div>
             )}
 
             {mediaItems.length > 1 && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {mediaItems.slice(1).map((item) => (
-                  <div key={item} className="rounded-xl overflow-hidden">
+                {mediaItems.slice(1).map((item, index) => (
+                  <div
+                    key={item}
+                    className="relative rounded-xl overflow-hidden cursor-pointer"
+                  >
                     {isVideoUrl(item) ? (
-                      <video controls className="w-full h-48 object-cover">
+                      <video
+                        controls
+                        className="w-full h-48 object-cover"
+                        onClick={() => setViewerIndex(index + 1)}
+                      >
                         <source src={item} />
                       </video>
                     ) : (
@@ -168,6 +250,7 @@ const InvestmentDetails = () => {
                         src={item}
                         alt={property.title ?? "Property"}
                         className="w-full h-48 object-cover"
+                        onClick={() => setViewerIndex(index + 1)}
                       />
                     )}
                   </div>
@@ -290,6 +373,55 @@ const InvestmentDetails = () => {
           </div>
         </div>
       </section>
+      {selectedMedia && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 p-4"
+          onClick={() => setViewerIndex(null)}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
+          <div
+            className="relative w-full max-w-5xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              onClick={() => setViewerIndex(null)}
+              className="absolute -top-10 right-0 text-white text-sm bg-black/60 rounded-md px-3 py-1 hover:bg-black/80"
+            >
+              Close
+            </button>
+            {viewerIndex !== null && viewerIndex > 0 && (
+              <button
+                type="button"
+                onClick={goPrev}
+                className="absolute left-0 top-1/2 -translate-y-1/2 rounded-full bg-black/70 px-3 py-2 text-white text-lg"
+              >
+                ←
+              </button>
+            )}
+            {viewerIndex !== null && viewerIndex < mediaItems.length - 1 && (
+              <button
+                type="button"
+                onClick={goNext}
+                className="absolute right-0 top-1/2 -translate-y-1/2 rounded-full bg-black/70 px-3 py-2 text-white text-lg"
+              >
+                →
+              </button>
+            )}
+            {isVideoUrl(selectedMedia) ? (
+              <video controls className="w-full max-h-[80vh] rounded-xl bg-black">
+                <source src={selectedMedia} />
+              </video>
+            ) : (
+              <img
+                src={selectedMedia}
+                alt={property.title ?? "Property"}
+                className="w-full max-h-[80vh] object-contain rounded-xl bg-black"
+              />
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
