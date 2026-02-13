@@ -9,8 +9,14 @@ const isAbsoluteUrl = (value: string) =>
 const normalizeAbsolute = (value: string) =>
   value.startsWith("//") ? `https:${value}` : value;
 
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ?? "https://api.elycapfracprop.com/api";
+
+const stripApiSuffix = (value: string) =>
+  value.replace(/\/api\/?$/, "");
+
 const MEDIA_BASE_URL =
-  import.meta.env.VITE_MEDIA_BASE_URL ?? "https://elycapfracprop.com";
+  import.meta.env.VITE_MEDIA_BASE_URL ?? stripApiSuffix(API_BASE_URL);
 
 const normalizeMediaPath = (value: string) => {
   if (value.startsWith("/media/")) return `${MEDIA_BASE_URL}${value}`;

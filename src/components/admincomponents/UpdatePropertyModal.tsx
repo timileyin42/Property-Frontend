@@ -16,16 +16,6 @@ interface UpdatePropertyModalProps {
   onUpdate: (updatedProperty: ApiProperty) => void;
 }
 
-interface UploadSignature {
-  api_key: string;
-  timestamp: number | string;
-  signature: string;
-  folder: string;
-  resource_type: string;
-  upload_url: string;
-  allowed_formats?: string;
-}
-
 const STATUS_OPTIONS: PropertyStatusFilter[] = [
   "AVAILABLE",
   "SOLD",
@@ -33,7 +23,6 @@ const STATUS_OPTIONS: PropertyStatusFilter[] = [
 
 const MAX_IMAGE_SIZE = 100 * 1024 * 1024;
 const MAX_VIDEO_SIZE = 500 * 1024 * 1024;
-const CHUNK_SIZE = 6 * 1024 * 1024;
 const ALLOWED_TYPES = [
   "image/jpeg",
   "image/png",
@@ -104,49 +93,6 @@ export const UpdatePropertyModal: React.FC<UpdatePropertyModalProps> = ({
     setMediaUrls((prev) => prev.filter((item) => item !== url));
   };
 
-  const uploadVideoInChunks = async (file: File, sig: UploadSignature): Promise<string> => {
-    const totalSize = file.size;
-    let start = 0;
-    let end = Math.min(CHUNK_SIZE, totalSize);
-    const uploadId = `${file.name}-${Date.now()}`;
-    let secureUrl = "";
-
-    while (start < totalSize) {
-      const chunk = file.slice(start, end);
-      const formData = new FormData();
-      formData.append("file", chunk);
-      formData.append("api_key", sig.api_key);
-      formData.append("timestamp", String(sig.timestamp));
-      formData.append("signature", sig.signature);
-      formData.append("folder", sig.folder);
-      formData.append("resource_type", sig.resource_type);
-
-      if (sig.allowed_formats) {
-        formData.append("allowed_formats", sig.allowed_formats);
-      }
-
-      const uploadRes = await axios.post(sig.upload_url, formData, {
-        headers: {
-          "Content-Range": `bytes ${start}-${end - 1}/${totalSize}`,
-          "X-Unique-Upload-Id": uploadId,
-        },
-      });
-
-      if (uploadRes.data?.secure_url) {
-        secureUrl = uploadRes.data.secure_url;
-      }
-
-      start = end;
-      end = Math.min(start + CHUNK_SIZE, totalSize);
-    }
-
-    if (!secureUrl) {
-      throw new Error("Cloudinary upload failed");
-    }
-
-    return secureUrl;
-  };
-
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -167,19 +113,15 @@ export const UpdatePropertyModal: React.FC<UpdatePropertyModalProps> = ({
 
     try {
       setLoading(true);
-      const uploadedUrls: string[] = [];
+      const uploadedKeys: string[] = [];
 
       for (const file of validFiles) {
-        const resourceType = file.type.startsWith("video") ? "video" : "image";
-        const payload = {
-          resource_type: resourceType,
-          file_size_bytes: file.size,
-          ...(property?.id ? { property_id: property.id } : {}),
-        };
-
-        const { data: sig } = await axios.post<UploadSignature>(
-          `${import.meta.env.VITE_API_BASE_URL ?? "https://api.elycapfracprop.com/api"}/media/upload-signature`,
-          payload,
+        const { data } = await axios.post(
+          `${import.meta.env.VITE_API_BASE_URL ?? "https://api.elycapfracprop.com/api"}/files/presign-upload`,
+          {
+            filename: file.name,
+            content_type: file.type,
+          },
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token") ?? ""}`,
@@ -187,38 +129,26 @@ export const UpdatePropertyModal: React.FC<UpdatePropertyModalProps> = ({
           }
         );
 
-        const isVideo = file.type.startsWith("video");
-        const shouldChunk = isVideo && file.size > MAX_IMAGE_SIZE;
-
-        if (shouldChunk) {
-          const secureUrl = await uploadVideoInChunks(file, sig);
-          uploadedUrls.push(secureUrl);
-          continue;
+        const uploadHeaders: Record<string, string> = {
+          ...(data?.upload_headers ?? {}),
+        };
+        if (!Object.keys(uploadHeaders).some((key) => key.toLowerCase() === "content-type")) {
+          uploadHeaders["Content-Type"] = file.type;
         }
 
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("api_key", sig.api_key);
-        formData.append("timestamp", String(sig.timestamp));
-        formData.append("signature", sig.signature);
-        formData.append("folder", sig.folder);
-        formData.append("resource_type", sig.resource_type);
+        await axios.put(data.upload_url, file, {
+          headers: uploadHeaders,
+        });
 
-        if (sig.allowed_formats) {
-          formData.append("allowed_formats", sig.allowed_formats);
+        if (!data.file_key) {
+          throw new Error("Upload failed");
         }
 
-        const uploadRes = await axios.post(sig.upload_url, formData);
-
-        if (!uploadRes.data?.secure_url) {
-          throw new Error("Cloudinary upload failed");
-        }
-
-        uploadedUrls.push(uploadRes.data.secure_url);
+        uploadedKeys.push(data.file_key);
       }
 
-      if (uploadedUrls.length > 0) {
-        setMediaUrls((prev) => [...prev, ...uploadedUrls]);
+      if (uploadedKeys.length > 0) {
+        setMediaUrls((prev) => [...prev, ...uploadedKeys]);
         toast.success("Media uploaded");
       }
     } catch (error: unknown) {
