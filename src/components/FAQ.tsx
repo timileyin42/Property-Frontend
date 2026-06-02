@@ -53,18 +53,18 @@ const FAQ = () => {
   };
 
   return (
-    <section className="py-12 md:py-24 px-4 md:px-8 bg-gradient-to-b from-white to-gray-50">
+    <section className="py-12 md:py-24 px-4 md:px-8 bg-surface-lowest">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12 md:mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium mb-4">
+          <div className="inline-flex items-center gap-2 px-4 py-2 glass-panel rounded-full label-caps text-[10px] text-premium-gold mb-4">
             <HelpCircle className="w-4 h-4" />
             <span>FAQs</span>
           </div>
-          <h2 className="text-3xl md:text-5xl font-bold text-blue-900 mb-4">
+          <h2 className="font-display text-3xl md:text-5xl text-white mb-4">
             Frequently Asked Questions
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+          <p className="text-on-surface-variant max-w-2xl mx-auto">
             Find answers to common questions about Elycapvest Luxury Homes
           </p>
         </div>
@@ -74,53 +74,52 @@ const FAQ = () => {
           {faqItems.map((item) => (
             <div
               key={item.id}
-              className={`bg-white rounded-xl shadow-sm  transition-all duration-300 ${
-                openId === item.id ? 'shadow-lg border-blue-200' : 'hover:shadow-md'
+              className={`glass-panel glass-panel-hover rounded-xl transition-all duration-300 ${
+                openId === item.id ? 'border-premium-gold/40' : ''
               }`}
             >
               <button
                 onClick={() => toggleAccordion(item.id)}
-                className="w-full px-6 py-4 md:px-8 md:py-6 flex items-center justify-between gap-4 text-left  rounded-xl"
+                className="w-full px-6 py-4 md:px-8 md:py-6 flex items-center justify-between gap-4 text-left rounded-xl"
                 aria-expanded={openId === item.id}
               >
                 <div className="flex items-start gap-4">
-                  
-                  <h3 className="text-lg md:text-xl font-semibold text-blue-900 pr-4">
+                  <h3 className="font-display text-lg md:text-xl text-white pr-4">
                     {item.question}
                   </h3>
                 </div>
-                <ChevronDown 
-                  className={`flex-shrink-0 w-5 h-5 md:w-6 md:h-6 text-gray-500 transition-transform duration-300 ${
+                <ChevronDown
+                  className={`flex-shrink-0 w-5 h-5 md:w-6 md:h-6 text-premium-gold transition-transform duration-300 ${
                     openId === item.id ? 'rotate-180' : ''
                   }`}
                 />
               </button>
-              
+
               {/* Answer with animation */}
-              <div 
+              <div
                 className={`overflow-hidden transition-all duration-300 ease-out ${
                   openId === item.id ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
                 }`}
               >
                 <div className="px-6 pb-6 md:px-14 md:pb-8 pt-0">
-                  <div className="border-l-4 border-blue-200 pl-4">
-                    <p className="text-gray-700 leading-relaxed">
+                  <div className="border-l-2 border-premium-gold/40 pl-4">
+                    <p className="text-on-surface-variant leading-relaxed">
                       {item.answer}
                     </p>
                   </div>
-                  
+
                   {/* Additional info based on question */}
                   {item.id === 3 && (
-                    <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-                      <div className="flex items-center gap-2 text-sm text-blue-700">
+                    <div className="mt-4 p-4 glass-panel rounded-lg">
+                      <div className="flex items-center gap-2 text-sm text-premium-gold">
                         <span className="font-medium">Pricing updates:</span>
                         <span>Check back later</span>
                       </div>
                     </div>
                   )}
-                  
+
                   {item.id === 4 && (
-                    <div className="mt-4 flex items-center gap-2 text-sm text-green-700">
+                    <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-success-emerald">
                       <span>✅ Real-time dashboard</span>
                       <span>✅ Transparent reporting</span>
                       <span>✅ 24/7 access</span>

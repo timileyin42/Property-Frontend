@@ -2,10 +2,6 @@ import React from "react";
 import { formatDate } from "../../util/formatDate";
 import type { User } from "../../types/userProfile";
 
-const phoneIcon = "https://www.figma.com/api/mcp/asset/d1dc743c-f52b-42eb-9c37-29cbbeb7baa2";
-const locationIcon = "https://www.figma.com/api/mcp/asset/244bf116-539b-4479-86e1-b1259937c273";
-const calendarIcon = "https://www.figma.com/api/mcp/asset/4b1deb07-4300-4026-a40e-fdb318c4f7d7";
-
 interface ProfileSummaryCardProps {
   user: User;
   location?: string;
@@ -23,31 +19,70 @@ const ProfileSummaryCard: React.FC<ProfileSummaryCardProps> = ({
     .toUpperCase();
 
   return (
-    <div className="bg-white border border-black/10 rounded-[14px] p-6 w-full">
-      <div className="flex flex-col items-center text-center">
-        <div className="bg-[#1e3a8a] rounded-full h-24 w-24 flex items-center justify-center text-white text-[30px] font-bold leading-[36px]">
-          {initials}
+    <div className="space-y-6">
+      <div className="glass-panel p-6 rounded-xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-premium-gold/5 blur-[60px] -mr-16 -mt-16 pointer-events-none" />
+        <div className="flex flex-col items-center text-center">
+          <div className="relative mb-6">
+            <div className="w-24 h-24 rounded-full border-2 border-premium-gold p-1 flex items-center justify-center bg-primary-container">
+              <span className="font-display text-3xl text-premium-gold">{initials}</span>
+            </div>
+            <div className="absolute bottom-1 right-1 bg-success-emerald text-white p-1 rounded-full border-2 border-background">
+              <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+                verified
+              </span>
+            </div>
+          </div>
+          <h2 className="font-display text-2xl text-on-surface mb-1">{user.full_name}</h2>
+          <p className="label-caps text-on-surface-variant mb-6">Investor</p>
+
+          <div className="w-full space-y-4 text-left border-t border-[rgba(248,246,241,0.15)] pt-6">
+            <div className="flex items-center gap-3">
+              <span className="material-symbols-outlined text-premium-gold">mail</span>
+              <div className="min-w-0">
+                <p className="label-caps text-[10px] text-on-surface-variant">Email Address</p>
+                <p className="text-on-surface truncate">{user.email}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="material-symbols-outlined text-premium-gold">call</span>
+              <div>
+                <p className="label-caps text-[10px] text-on-surface-variant">Phone Number</p>
+                <p className="text-on-surface">{user.phone ?? "Not provided"}</p>
+              </div>
+            </div>
+            {location && (
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-premium-gold">location_on</span>
+                <div>
+                  <p className="label-caps text-[10px] text-on-surface-variant">Location</p>
+                  <p className="text-on-surface">{location}</p>
+                </div>
+              </div>
+            )}
+            <div className="flex items-center gap-3">
+              <span className="material-symbols-outlined text-premium-gold">calendar_today</span>
+              <div>
+                <p className="label-caps text-[10px] text-on-surface-variant">Joined</p>
+                <p className="text-on-surface">{formatDate(user.created_at)}</p>
+              </div>
+            </div>
+          </div>
         </div>
-        <p className="mt-4 text-[#1e3a8a] text-[20px] font-medium leading-[28px]">
-          {user.full_name}
-        </p>
-        <p className="text-[#717182] text-[16px] leading-[24px]">
-          {user.email}
-        </p>
       </div>
 
-      <div className="mt-10 flex flex-col gap-3">
-        <div className="flex items-center gap-3 text-[#4a5565] text-[14px] leading-[20px]">
-          <img src={phoneIcon} alt="" className="h-4 w-4" />
-          <span>{user.phone ?? "Not provided"}</span>
+      {/* KYC trust card */}
+      <div className="glass-panel p-6 rounded-xl flex items-center gap-4">
+        <div className="w-12 h-12 rounded-full bg-success-emerald/15 flex items-center justify-center text-success-emerald shrink-0">
+          <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>
+            security
+          </span>
         </div>
-        <div className="flex items-center gap-3 text-[#4a5565] text-[14px] leading-[20px]">
-          <img src={locationIcon} alt="" className="h-4 w-4" />
-          <span>{location || "Not provided"}</span>
-        </div>
-        <div className="flex items-center gap-3 text-[#4a5565] text-[14px] leading-[20px]">
-          <img src={calendarIcon} alt="" className="h-4 w-4" />
-          <span>{`Joined ${formatDate(user.created_at)}`}</span>
+        <div>
+          <h4 className="label-caps text-on-surface mb-1">KYC Verification</h4>
+          <span className="inline-block text-[10px] label-caps text-success-emerald bg-success-emerald/10 px-2 py-0.5 rounded border border-success-emerald/20">
+            Status: Verified
+          </span>
         </div>
       </div>
     </div>

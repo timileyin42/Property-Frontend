@@ -1,8 +1,51 @@
-@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap");
 @import "tailwindcss";
 
+/* ============================================================
+   Aura/Elycapvest — Editorial Glassmorphism Design System
+   Dark canvas · Gold premium accents · Emerald growth signal
+   Type: EB Garamond (display) · Inter (body) · JetBrains Mono (data)
+   ============================================================ */
 @theme {
-  --font-sans: "Manrope", "Inter", ui-sans-serif, system-ui, sans-serif;
+  /* Fonts */
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-inter: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "EB Garamond", Georgia, "Times New Roman", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* Surface / background depth stack */
+  --color-background: #131411;
+  --color-surface: #131411;
+  --color-surface-lowest: #0e0e0c;
+  --color-surface-low: #1b1c19;
+  --color-surface-container: #1f201d;
+  --color-surface-high: #2a2a27;
+  --color-surface-highest: #343532;
+  --color-surface-bright: #393936;
+
+  /* Text */
+  --color-on-surface: #e4e2dd;
+  --color-on-surface-variant: #c6c6cd;
+  --color-data-mono: #94a3b8;
+
+  /* Brand accents */
+  --color-premium-gold: #c9a84c;
+  --color-gold-light: #ffe08f;
+  --color-tertiary: #e6c364;
+  --color-success-emerald: #1a7a5e;
+  --color-secondary: #80d7b6;
+
+  /* Containers / status */
+  --color-primary-container: #0b1120;
+  --color-error: #ffb4ab;
+  --color-error-container: #93000a;
+  --color-outline: #909097;
+  --color-outline-variant: #45464c;
+
+  /* Radii — institutional/sharp per DESIGN.md */
+  --radius-sm: 0.125rem;
+  --radius-DEFAULT: 0.25rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
 }
 
 @layer base {
@@ -10,27 +53,156 @@
     font-optical-sizing: auto;
     font-size: 16px;
   }
-  
+
   body {
     font-family: var(--font-sans);
     line-height: 1.6;
     overflow-x: hidden;
+    background-color: var(--color-background);
+    color: var(--color-on-surface);
+    -webkit-font-smoothing: antialiased;
   }
+
+  ::selection {
+    background-color: var(--color-premium-gold);
+    color: var(--color-background);
+  }
+}
+
+@layer components {
+  /* ---- Glass surfaces ---- */
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.05);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(248, 246, 241, 0.15);
+  }
+  .glass-panel-hover {
+    transition: border-color 0.4s ease, background 0.4s ease;
+  }
+  .glass-panel-hover:hover {
+    border-color: rgba(201, 168, 76, 0.4);
+    background: rgba(255, 255, 255, 0.07);
+  }
+
+  /* ---- Typography helpers ---- */
+  .font-display {
+    font-family: var(--font-display);
+  }
+  .data-stat {
+    font-family: var(--font-mono);
+    letter-spacing: -0.05em;
+    font-weight: 600;
+  }
+  .label-caps {
+    font-size: 12px;
+    line-height: 1;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .text-gradient-gold {
+    background: linear-gradient(to right, #c9a84c, #ffe08f);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Hide scrollbars on horizontally-scrolling tab rows */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* ---- Buttons ---- */
+  .btn-gold {
+    background-color: var(--color-premium-gold);
+    color: #2a3040;
+    border-radius: 9999px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: filter 0.3s ease, transform 0.3s ease;
+  }
+  .btn-gold:hover {
+    filter: brightness(1.1);
+    transform: translateY(-2px);
+  }
+  .btn-ghost {
+    border-radius: 9999px;
+    border: 1px solid rgba(248, 246, 241, 0.15);
+    background: rgba(255, 255, 255, 0.05);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    transition: border-color 0.3s ease, transform 0.3s ease;
+  }
+  .btn-ghost:hover {
+    border-color: var(--color-premium-gold);
+    transform: translateY(-2px);
+  }
+}
+
+/* ============================================================
+   Hero cross-fade slideshow (Vantello off-plan imagery)
+   1.5s cross-fade · 5s dwell · slow Ken-Burns drift
+   ============================================================ */
+.hero-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background-size: cover;
+  background-position: center;
+  transition: opacity 1.5s ease-in-out;
+  filter: brightness(0.35);
+  will-change: opacity, transform;
+}
+.hero-slide.is-active {
+  opacity: 1;
+  animation: hero-kenburns 8s ease-out forwards;
+}
+
+@keyframes hero-kenburns {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.08);
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+.float-anim {
+  animation: float 6s ease-in-out infinite;
+}
+
 @keyframes fade-in {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
-
 .animate-fade-in {
-  animation: fade-in 0.2s ease-in-out;
+  animation: fade-in 0.4s ease-in-out;
 }
 
+/* Featured marquee (retained for any legacy usage) */
 @keyframes featured-marquee-scroll {
   from {
     transform: translateX(0);
@@ -39,31 +211,30 @@
     transform: translateX(-50%);
   }
 }
-
 .featured-marquee {
   overflow: hidden;
 }
-
 .featured-track {
   display: flex;
   gap: 1.5rem;
   width: max-content;
   animation: featured-marquee-scroll 35s linear infinite;
 }
-
 .featured-marquee:hover .featured-track {
   animation-play-state: paused;
 }
-
 .featured-item {
   flex: 0 0 auto;
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .hero-slide,
+  .hero-slide.is-active {
+    transition: opacity 0.4s ease-in-out;
+    animation: none;
+  }
+  .float-anim,
   .featured-track {
     animation: none;
   }
-}
-
-  
 }

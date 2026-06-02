@@ -64,6 +64,11 @@ const {isAuthenticated, logout, user} = useAuth();
 
   if (roleDashboardLink) {
     userMenuItems.unshift({
+      label: "My Portfolio",
+      href: "/investor/portfolio",
+      icon: <HomeIcon />,
+    });
+    userMenuItems.unshift({
       label: "Investor Dashboard",
       href: roleDashboardLink,
       icon: <HomeIcon />,
@@ -89,30 +94,30 @@ const {isAuthenticated, logout, user} = useAuth();
   );
 
   return (
-    <header className="fixed top-0 left-0 w-full z-50 bg-white border-b border-gray-200">
-      <nav className="max-w-7xl mx-auto px-4">
-        <div className="flex h-16 items-center justify-between">
+    <header className="fixed top-0 left-0 w-full z-50 glass-panel border-x-0 border-t-0">
+      <nav className="max-w-7xl mx-auto px-4 sm:px-8">
+        <div className="flex h-20 items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-3">
             <Link
               to="/"
-              className="flex flex-row items-center gap-2 text-base sm:text-lg font-semibold font-inter text-blue-900 min-w-0"
+              className="flex flex-row items-center gap-2 font-display text-xl sm:text-2xl font-medium text-premium-gold tracking-tight min-w-0"
             >
-              <BuildingIcon />
+              <BuildingIcon color="#c9a84c" />
 
               <span className="truncate max-w-[11rem] sm:max-w-none">{logoText}</span>
             </Link>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-6">
+          <div className="hidden md:flex items-center gap-8">
             {!isUserMenu &&
               links.map((link) => (
                 <div key={link.href} className="">
                   <a
                     key={link.href}
                     href={link.href}
-                    className="text-base text-gray-700 hover:text-blue-600 transition"
+                    className="label-caps text-on-surface-variant hover:text-premium-gold transition-colors duration-300"
                   >
                     {link.label}
                   </a>
@@ -120,35 +125,41 @@ const {isAuthenticated, logout, user} = useAuth();
               ))}
 
             {isUserMenu && user?.role !== "ADMIN" && (
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-8">
+                <Link
+                  to="/properties"
+                  className="label-caps text-on-surface-variant hover:text-premium-gold transition-colors duration-300"
+                >
+                  Marketplace
+                </Link>
                 <Link
                   to="/about"
-                  className="text-base text-gray-700 hover:text-blue-600 transition"
+                  className="label-caps text-on-surface-variant hover:text-premium-gold transition-colors duration-300"
                 >
                   About
                 </Link>
                 <Link
                   to="/contact"
-                  className="text-base text-gray-700 hover:text-blue-600 transition"
+                  className="label-caps text-on-surface-variant hover:text-premium-gold transition-colors duration-300"
                 >
-                  Contact Us
+                  Contact
                 </Link>
               </div>
             )}
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               {!isAuthenticated && (
                 <button
                   onClick={() => navigate("/signup")}
-                  className="bg-blue-900 text-white font-sans px-5 py-2 rounded-md transition-all duration-500 hover:bg-blue-500 text-base"
+                  className="btn-gold px-6 py-2.5 text-[12px]"
                 >
-                  Join Us
+                  Invest Now
                 </button>
               )}
               {isUserMenu ? (
                 <button
                   onClick={() => setIsSidebarOpen(true)}
-                  className="flex items-center justify-center h-11 w-11 rounded-md border border-blue-900 text-blue-900 hover:bg-blue-50 transition"
+                  className="flex items-center justify-center h-11 w-11 rounded-full border border-[rgba(248,246,241,0.15)] text-on-surface hover:border-premium-gold hover:text-premium-gold transition"
                   aria-label="Open menu"
                 >
                   {gridIcon}
@@ -159,7 +170,7 @@ const {isAuthenticated, logout, user} = useAuth();
                     logout();
                     navigate("/login");
                   }}
-                className="flex gap-2 items-center text-base text-red-600 px-4 py-1.5 rounded-md hover:bg-red-50 transition"
+                className="flex gap-2 items-center text-base text-error px-4 py-1.5 rounded-full hover:bg-error-container/20 transition"
                 >
                   <LogoutIcon />
                   <span>Logout</span>
@@ -172,7 +183,7 @@ const {isAuthenticated, logout, user} = useAuth();
           {!isUserMenu ? (
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="md:hidden inline-flex items-center justify-center rounded-md p-2 text-gray-700 hover:bg-gray-100 focus:outline-none"
+              className="md:hidden inline-flex items-center justify-center rounded-md p-2 text-on-surface hover:bg-white/5 focus:outline-none"
               aria-label="Toggle menu"
             >
               <svg
@@ -192,38 +203,13 @@ const {isAuthenticated, logout, user} = useAuth();
           ) : (
             <button
               onClick={() => setIsSidebarOpen(true)}
-              className="md:hidden inline-flex items-center justify-center rounded-md p-2 text-blue-900 hover:bg-blue-50 focus:outline-none"
+              className="md:hidden inline-flex items-center justify-center rounded-md p-2 text-premium-gold hover:bg-white/5 focus:outline-none"
               aria-label="Open menu"
             >
               {gridIcon}
             </button>
           )}
         </div>
-
-        {isUserMenu && user?.role !== "ADMIN" && (
-          <div className="md:hidden flex flex-wrap items-center gap-3 pb-3">
-            <Link
-              to="/about"
-              className="text-sm text-gray-700 hover:text-blue-600 transition"
-            >
-              About
-            </Link>
-            <Link
-              to="/contact"
-              className="text-sm text-gray-700 hover:text-blue-600 transition"
-            >
-              Contact Us
-            </Link>
-            {!isAuthenticated && (
-              <button
-                onClick={() => navigate("/signup")}
-                className="text-sm border border-blue-600 text-blue-600 px-3 py-1.5 rounded-md hover:bg-blue-50 transition"
-              >
-                Join Us
-              </button>
-            )}
-          </div>
-        )}
 
         {/* Mobile Menu */}
         {isOpen && (
@@ -233,7 +219,7 @@ const {isAuthenticated, logout, user} = useAuth();
                 key={link.href}
                 href={link.href}
                 onClick={() => setIsOpen(false)}
-                className="block text-sm text-gray-700 hover:text-blue-600"
+                className="block label-caps text-on-surface-variant hover:text-premium-gold"
               >
                 {link.label}
               </a>
@@ -242,7 +228,7 @@ const {isAuthenticated, logout, user} = useAuth();
             {!isAuthenticated ? (
               <button
                 onClick={() => navigate("/signup")}
-                className="text-sm border border-blue-600 text-blue-600 px-4 py-1.5 rounded-md hover:bg-blue-50 transition"
+                className="btn-gold px-4 py-2 text-[12px]"
               >
                 Sign Up
               </button>
@@ -252,7 +238,7 @@ const {isAuthenticated, logout, user} = useAuth();
                   logout();
                   navigate("/login");
                 }}
-                className=" flex gap-2 items-center text-sm text-red-600 px-4 py-1.5 rounded-md hover:bg-red-50 transition"
+                className=" flex gap-2 items-center text-sm text-error px-4 py-1.5 rounded-full hover:bg-error-container/20 transition"
               >
                 <LogoutIcon />
                 <span>Logout</span>
@@ -266,35 +252,35 @@ const {isAuthenticated, logout, user} = useAuth();
       {isUserMenu && (
         <>
           <div
-            className={`fixed inset-0 bg-black/40 z-40 transition-opacity ${
+            className={`fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity ${
               isSidebarOpen ? "opacity-100" : "opacity-0 pointer-events-none"
             }`}
             onClick={() => setIsSidebarOpen(false)}
           />
           <aside
-            className={`fixed left-0 top-0 h-screen w-64 bg-blue-900 text-white px-4 py-6 z-50 transform transition-transform ${
+            className={`fixed left-0 top-0 h-screen w-64 bg-surface-lowest text-on-surface px-4 py-6 z-50 border-r border-[rgba(248,246,241,0.15)] transform transition-transform ${
               isSidebarOpen ? "translate-x-0" : "-translate-x-full"
             }`}
           >
             <Link
               to="/"
               onClick={() => setIsSidebarOpen(false)}
-              className="flex items-center gap-2 text-lg font-semibold"
+              className="flex items-center gap-2 font-display text-xl font-medium text-premium-gold"
             >
-              <BuildingIcon color="white" />
+              <BuildingIcon color="#c9a84c" />
               <span>Elycapvest</span>
             </Link>
 
-            <nav className="mt-8 flex flex-col gap-3">
+            <nav className="mt-10 flex flex-col gap-2">
               {userMenuItems.map((item) => (
                 <Link
                   key={item.href}
                   to={item.href}
                   onClick={() => setIsSidebarOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-white/10 transition"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-white/5 hover:text-premium-gold transition"
                 >
-                  <span className="text-white">{item.icon}</span>
-                  <span>{item.label}</span>
+                  <span>{item.icon}</span>
+                  <span className="text-sm">{item.label}</span>
                 </Link>
               ))}
             </nav>
@@ -306,10 +292,10 @@ const {isAuthenticated, logout, user} = useAuth();
                     logout();
                     navigate("/login");
                   }}
-                  className="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-white/10 transition"
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-error hover:bg-error-container/20 transition"
                 >
                   <LogoutIcon />
-                  <span>Logout</span>
+                  <span className="text-sm">Logout</span>
                 </button>
               </div>
             )}

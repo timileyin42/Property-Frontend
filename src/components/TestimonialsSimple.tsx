@@ -60,33 +60,33 @@ const TestimonialsSimple = () => {
   // }, [isHovered, nextSlide]);
 
   return (
-    <section className="py-12 md:py-2 px-4 bg-white overflow-hidden">
+    <section className="py-12 md:py-2 px-4 overflow-hidden">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        
+
 
         {/* Mobile Cards - Stacked */}
         <div className="md:hidden space-y-6">
           {testimonials.map((testimonial, index) => (
-            <div 
-              key={index} 
-              className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm"
+            <div
+              key={index}
+              className="glass-panel rounded-xl p-5"
             >
               <div className="flex items-start gap-4">
                 <img
                   src={testimonial.image}
                   alt={testimonial.name}
-                  className="w-14 h-14 object-cover rounded-full flex-shrink-0"
+                  className="w-14 h-14 object-cover rounded-full flex-shrink-0 grayscale"
                 />
                 <div>
                   <div className="flex gap-1 mb-2">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
+                      <Star key={i} className="w-4 h-4 text-premium-gold fill-current" />
                     ))}
                   </div>
-                  <h4 className="font-bold text-gray-900">{testimonial.name}</h4>
-                  <p className="text-blue-600 text-base mb-3">{testimonial.role}</p>
-                  <p className="text-gray-700 text-base italic">"{testimonial.comment}"</p>
+                  <h4 className="font-display text-lg text-white">{testimonial.name}</h4>
+                  <p className="label-caps text-[10px] text-on-surface-variant mb-3">{testimonial.role}</p>
+                  <p className="text-on-surface-variant text-base italic">"{testimonial.comment}"</p>
                 </div>
               </div>
             </div>
@@ -106,24 +106,24 @@ const TestimonialsSimple = () => {
             >
               {testimonials.map((testimonial, index) => (
                 <div key={index} className="w-full flex-shrink-0 px-4">
-                  <div className="bg-white rounded-xl shadow-lg p-8 max-w-2xl mx-auto">
+                  <div className="glass-panel rounded-xl p-8 max-w-2xl mx-auto border-l-4 border-l-premium-gold">
                     <div className="flex items-center gap-6">
                       <img
                         src={testimonial.image}
                         alt={testimonial.name}
-                        className="w-20 h-20 object-cover rounded-full flex-shrink-0"
+                        className="w-20 h-20 object-cover rounded-full flex-shrink-0 grayscale"
                       />
                       <div>
                         <div className="flex gap-1 mb-3">
                           {[...Array(5)].map((_, i) => (
-                            <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+                            <Star key={i} className="w-5 h-5 text-premium-gold fill-current" />
                           ))}
                         </div>
-                        <h4 className="text-xl font-bold text-gray-900">{testimonial.name}</h4>
-                        <p className="text-blue-600 font-medium mb-4">{testimonial.role}</p>
+                        <h4 className="font-display text-xl text-white">{testimonial.name}</h4>
+                        <p className="label-caps text-[10px] text-on-surface-variant mb-4">{testimonial.role}</p>
                       </div>
                     </div>
-                    <p className="text-gray-700 text-lg italic mt-6">"{testimonial.comment}"</p>
+                    <p className="text-on-surface text-lg italic mt-6">"{testimonial.comment}"</p>
                   </div>
                 </div>
               ))}
@@ -152,7 +152,7 @@ const TestimonialsSimple = () => {
                 key={index}
                 onClick={() => setCurrentIndex(index)}
                 className={`w-2 h-2 rounded-full transition-all ${
-                  index === currentIndex ? 'bg-blue-600 w-6' : 'bg-gray-300'
+                  index === currentIndex ? 'bg-premium-gold w-6' : 'bg-surface-highest'
                 }`}
               />
             ))}

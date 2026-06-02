@@ -4,10 +4,12 @@ import Navbar from "../components/Navbar";
 import { api } from "../api/axios";
 import { ApiProperty } from "../types/property";
 import { useAuth } from "../context/AuthContext";
-import { CiLocationOn } from "react-icons/ci";
 import { isVideoUrl, usePresignedUrls } from "../util/normalizeMediaUrl";
 import toast, { Toaster } from "react-hot-toast";
 import type { WishlistItem, WishlistListResponse } from "../types/userProfile";
+
+type TabKey = "OVERVIEW" | "FINANCIALS" | "DOCUMENTS";
+const TABS: TabKey[] = ["OVERVIEW", "FINANCIALS", "DOCUMENTS"];
 
 const getWishlistItems = (data: unknown): WishlistItem[] => {
   if (!data || typeof data !== "object") return [];
@@ -17,6 +19,8 @@ const getWishlistItems = (data: unknown): WishlistItem[] => {
   return Array.isArray(items) ? (items as WishlistItem[]) : [];
 };
 
+const ngn = (value: number) => `₦${Math.round(value).toLocaleString()}`;
+
 const PropertyDetails = () => {
   const { id } = useParams<{ id: string }>();
   const [property, setProperty] = useState<ApiProperty | null>(null);
@@ -24,6 +28,9 @@ const PropertyDetails = () => {
   const [wishlistId, setWishlistId] = useState<number | null>(null);
   const [wishlistLoading, setWishlistLoading] = useState(false);
   const [viewerIndex, setViewerIndex] = useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState<TabKey>("OVERVIEW");
+  const [investAmount, setInvestAmount] = useState<number | null>(null);
+  const [showStickyBar, setShowStickyBar] = useState(false);
   const touchStartX = useRef<number | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -134,6 +141,7 @@ const PropertyDetails = () => {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [viewerIndex, mediaItems.length]);
+
   useEffect(() => {
     if (viewerIndex === null) return;
     const original = document.body.style.overflow;
@@ -142,6 +150,13 @@ const PropertyDetails = () => {
       document.body.style.overflow = original;
     };
   }, [viewerIndex]);
+
+  // Mobile sticky invest bar reveal on scroll
+  useEffect(() => {
+    const onScroll = () => setShowStickyBar(window.scrollY > 600);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const goPrev = () => {
     setViewerIndex((current) =>
@@ -175,24 +190,67 @@ const PropertyDetails = () => {
     touchStartX.current = null;
   };
 
-  const ctaLabel = user?.role === "INVESTOR" ? "Invest" : "Express Interest";
-  const hasInvested = Boolean((location.state as { hasInvested?: boolean } | null)?.hasInvested);
+  const ctaLabel = user?.role === "INVESTOR" ? "Acquire Fractions" : "Express Interest";
+  const hasInvested = Boolean(
+    (location.state as { hasInvested?: boolean } | null)?.hasInvested
+  );
   const totalFractions = property?.total_fractions ?? 0;
   const fractionsSold = property?.fractions_sold ?? 0;
   const fractionsAvailable =
     property?.fractions_available ?? Math.max(totalFractions - fractionsSold, 0);
   const isSoldOut = totalFractions > 0 && fractionsSold >= totalFractions;
+  const fractionPrice = property?.fraction_price ?? 0;
+  const expectedRoi = property?.expected_roi ?? 0;
+  const projectValue = property?.project_value ?? 0;
+
+  const fundingPct =
+    totalFractions > 0
+      ? Math.min(100, Math.round((fractionsSold / totalFractions) * 100))
+      : 0;
+  const raised = fractionsSold * fractionPrice;
+  const target = projectValue || totalFractions * fractionPrice;
+
+  // Initialise the yield-calculator slider once the property loads
+  useEffect(() => {
+    if (fractionPrice > 0) {
+      const startUnits = Math.min(10, fractionsAvailable || totalFractions || 10);
+      setInvestAmount(fractionPrice * Math.max(1, startUnits));
+    }
+  }, [fractionPrice, fractionsAvailable, totalFractions]);
+
+  const sliderMax = useMemo(() => {
+    const units = fractionsAvailable || totalFractions || 50;
+    return Math.max(fractionPrice * units, fractionPrice * 2);
+  }, [fractionPrice, fractionsAvailable, totalFractions]);
+
+  const effectiveInvest = investAmount ?? fractionPrice;
+  const estAnnualReturn = (effectiveInvest * expectedRoi) / 100;
+  const unitsFromInvest = fractionPrice > 0 ? Math.floor(effectiveInvest / fractionPrice) : 0;
 
   if (loading) {
-    return <p className="text-center py-10">Loading property...</p>;
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center text-on-surface-variant">
+        Loading property…
+      </div>
+    );
   }
 
   if (!property) {
-    return <p className="text-center py-10">Property not found.</p>;
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center text-on-surface-variant">
+        Property not found.
+      </div>
+    );
   }
 
+  const heroImages = mediaItems.slice(0, 5);
+  const mainImage = heroImages[0];
+  const thumbs = heroImages.slice(1, 5);
+
+  const goToInterest = () => navigate(`/properties/${property.id}/interest`);
+
   return (
-    <div className="mx-auto px-4 my-16">
+    <div className="min-h-screen bg-background text-on-surface">
       <Toaster position="top-right" />
       <Navbar
         links={[
@@ -202,180 +260,365 @@ const PropertyDetails = () => {
         ]}
       />
 
-      <div className="pt-6 mb-8">
-        <h2 className="font-inter font-bold text-blue-900 text-[clamp(1.25rem,4vw,2rem)]">
-          {property.title}
-        </h2>
-        <div className="flex flex-wrap items-center gap-3 text-gray-500 text-sm mt-2">
-          <span className="flex items-center gap-1">
-            <CiLocationOn />
-            {property.location}
-          </span>
-          {isSoldOut && (
-            <span className="inline-flex items-center bg-gray-900 text-white text-xs font-medium px-2 py-1 rounded-full">
-              Sold
-            </span>
-          )}
-          <span className="inline-flex items-center bg-green-600 text-white text-xs font-medium px-2 py-1 rounded-full">
-            {property.expected_roi}% ROI
-          </span>
-        </div>
-      </div>
-
-      <section className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <div className="lg:col-span-8 flex flex-col gap-6">
-          <div className="grid grid-cols-1 gap-4">
-            {mediaItems.length === 0 && (
-              <div className="h-[320px] bg-gray-100 flex items-center justify-center text-gray-400 text-sm rounded-xl">
-                Media unavailable
-              </div>
-            )}
-
-            {mediaItems[0] && (
-              <div
-                className="relative rounded-xl overflow-hidden cursor-pointer"
-                onClick={() => openViewer(0)}
-              >
-                {isVideoUrl(mediaItems[0]) ? (
-                  <video
-                    controls
-                    className="w-full h-[320px] object-cover"
-                    onClick={() => openViewer(0)}
-                  >
-                    <source src={mediaItems[0]} />
+      <main className="pt-20">
+        {/* ===================== HERO GALLERY ===================== */}
+        <section className="relative w-full h-[420px] md:h-[560px] overflow-hidden bg-surface-lowest">
+          <div className="grid grid-cols-4 grid-rows-2 h-full gap-2">
+            {/* Main image */}
+            <div
+              className="col-span-4 md:col-span-2 row-span-2 relative group overflow-hidden cursor-pointer"
+              onClick={() => mainImage && openViewer(0)}
+            >
+              {mainImage ? (
+                isVideoUrl(mainImage) ? (
+                  <video className="w-full h-full object-cover" muted playsInline loop autoPlay>
+                    <source src={mainImage} />
                   </video>
                 ) : (
                   <img
-                    src={mediaItems[0]}
+                    src={mainImage}
                     alt={property.title}
-                    className="w-full h-[320px] object-cover"
-                    onClick={() => openViewer(0)}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                )
+              ) : (
+                <div className="w-full h-full bg-surface-high flex items-center justify-center text-on-surface-variant text-sm">
+                  Media unavailable
+                </div>
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+              <div className="absolute bottom-6 left-6 right-6">
+                {expectedRoi >= 10 && (
+                  <span className="label-caps bg-premium-gold/90 text-[#151b2b] px-3 py-1 mb-3 inline-block rounded">
+                    Premium Listing
+                  </span>
+                )}
+                <h1 className="font-display text-3xl md:text-5xl text-white leading-tight">
+                  {property.title}
+                </h1>
+                <p className="text-on-surface-variant mt-1">{property.location}</p>
+              </div>
+
+              {/* Wishlist heart */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleWishlistToggle();
+                }}
+                disabled={wishlistLoading}
+                aria-label={wishlistId ? "Remove from wishlist" : "Add to wishlist"}
+                className="absolute top-4 right-4 h-11 w-11 rounded-full glass-panel flex items-center justify-center hover:border-premium-gold transition-colors disabled:opacity-60"
+              >
+                <span
+                  className="material-symbols-outlined"
+                  style={{
+                    color: wishlistId ? "#C9A84C" : "#e4e2dd",
+                    fontVariationSettings: wishlistId ? "'FILL' 1" : "'FILL' 0",
+                  }}
+                >
+                  favorite
+                </span>
+              </button>
+            </div>
+
+            {/* Thumbnails */}
+            {thumbs.map((item, index) => (
+              <div
+                key={item}
+                className="hidden md:block relative group overflow-hidden cursor-pointer"
+                onClick={() => openViewer(index + 1)}
+              >
+                {isVideoUrl(item) ? (
+                  <video className="w-full h-full object-cover" muted playsInline loop autoPlay>
+                    <source src={item} />
+                  </video>
+                ) : (
+                  <img
+                    src={item}
+                    alt={`${property.title} ${index + 2}`}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
                 )}
-                <button
-                  type="button"
-                  onClick={() => openViewer(0)}
-                  className="absolute bottom-3 right-3 rounded-md bg-black/70 px-3 py-1 text-xs font-semibold text-white"
+              </div>
+            ))}
+
+            {/* "View all" tile fills remaining grid cells */}
+            {Array.from({ length: Math.max(0, 4 - thumbs.length) }).map((_, i) => {
+              const isFirstEmpty = i === 0 && mediaItems.length > heroImages.length;
+              return (
+                <div
+                  key={`empty-${i}`}
+                  className="hidden md:block relative group overflow-hidden"
+                  onClick={() => mediaItems.length && openViewer(0)}
                 >
-                  View
-                </button>
-              </div>
-            )}
-
-            {mediaItems.length > 1 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {mediaItems.slice(1).map((item, index) => (
-                  <div
-                    key={item}
-                    className="relative rounded-xl overflow-hidden cursor-pointer"
-                    onClick={() => openViewer(index + 1)}
-                  >
-                    {isVideoUrl(item) ? (
-                      <video
-                        controls
-                        className="w-full h-48 object-cover"
-                        onClick={() => openViewer(index + 1)}
-                      >
-                        <source src={item} />
-                      </video>
+                  <div className="absolute inset-0 bg-surface-high flex items-center justify-center cursor-pointer group-hover:bg-surface-highest transition-colors">
+                    {isFirstEmpty ? (
+                      <div className="text-center">
+                        <span className="material-symbols-outlined text-premium-gold text-4xl">
+                          grid_view
+                        </span>
+                        <p className="label-caps mt-2">View all {mediaItems.length} photos</p>
+                      </div>
                     ) : (
-                      <img
-                        src={item}
-                        alt={property.title}
-                        className="w-full h-48 object-cover"
-                        onClick={() => openViewer(index + 1)}
-                      />
+                      <span className="material-symbols-outlined text-on-surface-variant/40 text-3xl">
+                        image
+                      </span>
                     )}
-                    <button
-                      type="button"
-                      onClick={() => openViewer(index + 1)}
-                      className="absolute bottom-2 right-2 rounded-md bg-black/70 px-2 py-0.5 text-xs font-semibold text-white"
-                    >
-                      View
-                    </button>
                   </div>
-                ))}
-              </div>
-            )}
+                </div>
+              );
+            })}
           </div>
+        </section>
 
-          <div className="bg-white border border-gray-200 rounded-xl p-6">
-            <h3 className="text-blue-900 font-semibold text-lg mb-3">
-              Property Details
-            </h3>
-            <p className="text-gray-600 text-sm leading-6">
-              {property.description}
-            </p>
+        {/* ===================== CONTENT GRID ===================== */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-12">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* -------- Left: Investment Widget -------- */}
+            <aside className="lg:col-span-4 space-y-6">
+              <div className="glass-panel p-6 rounded-lg shadow-xl lg:sticky lg:top-28">
+                <div className="flex justify-between items-start mb-6">
+                  <div>
+                    <p className="label-caps text-on-surface-variant mb-1">Fraction Price</p>
+                    <p className="data-stat text-premium-gold text-2xl">
+                      {fractionPrice ? ngn(fractionPrice) : "—"}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="label-caps text-on-surface-variant mb-1">Expected ROI</p>
+                    <p className="data-stat text-success-emerald text-2xl">{expectedRoi}%</p>
+                  </div>
+                </div>
 
-            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-              <div className="bg-gray-50 rounded-xl p-4">
-                <p className="text-gray-500">Total Value</p>
-                <p className="text-blue-900 font-semibold">
-                  {property.project_value !== null && property.project_value !== undefined
-                    ? `₦${property.project_value.toLocaleString()}`
-                    : "-"}
-                </p>
+                <div className="space-y-6">
+                  {/* Funding progress */}
+                  <div>
+                    <div className="flex justify-between label-caps mb-2">
+                      <span>Funding Progress</span>
+                      <span className="text-secondary">{fundingPct}% Funded</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-surface-high rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-success-emerald rounded-full"
+                        style={{ width: `${fundingPct}%` }}
+                      />
+                    </div>
+                    <div className="flex justify-between mt-2 data-stat text-xs text-on-surface-variant">
+                      <span>{ngn(raised)} Raised</span>
+                      <span>{ngn(target)} Target</span>
+                    </div>
+                  </div>
+
+                  {/* Yield calculator */}
+                  {fractionPrice > 0 && (
+                    <div className="pt-4 border-t border-[rgba(248,246,241,0.15)]">
+                      <p className="label-caps mb-4">Estimated Returns</p>
+                      <div className="space-y-4">
+                        <div>
+                          <div className="flex justify-between text-base mb-2">
+                            <span className="text-on-surface-variant">Investment Amount</span>
+                            <span className="data-stat text-premium-gold">
+                              {ngn(effectiveInvest)}
+                            </span>
+                          </div>
+                          <input
+                            type="range"
+                            min={fractionPrice}
+                            max={sliderMax}
+                            step={fractionPrice}
+                            value={effectiveInvest}
+                            onChange={(e) => setInvestAmount(Number(e.target.value))}
+                            className="w-full h-1 bg-surface-high rounded-lg appearance-none cursor-pointer accent-premium-gold"
+                          />
+                          <p className="text-[11px] text-on-surface-variant mt-1">
+                            {unitsFromInvest} fraction{unitsFromInvest === 1 ? "" : "s"}
+                          </p>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="bg-surface-low p-3 rounded border border-[rgba(248,246,241,0.15)]">
+                            <p className="text-[10px] label-caps text-on-surface-variant mb-1">
+                              Est. Annual Return
+                            </p>
+                            <p className="data-stat text-sm text-success-emerald">
+                              {ngn(estAnnualReturn)}
+                            </p>
+                          </div>
+                          <div className="bg-surface-low p-3 rounded border border-[rgba(248,246,241,0.15)]">
+                            <p className="text-[10px] label-caps text-on-surface-variant mb-1">
+                              Fractions
+                            </p>
+                            <p className="data-stat text-sm text-on-surface">{unitsFromInvest}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {!hasInvested && (
+                    <button
+                      onClick={goToInterest}
+                      disabled={isSoldOut}
+                      className="btn-gold w-full py-4 text-[12px] disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                      {isSoldOut ? "Sold Out" : ctaLabel}
+                    </button>
+                  )}
+
+                  {wishlistId ? (
+                    <div className="w-full border border-success-emerald/40 bg-success-emerald/10 text-secondary rounded-full py-3 text-sm font-medium text-center">
+                      Saved to Wishlist
+                    </div>
+                  ) : (
+                    <button
+                      onClick={handleWishlistToggle}
+                      disabled={wishlistLoading}
+                      className="btn-ghost w-full py-3 label-caps text-on-surface disabled:opacity-60"
+                    >
+                      {wishlistLoading ? "Updating…" : "Add to Wishlist"}
+                    </button>
+                  )}
+
+                  <p className="text-center label-caps text-[10px] text-on-surface-variant flex items-center justify-center gap-1">
+                    <span className="material-symbols-outlined text-xs">verified_user</span>
+                    Secured Fractional Ownership
+                  </p>
+                </div>
               </div>
-              <div className="bg-gray-50 rounded-xl p-4">
-                <p className="text-gray-500">Per Fraction</p>
-                <p className="text-blue-900 font-semibold">
-                  {property.fraction_price !== null && property.fraction_price !== undefined
-                    ? `₦${property.fraction_price.toLocaleString()}`
-                    : "-"}
-                </p>
+            </aside>
+
+            {/* -------- Right: Details & Tabs -------- */}
+            <div className="lg:col-span-8 space-y-12">
+              {/* Tabs */}
+              <div className="border-b border-[rgba(248,246,241,0.15)]">
+                <div className="flex space-x-8 overflow-x-auto scrollbar-hide">
+                  {TABS.map((tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => setActiveTab(tab)}
+                      className={`pb-4 border-b-2 label-caps whitespace-nowrap transition-colors ${
+                        activeTab === tab
+                          ? "border-premium-gold text-premium-gold"
+                          : "border-transparent text-on-surface-variant hover:text-on-surface"
+                      }`}
+                    >
+                      {tab}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div className="bg-gray-50 rounded-xl p-4">
-                <p className="text-gray-500">Fractions Available</p>
-                <p className="text-blue-900 font-semibold">
-                  {fractionsAvailable}/{totalFractions || "-"}
-                </p>
-              </div>
-              <div className="bg-gray-50 rounded-xl p-4">
-                <p className="text-gray-500">Fractions Sold</p>
-                <p className="text-blue-900 font-semibold">
-                  {fractionsSold}/{totalFractions || "-"}
-                </p>
-              </div>
+
+              {/* OVERVIEW */}
+              {activeTab === "OVERVIEW" && (
+                <div className="space-y-12 animate-fade-in">
+                  {/* Specs bento */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div className="glass-panel p-4 flex flex-col items-center text-center rounded-lg">
+                      <span className="material-symbols-outlined text-premium-gold mb-2">bed</span>
+                      <p className="label-caps text-[10px] text-on-surface-variant">Bedrooms</p>
+                      <p className="font-display text-2xl text-on-surface">{property.bedrooms ?? "—"}</p>
+                    </div>
+                    <div className="glass-panel p-4 flex flex-col items-center text-center rounded-lg">
+                      <span className="material-symbols-outlined text-premium-gold mb-2">bathtub</span>
+                      <p className="label-caps text-[10px] text-on-surface-variant">Baths</p>
+                      <p className="font-display text-2xl text-on-surface">{property.bathrooms ?? "—"}</p>
+                    </div>
+                    <div className="glass-panel p-4 flex flex-col items-center text-center rounded-lg">
+                      <span className="material-symbols-outlined text-premium-gold mb-2">square_foot</span>
+                      <p className="label-caps text-[10px] text-on-surface-variant">Sq Footage</p>
+                      <p className="font-display text-2xl text-on-surface">
+                        {property.area_sqft ? property.area_sqft.toLocaleString() : "—"}
+                      </p>
+                    </div>
+                    <div className="glass-panel p-4 flex flex-col items-center text-center rounded-lg">
+                      <span className="material-symbols-outlined text-premium-gold mb-2">pie_chart</span>
+                      <p className="label-caps text-[10px] text-on-surface-variant">Fractions Left</p>
+                      <p className="font-display text-2xl text-on-surface">
+                        {fractionsAvailable}/{totalFractions || "—"}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <section className="space-y-6">
+                    <h2 className="font-display text-2xl text-on-surface border-l-2 border-premium-gold pl-4">
+                      Architectural Vision
+                    </h2>
+                    <div className="text-lg text-on-surface-variant space-y-4 max-w-3xl leading-relaxed">
+                      <p>{property.description || "No description available for this property yet."}</p>
+                    </div>
+                  </section>
+                </div>
+              )}
+
+              {/* FINANCIALS */}
+              {activeTab === "FINANCIALS" && (
+                <div className="space-y-4 animate-fade-in">
+                  <h3 className="label-caps text-premium-gold">Investment Breakdown</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {[
+                      { label: "Asset Value", value: projectValue ? ngn(projectValue) : "—" },
+                      { label: "Fraction Price", value: fractionPrice ? ngn(fractionPrice) : "—" },
+                      { label: "Expected ROI", value: `${expectedRoi}%`, accent: "text-success-emerald" },
+                      { label: "Total Fractions", value: totalFractions || "—" },
+                      { label: "Fractions Sold", value: `${fractionsSold}/${totalFractions || "—"}` },
+                      { label: "Fractions Available", value: fractionsAvailable },
+                      { label: "Capital Raised", value: ngn(raised) },
+                      { label: "Funding Progress", value: `${fundingPct}%`, accent: "text-secondary" },
+                    ].map((row) => (
+                      <div
+                        key={row.label}
+                        className="flex justify-between items-center glass-panel p-4 rounded-lg"
+                      >
+                        <span className="text-base text-on-surface-variant">{row.label}</span>
+                        <span className={`data-stat ${row.accent ?? "text-on-surface"}`}>
+                          {row.value}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* DOCUMENTS */}
+              {activeTab === "DOCUMENTS" && (
+                <div className="space-y-4 animate-fade-in">
+                  <h3 className="label-caps text-premium-gold">Due Diligence Vault</h3>
+                  <div className="glass-panel p-10 rounded-lg text-center">
+                    <span className="material-symbols-outlined text-premium-gold/60 text-4xl">
+                      folder_open
+                    </span>
+                    <p className="text-on-surface-variant mt-3">
+                      Due diligence documents will be available here soon.
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
+      </main>
 
-        <div className="lg:col-span-4">
-          <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-4">
-            <h3 className="text-blue-900 font-semibold text-lg">
-              Ready to proceed?
-            </h3>
-            <p className="text-gray-500 text-sm">
-              {isAuthenticated
-                ? "Continue your investment journey."
-                : "Sign in to complete your interest form."}
-            </p>
-
-            {!hasInvested && (
-              <button
-                onClick={() => navigate(`/properties/${property.id}/interest`)}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-md py-3 text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed"
-                disabled={isSoldOut}
-              >
-                {isSoldOut ? "Sold Out" : ctaLabel}
-              </button>
-            )}
-            {wishlistId ? (
-              <div className="w-full border border-emerald-200 bg-emerald-50 text-emerald-700 rounded-md py-3 text-sm font-medium text-center">
-                Saved to Wishlist
-              </div>
-            ) : (
-              <button
-                onClick={handleWishlistToggle}
-                disabled={wishlistLoading}
-                className="w-full border border-blue-600 text-blue-600 hover:bg-blue-50 rounded-md py-3 text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed"
-              >
-                {wishlistLoading ? "Updating..." : "Add to Wishlist"}
-              </button>
-            )}
-          </div>
+      {/* ===================== MOBILE STICKY INVEST BAR ===================== */}
+      <div
+        className={`fixed bottom-0 left-0 w-full glass-panel border-t border-[rgba(248,246,241,0.15)] p-4 z-40 md:hidden flex items-center justify-between transition-transform duration-300 ${
+          showStickyBar ? "translate-y-0" : "translate-y-full"
+        }`}
+      >
+        <div>
+          <p className="label-caps text-[10px] text-on-surface-variant">Per Fraction</p>
+          <p className="data-stat text-premium-gold">{fractionPrice ? ngn(fractionPrice) : "—"}</p>
         </div>
-      </section>
+        <button
+          onClick={goToInterest}
+          disabled={isSoldOut}
+          className="btn-gold px-8 py-3 text-[12px] disabled:opacity-60"
+        >
+          {isSoldOut ? "Sold Out" : "Invest Now"}
+        </button>
+      </div>
+
+      {/* ===================== MEDIA VIEWER ===================== */}
       {selectedMedia && (
         <div
           className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 p-4"
@@ -412,10 +655,7 @@ const PropertyDetails = () => {
               </button>
             )}
             {isVideoUrl(selectedMedia) ? (
-              <video
-                controls
-                className="w-full max-h-[80vh] rounded-xl bg-black"
-              >
+              <video controls className="w-full max-h-[80vh] rounded-xl bg-black">
                 <source src={selectedMedia} />
               </video>
             ) : (

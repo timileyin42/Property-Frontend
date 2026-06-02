@@ -127,25 +127,30 @@ export const VerifyEmail = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-4">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-primary-container text-on-surface p-4 relative overflow-hidden">
       <Toaster />
+      {/* ambient glow */}
+      <div className="absolute top-[-10%] right-[-10%] w-[400px] h-[400px] rounded-full bg-premium-gold opacity-[0.04] blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] rounded-full bg-success-emerald opacity-[0.04] blur-[120px] pointer-events-none" />
 
-      <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl text-center">
-        <h2 className="text-2xl font-bold text-gray-900">
-          Verify your email
-        </h2>
+      <header className="mb-10 z-10 text-center">
+        <h1 className="font-display text-3xl text-premium-gold tracking-tight">Elycapvest</h1>
+        <p className="label-caps text-[10px] text-on-surface-variant opacity-70 mt-1">
+          Institutional Asset Protection
+        </p>
+      </header>
 
-        <p className="text-gray-500 mt-2">
+      <div className="max-w-md w-full glass-panel p-8 rounded-xl text-center z-10">
+        <div className="mb-6 inline-flex items-center justify-center w-14 h-14 rounded-full border border-premium-gold/40 bg-premium-gold/10 text-premium-gold">
+          <span className="material-symbols-outlined text-3xl">mail</span>
+        </div>
+        <h2 className="font-display text-2xl text-on-surface mb-2">Verify your email</h2>
+        <p className="text-on-surface-variant">
           We sent a 6-digit code to{" "}
-          <span className="font-semibold text-blue-900">
-            {email}
-          </span>
+          <span className="font-semibold text-premium-gold">{email}</span>
         </p>
 
-        <div
-          className="flex justify-center gap-2 my-8"
-          onPaste={handlePaste}
-        >
+        <div className="flex justify-center gap-2 my-8" onPaste={handlePaste}>
           {otp.map((digit, index) => (
             <input
               key={index}
@@ -155,7 +160,7 @@ export const VerifyEmail = () => {
               ref={(el) => (inputRefs.current[index] = el)}
               onChange={(e) => handleChange(e.target, index)}
               onKeyDown={(e) => handleKeyDown(e, index)}
-              className="w-12 h-14 text-center text-2xl font-bold border-2 rounded-lg bg-gray-50 focus:border-blue-900 focus:ring-2 focus:ring-blue-900/20 outline-none transition-all"
+              className="w-12 h-14 text-center text-2xl data-stat bg-surface-lowest border border-[rgba(248,246,241,0.15)] rounded-lg text-on-surface focus:border-premium-gold focus:ring-1 focus:ring-premium-gold outline-none transition-all"
             />
           ))}
         </div>
@@ -163,20 +168,20 @@ export const VerifyEmail = () => {
         <button
           onClick={handleSubmit}
           disabled={!isComplete}
-          className="w-full bg-blue-900 text-white py-3 rounded-lg font-bold hover:bg-black transition-all disabled:opacity-50"
+          className="btn-gold w-full py-3.5 text-[12px] disabled:opacity-50"
         >
           Verify Account
         </button>
 
-        <p className="mt-6 text-sm text-gray-500">
+        <p className="mt-6 text-sm text-on-surface-variant">
           Didn&apos;t receive the code?{" "}
           <button
             onClick={handleResend}
             disabled={isActive}
             className={`font-bold ${
               isActive
-                ? "text-gray-400 cursor-not-allowed"
-                : "text-blue-900 hover:underline"
+                ? "text-outline cursor-not-allowed"
+                : "text-premium-gold hover:underline"
             }`}
           >
             {isActive ? `Resend in ${remaining}s` : "Resend"}

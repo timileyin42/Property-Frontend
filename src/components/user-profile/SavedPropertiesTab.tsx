@@ -6,11 +6,6 @@ import { isVideoUrl, usePresignedUrl } from "../../util/normalizeMediaUrl";
 import type { WishlistItem, WishlistListResponse } from "../../types/userProfile";
 import type { ApiProperty } from "../../types/property";
 
-const locationIcon =
-  "https://www.figma.com/api/mcp/asset/ec4f3b25-a8b5-43ba-854f-de0da6b47d40";
-const heartIcon =
-  "https://www.figma.com/api/mcp/asset/2a3b6e47-cf7c-41a8-a280-2bec0aebcd5d";
-
 const getWishlistItems = (data: unknown): WishlistItem[] => {
   if (!data || typeof data !== "object") return [];
   const record = data as Record<string, unknown>;
@@ -47,87 +42,78 @@ const SavedPropertyCard: React.FC<SavedPropertyCardProps> = ({
   const expectedRoi = details?.expected_roi;
 
   return (
-    <div className="bg-white border border-black/10 rounded-[14px] overflow-hidden">
+    <div className="glass-panel glass-panel-hover rounded-xl overflow-hidden">
       <div
-        className="relative h-[192px] cursor-pointer"
+        className="relative h-[192px] cursor-pointer group overflow-hidden"
         onClick={() =>
-          item.property_id
-            ? onNavigate(`/properties/${item.property_id}/interest`)
-            : null
+          item.property_id ? onNavigate(`/properties/${item.property_id}/interest`) : null
         }
       >
         {mediaUrl ? (
           mediaIsVideo ? (
-            <video
-              className="h-full w-full object-cover"
-              src={mediaUrl}
-              muted
-              playsInline
-              loop
-              autoPlay
-            />
+            <video className="h-full w-full object-cover" src={mediaUrl} muted playsInline loop autoPlay />
           ) : (
             <img
               src={mediaUrl}
               alt={item.property_title ?? "Saved property"}
-              className="h-full w-full object-cover"
+              className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
           )
         ) : (
-          <div className="h-full w-full bg-[#f3f3f5] flex items-center justify-center text-[#6a7282] text-[12px]">
+          <div className="h-full w-full bg-surface-high flex items-center justify-center text-on-surface-variant text-xs">
             Image unavailable
           </div>
         )}
         <button
           type="button"
-          onClick={() => onToggleNotify(item)}
-          className="absolute top-3 right-3 bg-white h-9 w-9 rounded-[8px] flex items-center justify-center"
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleNotify(item);
+          }}
+          className="absolute top-3 right-3 glass-panel h-9 w-9 rounded-full flex items-center justify-center hover:border-premium-gold transition-colors"
           title={item.notify_on_update ? "Disable updates" : "Enable updates"}
         >
-          <img src={heartIcon} alt="" className="h-4 w-4" />
+          <span
+            className="material-symbols-outlined text-[18px] text-premium-gold"
+            style={{ fontVariationSettings: item.notify_on_update ? "'FILL' 1" : "'FILL' 0" }}
+          >
+            favorite
+          </span>
         </button>
       </div>
 
-      <div className="p-4">
+      <div className="p-5">
         <h4
-          className="text-[#1e3a8a] text-[18px] font-semibold leading-[28px] cursor-pointer"
-          onClick={() =>
-            item.property_id ? onNavigate(`/properties/${item.property_id}`) : null
-          }
+          className="font-display text-xl text-on-surface cursor-pointer hover:text-premium-gold transition-colors"
+          onClick={() => (item.property_id ? onNavigate(`/properties/${item.property_id}`) : null)}
         >
           {item.property_title ?? "Saved Property"}
         </h4>
-        <div className="flex items-center gap-2 text-[#4a5565] text-[14px] leading-[20px]">
-          <img src={locationIcon} alt="" className="h-4 w-4" />
+        <div className="flex items-center gap-1.5 text-on-surface-variant text-sm mt-1">
+          <span className="material-symbols-outlined text-[16px]">location_on</span>
           <span>{item.property_location ?? "Location unavailable"}</span>
         </div>
 
-        <div className="mt-4 grid grid-cols-2 gap-3">
+        <div className="mt-4 grid grid-cols-2 gap-3 py-4 border-y border-[rgba(248,246,241,0.12)]">
           <div>
-            <p className="text-[#6a7282] text-[12px] leading-[16px]">Total Price</p>
-            <p className="text-[#1e3a8a] text-[16px] font-semibold leading-[24px]">
-              {Number.isFinite(totalValue)
-                ? `₦${Number(totalValue).toLocaleString()}`
-                : "N/A"}
+            <p className="label-caps text-[10px] text-on-surface-variant mb-1">Total Price</p>
+            <p className="data-stat text-sm text-on-surface">
+              {Number.isFinite(totalValue) ? `₦${Number(totalValue).toLocaleString()}` : "N/A"}
             </p>
           </div>
           <div>
-            <p className="text-[#6a7282] text-[12px] leading-[16px]">Per Fraction</p>
-            <p className="text-[#1e3a8a] text-[16px] font-semibold leading-[24px]">
-              {Number.isFinite(fractionPrice)
-                ? `₦${Number(fractionPrice).toLocaleString()}`
-                : "N/A"}
+            <p className="label-caps text-[10px] text-on-surface-variant mb-1">Per Fraction</p>
+            <p className="data-stat text-sm text-on-surface">
+              {Number.isFinite(fractionPrice) ? `₦${Number(fractionPrice).toLocaleString()}` : "N/A"}
             </p>
           </div>
           <div>
-            <p className="text-[#6a7282] text-[12px] leading-[16px]">Available</p>
-            <p className="text-[#364153] text-[16px] font-semibold leading-[24px]">
-              {availableFractions ?? "N/A"}
-            </p>
+            <p className="label-caps text-[10px] text-on-surface-variant mb-1">Available</p>
+            <p className="data-stat text-sm text-on-surface">{availableFractions ?? "N/A"}</p>
           </div>
           <div>
-            <p className="text-[#6a7282] text-[12px] leading-[16px]">Expected ROI</p>
-            <p className="text-[#00a63e] text-[16px] font-semibold leading-[24px]">
+            <p className="label-caps text-[10px] text-on-surface-variant mb-1">Expected ROI</p>
+            <p className="data-stat text-sm text-success-emerald">
               {Number.isFinite(expectedRoi) ? `${expectedRoi}%` : "N/A"}
             </p>
           </div>
@@ -136,27 +122,28 @@ const SavedPropertyCard: React.FC<SavedPropertyCardProps> = ({
         <div className="mt-4 flex gap-2">
           <button
             type="button"
-            className="bg-[#1e3a8a] text-white rounded-[8px] h-9 flex-1 text-[14px] font-medium leading-[20px]"
+            onClick={() =>
+              item.property_id ? onNavigate(`/properties/${item.property_id}/interest`) : null
+            }
+            className="btn-gold flex-1 py-2.5 text-[11px]"
           >
             Express Interest
           </button>
           <button
             type="button"
-            onClick={() =>
-              item.property_id ? onNavigate(`/properties/${item.property_id}`) : null
-            }
-            className="bg-white border border-[#1e3a8a] text-[#1e3a8a] rounded-[8px] h-9 flex-1 text-[14px] font-medium leading-[20px]"
+            onClick={() => (item.property_id ? onNavigate(`/properties/${item.property_id}`) : null)}
+            className="btn-ghost flex-1 py-2.5 label-caps text-on-surface"
           >
             View Details
           </button>
         </div>
 
-        <div className="mt-3 flex items-center justify-between text-[12px] leading-[16px]">
-          <p className="text-[#6a7282]">{`Saved on ${formatDate(item.created_at)}`}</p>
+        <div className="mt-3 flex items-center justify-between text-xs">
+          <p className="text-on-surface-variant">{`Saved on ${formatDate(item.created_at)}`}</p>
           <button
             type="button"
             onClick={() => onRemove(item)}
-            className="text-[#1e3a8a] hover:underline"
+            className="text-error hover:underline"
           >
             Remove
           </button>
@@ -261,25 +248,19 @@ const SavedPropertiesTab: React.FC = () => {
   };
 
   return (
-    <div className="bg-white border border-black/10 rounded-[14px] p-6">
+    <div className="glass-panel rounded-xl p-6">
       <div>
-        <h3 className="text-[#1e3a8a] text-[20px] font-medium leading-[28px]">
-          Saved Properties
-        </h3>
-        <p className="text-[#717182] text-[16px] leading-[24px] mt-1">
+        <h3 className="font-display text-2xl text-on-surface">Saved Properties</h3>
+        <p className="text-on-surface-variant text-sm mt-1">
           Properties you&apos;re interested in
         </p>
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         {isLoading ? (
-          <p className="text-[#6a7282] text-[14px] leading-[20px]">
-            Loading saved properties...
-          </p>
+          <p className="text-on-surface-variant text-sm">Loading saved properties...</p>
         ) : items.length === 0 ? (
-          <p className="text-[#6a7282] text-[14px] leading-[20px]">
-            No saved properties yet.
-          </p>
+          <p className="text-on-surface-variant text-sm">No saved properties yet.</p>
         ) : (
           items.map((property) => (
             <SavedPropertyCard

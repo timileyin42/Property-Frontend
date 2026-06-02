@@ -3,17 +3,15 @@ import { api } from "../../api/axios";
 import { formatDate } from "../../util/formatDate";
 import type { Inquiry, InquiryListResponse, InquiryStatus } from "../../types/userProfile";
 
-const locationIcon = "https://www.figma.com/api/mcp/asset/bf227cd5-a182-4b5c-b228-6b0a7a7a3407";
-
 const getStatusStyles = (status: InquiryStatus) => {
   switch (status) {
     case "CONTACTED":
-      return "bg-[#dcfce7] border-[#7bf1a8] text-[#008236]";
+      return "bg-success-emerald/10 border-success-emerald/30 text-success-emerald";
     case "CLOSED":
-      return "bg-[#e5e7eb] border-[#d1d5db] text-[#374151]";
+      return "bg-white/5 border-[rgba(248,246,241,0.15)] text-on-surface-variant";
     case "NEW":
     default:
-      return "bg-[#fef9c2] border-[#ffdf20] text-[#a65f00]";
+      return "bg-premium-gold/10 border-premium-gold/30 text-premium-gold";
   }
 };
 
@@ -49,69 +47,53 @@ const InquiriesTab: React.FC = () => {
   }, []);
 
   return (
-    <div className="bg-white border border-black/10 rounded-[14px] p-6">
+    <div className="glass-panel rounded-xl p-6">
       <div>
-        <h3 className="text-[#1e3a8a] text-[20px] font-medium leading-[28px]">
-          My Inquiries
-        </h3>
-        <p className="text-[#717182] text-[16px] leading-[24px] mt-1">
+        <h3 className="font-display text-2xl text-on-surface">My Inquiries</h3>
+        <p className="text-on-surface-variant text-sm mt-1">
           Track your property inquiries and responses
         </p>
       </div>
 
       <div className="mt-6 flex flex-col gap-4">
         {isLoading ? (
-          <p className="text-[#6a7282] text-[14px] leading-[20px]">
-            Loading inquiries...
-          </p>
+          <p className="text-on-surface-variant text-sm">Loading inquiries...</p>
         ) : inquiries.length === 0 ? (
-          <p className="text-[#6a7282] text-[14px] leading-[20px]">
-            No inquiries yet.
-          </p>
+          <p className="text-on-surface-variant text-sm">No inquiries yet.</p>
         ) : (
           inquiries.map((item) => (
             <div
               key={item.id}
-              className="bg-white border border-[#1e3a8a] border-l-4 rounded-[14px] overflow-hidden"
+              className="glass-panel border-l-4 border-l-premium-gold rounded-lg overflow-hidden"
             >
               <div className="p-6 flex flex-col gap-3">
                 <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                   <div>
-                    <h4 className="text-[#1e3a8a] text-[18px] font-semibold leading-[28px]">
+                    <h4 className="font-display text-xl text-on-surface">
                       {item.property_title ?? "Property Inquiry"}
                     </h4>
-                    <div className="flex items-center gap-2 text-[#4a5565] text-[14px] leading-[20px]">
-                      <img src={locationIcon} alt="" className="h-4 w-4" />
-                      <span>Location not available</span>
-                    </div>
                   </div>
-                  <div className="flex items-center gap-3 text-[14px] leading-[20px]">
+                  <div className="flex items-center gap-3 text-sm">
                     <span
-                      className={`inline-flex items-center justify-center rounded-[8px] px-[9px] py-[3px] text-[12px] font-medium leading-[16px] border ${getStatusStyles(
+                      className={`inline-flex items-center justify-center rounded px-2 py-1 label-caps text-[10px] border ${getStatusStyles(
                         item.status
                       )}`}
                     >
                       {getStatusLabel(item.status)}
                     </span>
-                    <span className="text-[#6a7282]">{formatDate(item.created_at)}</span>
+                    <span className="text-on-surface-variant">{formatDate(item.created_at)}</span>
                   </div>
                 </div>
 
-                <div className="bg-[#f9fafb] rounded-[10px] p-4">
-                  <p className="text-[#364153] text-[14px] font-medium leading-[20px]">
-                    Your Message:
-                  </p>
-                  <p className="text-[#4a5565] text-[14px] leading-[20px]">
-                    {item.message}
-                  </p>
+                <div className="bg-surface-low rounded-lg p-4 border border-[rgba(248,246,241,0.1)]">
+                  <p className="label-caps text-[10px] text-on-surface-variant mb-1">Your Message</p>
+                  <p className="text-on-surface-variant text-sm">{item.message}</p>
                 </div>
 
                 {item.assigned_admin_name && (
-                  <div className="bg-[#eff6ff] rounded-[10px] p-4 border-l-4 border-[#1e3a8a]">
-                    <p className="text-[#1e3a8a] text-[14px] font-medium leading-[20px]">
-                      Admin Response:
-                    </p>
-                    <p className="text-[#364153] text-[14px] leading-[20px]">
+                  <div className="bg-premium-gold/10 rounded-lg p-4 border-l-4 border-premium-gold">
+                    <p className="label-caps text-[10px] text-premium-gold mb-1">Response</p>
+                    <p className="text-on-surface-variant text-sm">
                       {`Assigned to ${item.assigned_admin_name}.`}
                     </p>
                   </div>

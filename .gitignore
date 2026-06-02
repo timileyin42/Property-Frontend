@@ -38,3 +38,17 @@ src/AGENTS.md
 src/copilot-instructions.md
 src/components/user-profile/upload.md
 document.md
+
+# Stitch design exports (source design files — not part of the app build)
+# Zips (covers .zip, (1).zip, (2).zip, (3).zip, …)
+stitch_premium_fractional_estate_platform*.zip
+# Extracted design folders
+stitch_design_export/
+stitch_design_export_v2/
+stitch_auth_export/
+stitch_rest_export/
+
+# Redesign planning / spec docs (local working notes — not committed)
+BACKEND_REQUIREMENTS.md
+DESIGN_REBUILD_PLAN.md
+TRANSACTIONS_API_SPEC.md

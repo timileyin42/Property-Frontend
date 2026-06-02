@@ -1,161 +1,154 @@
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation, Link } from "react-router-dom";
 import type { InterestSuccessData } from "../types/interest";
 import type { FC } from "react";
-import {InterestSuccessIcon} from "../components/svgs/ShieldIcon"
-import AppNavbar from "../components/AppNavbar"
-
-/* =======================
-   PAGE
-======================= */
 
 const InterestSuccess: FC = () => {
-
   const location = useLocation();
-const state = location.state as InterestSuccessData | null;
+  const state = location.state as InterestSuccessData | null;
 
-if (
-  !state ||
-  !state.property ||
-  typeof state.property.title !== "string" ||
-  typeof state.email !== "string"
-) {
-  return <Navigate to="/properties" replace />;
-}
+  if (
+    !state ||
+    !state.property ||
+    typeof state.property.title !== "string" ||
+    typeof state.email !== "string"
+  ) {
+    return <Navigate to="/properties" replace />;
+  }
 
-  const {
-    property,          // ✅ FULL PROPERTY OBJECT
-    email,
-  } = state;
+  const { property, email } = state;
 
-  console.log("property state to success");
-  console.log(state)
   return (
-    <div className="max-w-xl mx-auto py-12 flex  flex-col items-center text-base">
-     <AppNavbar 
-        title="Investor Dashboard" 
-        subtitle="Manage your fractional real estate portfolio" 
-      />
-      
-        <div className="bg-green-100  inline-flex items-center justify-center rounded-full p-2">
-      <InterestSuccessIcon size={48} color="green" />
-                
+    <main className="min-h-screen flex flex-col items-center bg-background text-on-surface relative overflow-hidden px-4 sm:px-8 py-16">
+      {/* Ambient backdrop */}
+      <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-primary-container/40 to-background" />
+
+      <div className="max-w-5xl w-full mx-auto flex flex-col items-center z-10">
+        {/* Branding */}
+        <div className="mb-12">
+          <Link to="/" className="font-display text-3xl text-premium-gold tracking-tight">
+            Elycapvest
+          </Link>
         </div>
-      <h2 className="text-xl font-semibold text-center text-blue-900">
-        Interest Submitted Successfully!
-      </h2>
-      <p>Thank you for expressing interest in Luxury Apartment Lagos</p>
-      <p>Our team will review your request and contact you within 24-48 hours.</p>
 
-      
+        {/* Confirmation card */}
+        <section className="glass-panel w-full max-w-3xl p-8 md:p-glass-padding rounded-lg text-center animate-fade-in">
+          <div className="mb-8 inline-flex items-center justify-center w-16 h-16 rounded-full border border-success-emerald bg-success-emerald/10 text-success-emerald">
+            <span className="material-symbols-outlined text-4xl">check_circle</span>
+          </div>
+          <h2 className="font-display text-4xl text-on-surface mb-4 leading-tight">Thank You</h2>
+          <p className="text-lg text-on-surface-variant max-w-xl mx-auto mb-8">
+            Your expression of interest in{" "}
+            <span className="text-on-surface font-medium">{property.title}</span> has been securely
+            registered. Our investment team will review your profile and reach out within 24–48
+            hours to discuss next steps.
+          </p>
 
-      <div className="mt-6 bg-blue-50 rounded-lg p-4 space-y-4  w-full">
-        <div>
-        <h3 className="font-semibold text-blue-900">Submission Details</h3>
-      </div>
-        <div className="flex items-center justify-between w-full">
-          <Detail label="Property" value={property.title} />
-        <Detail
-          label="Investment Amount"
-          value={`₦${property.project_value}`}
-        />
+          {/* Submission details */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 border-y border-[rgba(248,246,241,0.15)] py-6 mb-8 text-left">
+            <Detail label="Property" value={property.title} />
+            <Detail
+              label="Asset Value"
+              value={property.project_value ? `₦${property.project_value.toLocaleString()}` : "—"}
+            />
+            <Detail
+              label="Per Fraction"
+              value={property.fraction_price ? `₦${property.fraction_price.toLocaleString()}` : "—"}
+            />
+            <Detail label="Confirmation Sent To" value={email} />
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="flex items-center gap-2 data-stat text-[14px]">
+              <span className="material-symbols-outlined text-sm">schedule</span>
+              <span className="text-on-surface-variant">
+                RESPONSE WINDOW:{" "}
+                <span className="text-premium-gold uppercase tracking-widest">24–48H</span>
+              </span>
+            </div>
+            <div className="hidden sm:block w-1 h-1 rounded-full bg-[rgba(248,246,241,0.15)]" />
+            <div className="flex items-center gap-2 data-stat text-[14px]">
+              <span className="material-symbols-outlined text-sm">verified_user</span>
+              <span className="text-on-surface-variant">
+                STATUS: <span className="text-success-emerald uppercase tracking-widest">SUBMITTED</span>
+              </span>
+            </div>
+          </div>
+        </section>
+
+        {/* What happens next */}
+        <section className="mt-16 w-full max-w-5xl">
+          <div className="flex items-center justify-between mb-8 border-b border-[rgba(248,246,241,0.15)] pb-4">
+            <h3 className="label-caps text-premium-gold">What Happens Next</h3>
+            <span className="data-stat text-[11px] text-on-surface-variant">CONTINUE YOUR JOURNEY</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Step
+              icon="mark_email_read"
+              title="Email Confirmation"
+              description={`You'll receive a confirmation email at ${email} with your submission reference.`}
+            />
+            <Step
+              icon="fact_check"
+              title="Details Verification"
+              description="Our investment team will verify your details and perform necessary checks."
+            />
+            <Step
+              icon="description"
+              title="Investment Documentation"
+              description="You'll receive official documentation, terms & conditions, and secure payment instructions."
+            />
+            <Step
+              icon="account_balance_wallet"
+              title="Payment & Fraction Allocation"
+              description="Complete your payment through our secure portal to finalize your fraction purchase."
+            />
+          </div>
+        </section>
+
+        {/* Disclaimer + CTA */}
+        <div className="mt-12 w-full max-w-3xl glass-panel rounded-lg p-5 border-l-2 border-l-premium-gold">
+          <h4 className="label-caps text-premium-gold mb-1">Important</h4>
+          <p className="text-sm text-on-surface-variant">
+            Submitting this interest does not constitute a binding investment agreement. Your
+            investment will only be confirmed after signing official documentation and completing
+            payment.
+          </p>
         </div>
-        <div className="flex items-center justify-between w-full">
-         <Detail label="Number of Fractions" value={`${property.fraction_price}`} />
-        <Detail label="Confirmation Email Sent To" value={email} />
+
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+          <Link to="/investor/dashboard" className="btn-gold px-10 py-4 text-[12px]">
+            Go to Dashboard
+          </Link>
+          <Link to="/properties" className="btn-ghost px-10 py-4 label-caps text-on-surface">
+            Browse More Properties
+          </Link>
         </div>
-        
       </div>
-      <div>
-        {/*<div className="border">*/}
-            <div className="mt-8 w-full border border-2 border-blue-900 rounded-xl p-5 space-y-5">
-  {/* Header */}
-  <div className="flex items-center gap-3">
-    <div className="w-7 h-7 rounded-full bg-blue-900 text-white flex items-center justify-center text-sm font-semibold">
-      i
-    </div>
-    <h3 className="font-semibold text-blue-900">
-      What Happens Next?
-    </h3>
-  </div>
-
-  {/* Steps */}
-  <ul className="space-y-4">
-    <Step
-      step={1}
-      title="Email Confirmation"
-      description={`You'll receive a confirmation email at ${email} with your submission reference number.`}
-    />
-
-    <Step
-      step={2}
-      title="Details Verification"
-      description="Our investment team will verify your details and perform necessary KYC checks."
-    />
-
-    <Step
-      step={3}
-      title="Investment Documentation"
-      description="You'll receive official investment documentation, terms & conditions, and secure payment instructions."
-    />
-
-    <Step
-      step={4}
-      title="Payment & Fraction Allocation"
-      description="Complete your payment through our secure portal to finalize your property fraction purchase."
-    />
-
-    <Step
-      step={5}
-      title="Welcome to Elycapvest"
-      description="Access your investor dashboard to track property performance, view returns, and manage your portfolio."
-    />
-  </ul>
-</div>
-  <div className="rounded-xl bg-yellow-50 p-3 border-l-amber-400 border-l-5 my-8">
-    <h4 className="text-yellow-800 font-semibold">Important:</h4>
-    <p>Submitting this interest does not constitute a binding investment agreement. Your investment will only be confirmed after signing official documentation and completing payment.</p>
-  </div>
-
-      </div>
-    </div>
+    </main>
   );
 };
 
 export default InterestSuccess;
 
-/* =======================
-   UI COMPONENTS
-======================= */
-
-interface DetailProps {
-  label: string;
-  value: string;
-}
-
-const Detail: FC<DetailProps> = ({ label, value }) => (
-  <div>
-    <p className="text-xs text-gray-500">{label}</p>
-    <p className="font-medium text-blue-900">{value}</p>
+const Detail: FC<{ label: string; value: string }> = ({ label, value }) => (
+  <div className="min-w-0">
+    <p className="label-caps text-[10px] text-on-surface-variant mb-1">{label}</p>
+    <p className="data-stat text-on-surface text-sm truncate">{value}</p>
   </div>
 );
 
-interface StepProps {
-  step: number;
-  title: string;
-  description: string;
-}
-
-const Step: FC<StepProps> = ({ step, title, description }) => (
-  <li className="flex gap-4 items-start">
-    <span className="w-7 h-7 shrink-0 rounded-full bg-blue-900 text-white flex items-center justify-center text-xs font-semibold">
-      {step}
-    </span>
-    <div>
-      <p className="font-medium text-blue-900">{title}</p>
-      <p className="text-sm text-gray-600 leading-relaxed">
-        {description}
-      </p>
+const Step: FC<{ icon: string; title: string; description: string }> = ({
+  icon,
+  title,
+  description,
+}) => (
+  <div className="group glass-panel glass-panel-hover p-glass-padding rounded-lg flex items-start gap-5">
+    <div className="p-3 bg-premium-gold/10 rounded-lg shrink-0">
+      <span className="material-symbols-outlined text-premium-gold text-2xl">{icon}</span>
     </div>
-  </li>
+    <div>
+      <h4 className="font-display text-xl text-on-surface mb-1">{title}</h4>
+      <p className="text-on-surface-variant text-sm leading-relaxed">{description}</p>
+    </div>
+  </div>
 );
-

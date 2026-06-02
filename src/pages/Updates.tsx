@@ -41,30 +41,34 @@ const Updates = () => {
   }, []);
 
   return (
-    <div className="mx-auto px-4 my-16">
+    <div className="min-h-screen bg-background text-on-surface">
       <Navbar links={[{ label: "Home", href: "/" }, { label: "Properties", href: "/properties" }]} />
       <Toaster position="top-right" />
 
-      <section className="pt-6 mb-8">
-        <h2 className="font-bold text-blue-900 text-3xl">Updates</h2>
-        <p className="text-gray-400 text-sm">
-          Track project updates and announcements
-        </p>
-      </section>
+      <main className="pt-32 pb-24 px-4 sm:px-8 max-w-7xl mx-auto">
+        <header className="mb-12">
+          <span className="label-caps text-premium-gold mb-4 block">Intelligence</span>
+          <h1 className="font-display text-4xl sm:text-5xl text-on-surface mb-2">Investor Updates</h1>
+          <p className="text-on-surface-variant text-lg max-w-2xl">
+            Real-time intelligence and structural milestones from your fractional real estate
+            portfolio.
+          </p>
+        </header>
 
-      {loading ? (
-        <div className="text-sm text-gray-500">Loading updates...</div>
-      ) : updates.length === 0 ? (
-        <div className="bg-white border border-gray-200 rounded-xl p-6 text-sm text-gray-500">
-          No updates yet.
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {updates.map((update) => (
-            <UpdateCard key={update.id} update={update} />
-          ))}
-        </div>
-      )}
+        {loading ? (
+          <div className="text-sm text-on-surface-variant">Loading updates...</div>
+        ) : updates.length === 0 ? (
+          <div className="glass-panel rounded-xl p-10 text-center text-on-surface-variant">
+            No updates yet.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {updates.map((update) => (
+              <UpdateCard key={update.id} update={update} />
+            ))}
+          </div>
+        )}
+      </main>
     </div>
   );
 };

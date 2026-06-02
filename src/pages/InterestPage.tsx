@@ -118,21 +118,21 @@ console.log("nonAuthRes");
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl p-6">
-        <p className="text-sm text-gray-500">Loading interests...</p>
+      <div className="glass-panel rounded-xl p-6">
+        <p className="text-sm text-on-surface-variant">Loading interests...</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl p-6">
+    <div className="glass-panel rounded-xl p-6 text-on-surface">
       <Toaster position="top-right" />
 
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <div>
-          <h2 className="text-lg font-semibold">Investor Interests</h2>
-          <p className="text-sm text-gray-500">
+          <h2 className="font-display text-2xl text-on-surface">Investor Interests</h2>
+          <p className="text-sm text-on-surface-variant">
             Review authenticated interests and public inquiries
           </p>
         </div>
@@ -140,28 +140,28 @@ console.log("nonAuthRes");
         {/* Search & Filters */}
         <div className="flex flex-wrap gap-3">
           {/* User Type Filter */}
-          <div className="inline-flex rounded-lg border border-gray-200 bg-gray-50 p-1">
+          <div className="inline-flex rounded-lg border border-[rgba(248,246,241,0.15)] bg-surface-low p-1">
             <button
               type="button"
               onClick={() => setUserTypeFilter("authenticated")}
               className={`px-3 py-1.5 text-sm rounded-md transition ${
                 userTypeFilter === "authenticated"
-                  ? "bg-white text-blue-900 shadow"
-                  : "text-gray-500"
+                  ? "bg-premium-gold text-primary-container"
+                  : "text-on-surface-variant"
               }`}
             >
-              Admin - Interests
+              Interests
             </button>
             <button
               type="button"
               onClick={() => setUserTypeFilter("nonAuthenticated")}
               className={`px-3 py-1.5 text-sm rounded-md transition ${
                 userTypeFilter === "nonAuthenticated"
-                  ? "bg-white text-blue-900 shadow"
-                  : "text-gray-500"
+                  ? "bg-premium-gold text-primary-container"
+                  : "text-on-surface-variant"
               }`}
             >
-              Admin - Inquiries
+              Inquiries
             </button>
           </div>
 
@@ -174,37 +174,36 @@ console.log("nonAuthRes");
                 ? "Search by name or property..."
                 : "Search by name, email, or property..."
             }
-            className="bg-gray-100 rounded-lg px-3 py-2 text-sm"
+            className="bg-surface-low border border-[rgba(248,246,241,0.15)] rounded-lg px-3 py-2 text-sm text-on-surface outline-none focus:border-premium-gold placeholder:text-on-surface-variant/40"
           />
 
           {/* Status Filter */}
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-            className="bg-gray-100 rounded-lg px-3 py-2 text-sm"
+            className="bg-surface-low border border-[rgba(248,246,241,0.15)] rounded-lg px-3 py-2 text-sm text-on-surface outline-none focus:border-premium-gold"
           >
             <option value="ALL">All Status</option>
             <option value="CONTACTED">CONTACTED</option>
             <option value="NEW">NEW</option>
             <option value="CLOSED">CLOSED</option>
-            {/* Add more status options as needed */}
           </select>
         </div>
       </div>
 
       {/* Statistics Bar */}
-      <div className="flex gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+      <div className="flex gap-4 mb-6 p-4 bg-surface-low rounded-lg border border-[rgba(248,246,241,0.12)]">
         <div className="text-center">
-          <div className="text-lg font-semibold">{authenticatedData.length}</div>
-          <div className="text-sm text-gray-500">Admin - Interests</div>
+          <div className="data-stat text-lg text-premium-gold">{authenticatedData.length}</div>
+          <div className="label-caps text-[10px] text-on-surface-variant mt-1">Interests</div>
         </div>
         <div className="text-center">
-          <div className="text-lg font-semibold">{nonAuthenticatedData.length}</div>
-          <div className="text-sm text-gray-500">Admin - Inquiries</div>
+          <div className="data-stat text-lg text-secondary">{nonAuthenticatedData.length}</div>
+          <div className="label-caps text-[10px] text-on-surface-variant mt-1">Inquiries</div>
         </div>
         <div className="text-center">
-          <div className="text-lg font-semibold">{authenticatedData.length + nonAuthenticatedData.length}</div>
-          <div className="text-sm text-gray-500">Total Interests</div>
+          <div className="data-stat text-lg text-on-surface">{authenticatedData.length + nonAuthenticatedData.length}</div>
+          <div className="label-caps text-[10px] text-on-surface-variant mt-1">Total</div>
         </div>
       </div>
 
@@ -218,7 +217,7 @@ console.log("nonAuthRes");
       {/* Cards for Mobile */}
       <div className="md:hidden flex flex-col gap-3 mt-4">
         {currentData.length === 0 ? (
-          <p className="text-sm text-gray-500 text-center">
+          <p className="text-sm text-on-surface-variant text-center">
             No {userTypeFilter === "authenticated" ? "authenticated" : "non-authenticated"} interests found.
           </p>
         ) : userTypeFilter === "authenticated" ? (

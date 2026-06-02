@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import Navbar from "../../components/Navbar";
 import TabsHeader, { UserProfileTab } from "../../components/user-profile/TabsHeader";
 import ProfileSummaryCard from "../../components/user-profile/ProfileSummaryCard";
 import UpdateProfileForm from "../../components/user-profile/UpdateProfileForm";
@@ -7,8 +7,6 @@ import InquiriesTab from "../../components/user-profile/InquiriesTab";
 import SavedPropertiesTab from "../../components/user-profile/SavedPropertiesTab.tsx";
 import { api } from "../../api/axios";
 import type { User } from "../../types/userProfile";
-
-const headerIcon = "https://www.figma.com/api/mcp/asset/4ede3ae4-3e6d-40d2-b83d-2d0285389d26";
 
 const UserProfilePage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<UserProfileTab>("profile");
@@ -22,19 +20,14 @@ const UserProfilePage: React.FC = () => {
   };
 
   const fetchProfile = async (showLoader: boolean = false) => {
-    if (showLoader) {
-      setIsLoading(true);
-    }
-
+    if (showLoader) setIsLoading(true);
     try {
       const res = await api.get<User>("/user/profile");
       setProfile(res.data);
     } catch (error) {
       console.error("Failed to fetch user profile:", error);
     } finally {
-      if (showLoader) {
-        setIsLoading(false);
-      }
+      if (showLoader) setIsLoading(false);
     }
   };
 
@@ -43,60 +36,58 @@ const UserProfilePage: React.FC = () => {
   }, []);
 
   return (
-    <div className="bg-[#f9fafb] min-h-screen">
-      <header className="bg-white border-b border-[#e5e7eb]">
-        <div className="mx-auto max-w-[1232px] px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="bg-[#1e3a8a] rounded-[10px] h-10 w-10 flex items-center justify-center">
-              <img src={headerIcon} alt="" className="h-6 w-6" />
+    <div className="min-h-screen bg-background text-on-surface">
+      <Navbar
+        links={[
+          { label: "Home", href: "/" },
+          { label: "Properties", href: "/properties" },
+        ]}
+      />
+
+      <main className="pt-32 pb-20 px-4 sm:px-8 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+          {/* Left sidebar: profile summary */}
+          <aside className="md:col-span-4 lg:col-span-3 space-y-6">
+            {profile && <ProfileSummaryCard user={profile} />}
+          </aside>
+
+          {/* Right content */}
+          <section className="md:col-span-8 lg:col-span-9 space-y-6">
+            {/* Banner */}
+            <div className="h-40 rounded-xl overflow-hidden relative border border-[rgba(248,246,241,0.15)] bg-gradient-to-r from-primary-container to-surface-high">
+              <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
+              <div className="absolute bottom-6 left-6">
+                <h1 className="font-display text-2xl text-white">Investment Dashboard</h1>
+                <p className="text-on-surface-variant text-sm">
+                  Manage your personal information and track your fractional assets.
+                </p>
+              </div>
             </div>
+
+            <TabsHeader activeTab={activeTab} onChange={handleTabChange} />
+
             <div>
-              <p className="text-[#1e3a8a] text-[24px] font-semibold leading-[32px]">
-                Elycap Luxury Homes
-              </p>
-              <p className="text-[#4a5565] text-[14px] leading-[20px]">
-                User Profile
-              </p>
+              {isLoading && (
+                <p className="text-on-surface-variant text-sm">Loading profile...</p>
+              )}
+
+              {!isLoading && profile && activeTab === "profile" && (
+                <UpdateProfileForm
+                  user={profile}
+                  isEditing={isEditing}
+                  onEdit={() => setIsEditing(true)}
+                  onCancel={() => setIsEditing(false)}
+                  onProfileUpdated={(updatedUser) => {
+                    setProfile(updatedUser);
+                    fetchProfile();
+                  }}
+                />
+              )}
+
+              {!isLoading && activeTab === "inquiries" && <InquiriesTab />}
+              {!isLoading && activeTab === "saved" && <SavedPropertiesTab />}
             </div>
-          </div>
-          <Link
-            to="/investor/dashboard"
-            className="border border-[#1e3a8a] text-[#1e3a8a] rounded-[8px] h-9 px-4 inline-flex items-center justify-center text-[14px] font-medium leading-[20px]"
-          >
-            Back to Dashboard
-          </Link>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-[1232px] px-4 sm:px-6 lg:px-8 py-8">
-        <TabsHeader activeTab={activeTab} onChange={handleTabChange} />
-
-        <div className="mt-8">
-          {isLoading && (
-            <p className="text-[#6a7282] text-[14px] leading-[20px]">
-              Loading profile...
-            </p>
-          )}
-
-          {!isLoading && profile && activeTab === "profile" && (
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-[387px_1fr]">
-              <ProfileSummaryCard user={profile} />
-              <UpdateProfileForm
-                user={profile}
-                isEditing={isEditing}
-                onEdit={() => setIsEditing(true)}
-                onCancel={() => setIsEditing(false)}
-                onProfileUpdated={(updatedUser) => {
-                  setProfile(updatedUser);
-                  fetchProfile();
-                }}
-              />
-            </div>
-          )}
-
-          {!isLoading && activeTab === "inquiries" && <InquiriesTab />}
-
-          {!isLoading && activeTab === "saved" && <SavedPropertiesTab />}
+          </section>
         </div>
       </main>
     </div>

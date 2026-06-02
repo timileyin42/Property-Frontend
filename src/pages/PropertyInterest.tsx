@@ -4,8 +4,7 @@ import { ApiProperty } from "../types/property";
 import { api } from "../api/axios";
 import PropertySummaryCard from "../components/PropertySummaryCard";
 import InterestForm from "../components/InterestForm";
-import AppNavbar from "../components/AppNavbar"
-
+import Navbar from "../components/Navbar";
 
 const PropertyInterest = () => {
   const { id } = useParams<{ id: string }>();
@@ -13,45 +12,54 @@ const PropertyInterest = () => {
 
   useEffect(() => {
     if (!id) return;
-
     api.get(`/properties/${id}`).then((res) => {
       setProperty(res.data);
     });
   }, [id]);
 
-
   if (!property) {
-    return <p className="text-center py-10">Loading property...</p>;
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center text-on-surface-variant">
+        Loading property…
+      </div>
+    );
   }
 
   return (
-     <div className="max-w-7xl mx-auto flex flex-col ">
-       <div>
-         <AppNavbar
-        title="Elycapvest"
-        subtitle="Express Your Interest"
-        backLabel="Back to Properties"
-        backTo="/properties"
+    <div className="min-h-screen bg-background text-on-surface">
+      <Navbar
+        links={[
+          { label: "Home", href: "/" },
+          { label: "Properties", href: "/properties" },
+        ]}
       />
-       </div>
-       {/*<div className="flex  justify-center  mx-auto max-w-7xl w-full items-center">*/}
-    <div className=" grid grid-cols-1 lg:grid-cols-12 gap-8 my-8 px-4 mx-auto max-w-7xl w-full items-center">
-      
-      {/* Property Summary (fixed-ish) */}
-      <div className="lg:col-span-4 xl:col-span-4 ">
-        <PropertySummaryCard property={property} />
-      </div>
 
-      {/* Interest Form (wide) */}
-      <div className="lg:col-span-8 xl:col-span-8 ">
-        {/*<InterestForm propertyId={property.id} propertyTitle={property}  />*/}
-        <InterestForm property={property} />
+      <main className="pt-32 pb-20 px-4 sm:px-8 max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-12">
+          <span className="label-caps text-premium-gold mb-4 block">Institutional Inquiry</span>
+          <h1 className="font-display text-4xl sm:text-5xl text-on-surface mb-2">
+            Expression of Interest
+          </h1>
+          <p className="text-on-surface-variant text-lg max-w-2xl">
+            Secure your allocation for {property.title}. This formal submission initiates the
+            verification process with our team.
+          </p>
+        </div>
 
-      </div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          {/* Form */}
+          <div className="lg:col-span-8 order-2 lg:order-1">
+            <InterestForm property={property} />
+          </div>
+
+          {/* Summary sidebar */}
+          <aside className="lg:col-span-4 order-1 lg:order-2">
+            <PropertySummaryCard property={property} />
+          </aside>
+        </div>
+      </main>
     </div>
-    {/*</div>*/}
-
-  </div>
   );
 };
 

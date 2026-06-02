@@ -26,10 +26,14 @@ const UpdateCard: React.FC<UpdateCardProps> = ({ update }) => {
   const videoUrl = mediaUrls.find((url) => isVideoUrl(url));
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-      <Link to={`/updates/${update.id}`} className="block h-44 bg-gray-100">
+    <article className="group glass-panel glass-panel-hover rounded-xl overflow-hidden flex flex-col">
+      <Link to={`/updates/${update.id}`} className="block h-44 overflow-hidden bg-surface-high">
         {imageUrl ? (
-          <img src={imageUrl} alt={update.title} className="w-full h-full object-cover" />
+          <img
+            src={imageUrl}
+            alt={update.title}
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          />
         ) : videoUrl ? (
           <video
             className="w-full h-full object-cover"
@@ -40,24 +44,27 @@ const UpdateCard: React.FC<UpdateCardProps> = ({ update }) => {
             autoPlay
           />
         ) : (
-          <div className="h-full w-full flex items-center justify-center text-xs text-gray-400">
+          <div className="h-full w-full flex items-center justify-center text-xs text-on-surface-variant">
             Media unavailable
           </div>
         )}
       </Link>
-      <div className="p-4 space-y-2">
-        <h3 className="font-semibold text-blue-900 line-clamp-2">{update.title}</h3>
-        <p className="text-sm text-gray-500 line-clamp-3">{update.content}</p>
-        <div className="flex items-center justify-between text-xs text-gray-400">
-          <span>
-            {new Date(update.created_at).toLocaleDateString()}
-          </span>
-          <span>
-            {update.comments_count ?? 0} comments • {update.likes_count ?? 0} likes
-          </span>
+      <div className="p-5 space-y-2 flex flex-col flex-1 border-t border-[rgba(248,246,241,0.12)]">
+        <span className="data-stat text-[11px] text-on-surface-variant uppercase tracking-widest">
+          {new Date(update.created_at).toLocaleDateString()}
+        </span>
+        <Link to={`/updates/${update.id}`}>
+          <h3 className="font-display text-xl text-on-surface group-hover:text-premium-gold transition-colors line-clamp-2">
+            {update.title}
+          </h3>
+        </Link>
+        <p className="text-sm text-on-surface-variant line-clamp-3 flex-1">{update.content}</p>
+        <div className="flex items-center justify-between text-xs text-on-surface-variant pt-3 border-t border-[rgba(248,246,241,0.1)] mt-2">
+          <span>{update.comments_count ?? 0} comments</span>
+          <span className="text-premium-gold">{update.likes_count ?? 0} likes</span>
         </div>
       </div>
-    </div>
+    </article>
   );
 };
 
