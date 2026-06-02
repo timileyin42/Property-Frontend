@@ -5,7 +5,7 @@ import FAQ from "../components/FAQ";
 
 const About = () => {
   return (
-    <div className="mx-auto px-4 my-16">
+    <div className="min-h-screen bg-background text-on-surface">
       <Navbar
         links={[
           { label: "Home", href: "/" },
@@ -14,17 +14,19 @@ const About = () => {
         ]}
       />
 
-      <div className="pt-6 mb-8">
-        <h2 className="font-bold text-blue-900 text-3xl">About Us</h2>
-        <p className="text-gray-500 text-sm">
-          Learn more about our team and how we make fractional property
-          investment seamless.
+      <div className="pt-32 px-4 sm:px-8 max-w-7xl mx-auto">
+        <span className="label-caps text-premium-gold mb-4 block">Our Story</span>
+        <h2 className="font-display text-4xl sm:text-5xl text-on-surface mb-2">About Us</h2>
+        <p className="text-on-surface-variant text-lg max-w-2xl">
+          Learn more about our team and how we make fractional property investment seamless.
         </p>
       </div>
 
       <div className="space-y-12">
         <AboutUsMinimal />
-        <TestimonialsSimple />
+        <section className="py-12">
+          <TestimonialsSimple />
+        </section>
         <FAQ />
       </div>
     </div>

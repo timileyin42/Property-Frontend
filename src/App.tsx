@@ -3,6 +3,7 @@ import Home from "./pages/Home"
 import Properties from "./pages/Properties"
 import InvestorDashboard from "./pages/InvestorDashboard"
 import InvestmentDetails from "./pages/investor/InvestmentDetails"
+import MyPortfolio from "./pages/investor/MyPortfolio"
 import {SignupForm} from "./pages/SignupForm";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
@@ -98,7 +99,8 @@ function App() {
       { path: "/investor/dashboard", element: <InvestorDashboard /> },
       { path: "/investor/investments/:investmentId", element: <InvestmentDetails /> },
       { path: "/investor/interest", element: <InterestPage /> },
-      { path: "/portfolio", element: <InvestorDashboard /> },
+      { path: "/investor/portfolio", element: <MyPortfolio /> },
+      { path: "/portfolio", element: <MyPortfolio /> },
     ],
   },
 

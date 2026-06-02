@@ -150,19 +150,33 @@ const InvestmentDetails = () => {
   };
 
   if (loading) {
-    return <p className="text-center py-10">Loading investment...</p>;
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center text-on-surface-variant">
+        Loading investment…
+      </div>
+    );
   }
 
   if (!investment) {
-    return <p className="text-center py-10">Investment not found.</p>;
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center text-on-surface-variant">
+        Investment not found.
+      </div>
+    );
   }
 
   if (!property) {
-    return <p className="text-center py-10">Property details unavailable.</p>;
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center text-on-surface-variant">
+        Property details unavailable.
+      </div>
+    );
   }
 
+  const growthPositive = (investment.growth_percentage ?? 0) >= 0;
+
   return (
-    <div className="mx-auto px-4 my-16">
+    <div className="min-h-screen bg-background text-on-surface">
       <Navbar
         links={[
           { label: "Home", href: "/" },
@@ -170,209 +184,166 @@ const InvestmentDetails = () => {
         ]}
       />
 
-      <div className="pt-6 mb-8 flex flex-col gap-2">
-        <Link
-          to="/investor/dashboard"
-          className="text-sm text-blue-600 hover:underline"
-        >
-          ← Back to dashboard
-        </Link>
-        <h2 className="font-inter font-bold text-blue-900 text-[clamp(1.25rem,4vw,2rem)]">
-          {property.title ?? "Property"}
-        </h2>
-        <div className="flex flex-wrap items-center gap-3 text-gray-500 text-sm">
-          <span className="flex items-center gap-1">
-            <CiLocationOn />
-            {property.location ?? "Location unavailable"}
-          </span>
-          <span className="inline-flex items-center bg-green-600 text-white text-xs font-medium px-2 py-1 rounded-full">
-            {property.expected_roi ?? 0}% ROI
-          </span>
+      <main className="pt-32 pb-20 px-4 sm:px-8 max-w-7xl mx-auto">
+        {/* Breadcrumb + header */}
+        <div className="mb-12">
+          <div className="flex items-center gap-2 text-on-surface-variant mb-4 label-caps">
+            <Link to="/investor/dashboard" className="hover:text-premium-gold">Portfolio</Link>
+            <span className="material-symbols-outlined text-[12px]">chevron_right</span>
+            <span className="text-premium-gold">{property.title ?? "Property"}</span>
+          </div>
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div>
+              <h1 className="font-display text-4xl sm:text-5xl text-on-surface mb-2">
+                {property.title ?? "Property"}
+              </h1>
+              <p className="text-on-surface-variant flex items-center gap-2">
+                <CiLocationOn />
+                {property.location ?? "Location unavailable"}
+              </p>
+            </div>
+            <span className="glass-panel px-4 py-2 rounded-full data-stat text-success-emerald self-start">
+              {property.expected_roi ?? 0}% ROI
+            </span>
+          </div>
         </div>
-      </div>
 
-      <section className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <div className="lg:col-span-8 flex flex-col gap-6">
-          <div className="grid grid-cols-1 gap-4">
-            {mediaItems.length === 0 && (
-              <div className="h-[320px] bg-gray-100 flex items-center justify-center text-gray-400 text-sm rounded-xl">
-                Media unavailable
-              </div>
-            )}
-
-            {mediaItems[0] && (
-              <div className="relative rounded-xl overflow-hidden cursor-pointer">
-                {isVideoUrl(mediaItems[0]) ? (
-                  <video
-                    controls
-                    className="w-full h-[320px] object-cover"
-                    onClick={() => setViewerIndex(0)}
-                  >
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          {/* Left column */}
+          <div className="lg:col-span-8 flex flex-col gap-6">
+            {/* Hero image */}
+            <div className="relative h-[360px] overflow-hidden rounded-xl glass-panel group">
+              {mediaItems[0] ? (
+                isVideoUrl(mediaItems[0]) ? (
+                  <video controls className="w-full h-full object-cover" onClick={() => setViewerIndex(0)}>
                     <source src={mediaItems[0]} />
                   </video>
                 ) : (
                   <img
                     src={mediaItems[0]}
                     alt={property.title ?? "Property"}
-                    className="w-full h-[320px] object-cover"
                     onClick={() => setViewerIndex(0)}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 cursor-pointer"
                   />
-                )}
-                {mediaItems.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => setViewerIndex(0)}
-                    className="absolute bottom-3 right-3 rounded-md bg-black/70 px-3 py-1 text-xs font-semibold text-white"
-                  >
-                    View
-                  </button>
-                )}
+                )
+              ) : (
+                <div className="w-full h-full bg-surface-high flex items-center justify-center text-on-surface-variant text-sm">
+                  Media unavailable
+                </div>
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute bottom-6 left-6">
+                <span className="bg-success-emerald/20 text-secondary border border-success-emerald px-3 py-1 rounded-full label-caps text-[10px]">
+                  {fractionsOwned > 0 ? "Performing Asset" : "Exited Asset"}
+                </span>
               </div>
-            )}
+              {mediaItems.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => setViewerIndex(0)}
+                  className="absolute bottom-4 right-4 glass-panel rounded px-3 py-1 label-caps text-[10px] text-on-surface"
+                >
+                  View all {mediaItems.length}
+                </button>
+              )}
+            </div>
 
-            {mediaItems.length > 1 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {mediaItems.slice(1).map((item, index) => (
-                  <div
-                    key={item}
-                    className="relative rounded-xl overflow-hidden cursor-pointer"
-                  >
-                    {isVideoUrl(item) ? (
-                      <video
-                        controls
-                        className="w-full h-48 object-cover"
-                        onClick={() => setViewerIndex(index + 1)}
-                      >
-                        <source src={item} />
-                      </video>
-                    ) : (
-                      <img
-                        src={item}
-                        alt={property.title ?? "Property"}
-                        className="w-full h-48 object-cover"
-                        onClick={() => setViewerIndex(index + 1)}
-                      />
-                    )}
+            {/* Stake breakdown bento */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="glass-panel p-5 rounded-lg">
+                <p className="label-caps text-[10px] text-on-surface-variant mb-2">Initial Value</p>
+                <p className="data-stat text-on-surface">{formatCurrency(displayInitialValue)}</p>
+                <p className="text-[12px] text-on-surface-variant mt-1">{fractionsOwned} fractions</p>
+              </div>
+              <div className="glass-panel p-5 rounded-lg">
+                <p className="label-caps text-[10px] text-on-surface-variant mb-2">Current Value</p>
+                <p className="data-stat text-premium-gold">{formatCurrency(displayCurrentValue)}</p>
+                <p className={`text-[12px] mt-1 flex items-center gap-1 ${growthPositive ? "text-success-emerald" : "text-error"}`}>
+                  <span className="material-symbols-outlined text-[14px]">
+                    {growthPositive ? "trending_up" : "trending_down"}
+                  </span>
+                  {growthPositive ? "+" : ""}{investment.growth_percentage}%
+                </p>
+              </div>
+              <div className="glass-panel p-5 rounded-lg">
+                <p className="label-caps text-[10px] text-on-surface-variant mb-2">Growth Amount</p>
+                <p className="data-stat text-success-emerald">{formatCurrency(investment.growth_amount ?? null)}</p>
+                <p className="text-[12px] text-on-surface-variant mt-1">Unrealized</p>
+              </div>
+              <div className="glass-panel p-5 rounded-lg">
+                <p className="label-caps text-[10px] text-on-surface-variant mb-2">Ownership</p>
+                <p className="data-stat text-on-surface">{investment.ownership_percentage ?? 0}%</p>
+                <p className="text-[12px] text-on-surface-variant mt-1">of total</p>
+              </div>
+            </div>
+
+            {/* Property details */}
+            <div className="glass-panel rounded-xl p-6">
+              <h3 className="font-display text-2xl text-on-surface mb-3 border-l-2 border-premium-gold pl-4">
+                Property Details
+              </h3>
+              <p className="text-on-surface-variant leading-relaxed">
+                {property.description ?? "Description unavailable."}
+              </p>
+              <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-surface-low rounded-lg p-4 border border-[rgba(248,246,241,0.1)]">
+                  <p className="label-caps text-[10px] text-on-surface-variant mb-1">Asset Value</p>
+                  <p className="data-stat text-sm text-on-surface">{formatCurrency(property.project_value ?? null)}</p>
+                </div>
+                <div className="bg-surface-low rounded-lg p-4 border border-[rgba(248,246,241,0.1)]">
+                  <p className="label-caps text-[10px] text-on-surface-variant mb-1">Per Fraction</p>
+                  <p className="data-stat text-sm text-on-surface">{formatCurrency(property.fraction_price ?? null)}</p>
+                </div>
+                <div className="bg-surface-low rounded-lg p-4 border border-[rgba(248,246,241,0.1)]">
+                  <p className="label-caps text-[10px] text-on-surface-variant mb-1">Fractions Owned</p>
+                  <p className="data-stat text-sm text-on-surface">{fractionsOwned}</p>
+                </div>
+                <div className="bg-surface-low rounded-lg p-4 border border-[rgba(248,246,241,0.1)]">
+                  <p className="label-caps text-[10px] text-on-surface-variant mb-1">Area</p>
+                  <p className="data-stat text-sm text-on-surface">
+                    {property.area_sqft !== undefined ? `${property.area_sqft} sqft` : "N/A"}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Sidebar: investment summary */}
+          <aside className="lg:col-span-4 lg:sticky lg:top-28">
+            <div className="glass-panel rounded-xl p-6 space-y-6">
+              <h3 className="font-display text-2xl text-on-surface">Investment Summary</h3>
+              <div className="space-y-4">
+                {[
+                  { label: "Fractions Owned", value: `${investment.fractions_owned}` },
+                  { label: "Ownership", value: `${investment.ownership_percentage ?? 0}%` },
+                  { label: "Initial Value", value: formatCurrency(displayInitialValue) },
+                  { label: "Current Value", value: formatCurrency(displayCurrentValue), accent: "text-premium-gold" },
+                  { label: "Growth", value: `+${investment.growth_percentage}%`, accent: "text-success-emerald" },
+                  { label: "Growth Amount", value: formatCurrency(investment.growth_amount ?? null), accent: "text-success-emerald" },
+                  ...(hasSoldFractions && soldPricePerFraction !== null
+                    ? [{ label: "Sold Price / Fraction", value: formatCurrency(soldPricePerFraction) }] : []),
+                  ...(hasSoldFractions && soldValueTotal !== null
+                    ? [{ label: "Sold Value", value: formatCurrency(soldValueTotal) }] : []),
+                  ...(hasSoldFractions && soldProfitTotal !== null
+                    ? [{ label: "Sold Profit", value: formatCurrency(soldProfitTotal), accent: "text-success-emerald" }] : []),
+                ].map((row) => (
+                  <div key={row.label} className="flex justify-between items-center">
+                    <span className="text-sm text-on-surface-variant">{row.label}</span>
+                    <span className={`data-stat text-sm ${row.accent ?? "text-on-surface"}`}>{row.value}</span>
                   </div>
                 ))}
               </div>
-            )}
-          </div>
-
-          <div className="bg-white border border-gray-200 rounded-xl p-6">
-            <h3 className="text-blue-900 font-semibold text-lg mb-3">
-              Property Details
-            </h3>
-            <p className="text-gray-600 text-sm leading-6">
-              {property.description ?? "Description unavailable."}
-            </p>
-
-            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-              <div className="bg-gray-50 rounded-xl p-4">
-                <p className="text-gray-500">Total Value</p>
-                <p className="text-blue-900 font-semibold">
-                  {formatCurrency(property.project_value ?? null)}
-                </p>
-              </div>
-              <div className="bg-gray-50 rounded-xl p-4">
-                <p className="text-gray-500">Per Fraction</p>
-                <p className="text-blue-900 font-semibold">
-                  {formatCurrency(property.fraction_price ?? null)}
-                </p>
-              </div>
-              <div className="bg-gray-50 rounded-xl p-4">
-                <p className="text-gray-500">Fractions Owned</p>
-                <p className="text-blue-900 font-semibold">
-                  {fractionsOwned}
-                </p>
-              </div>
-              <div className="bg-gray-50 rounded-xl p-4">
-                <p className="text-gray-500">Area</p>
-                <p className="text-blue-900 font-semibold">
-                  {property.area_sqft !== undefined ? `${property.area_sqft} sqft` : "N/A"}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="lg:col-span-4">
-          <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-4">
-            <h3 className="text-blue-900 font-semibold text-lg">
-              Investment Summary
-            </h3>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <p className="text-gray-500">Fractions Owned</p>
-                <p className="text-blue-900 font-semibold">
-                  {investment.fractions_owned}
-                </p>
-              </div>
-              <div>
-                <p className="text-gray-500">Ownership</p>
-                <p className="text-blue-900 font-semibold">
-                  {investment.ownership_percentage ?? 0}%
-                </p>
-              </div>
-              <div>
-                <p className="text-gray-500">Initial Value</p>
-                <p className="text-blue-900 font-semibold">
-                  {formatCurrency(displayInitialValue)}
-                </p>
-              </div>
-              <div>
-                <p className="text-gray-500">Current Value</p>
-                <p className="text-blue-900 font-semibold">
-                  {formatCurrency(displayCurrentValue)}
-                </p>
-              </div>
-              <div>
-                <p className="text-gray-500">Growth</p>
-                <p className="text-emerald-600 font-semibold">
-                  +{investment.growth_percentage}%
-                </p>
-              </div>
-              <div>
-                <p className="text-gray-500">Growth Amount</p>
-                <p className="text-emerald-600 font-semibold">
-                  {formatCurrency(investment.growth_amount ?? null)}
-                </p>
-              </div>
-              {hasSoldFractions && soldPricePerFraction !== null && (
-                <div>
-                  <p className="text-gray-500">Sold Price / Fraction</p>
-                  <p className="text-blue-900 font-semibold">
-                    {formatCurrency(soldPricePerFraction)}
-                  </p>
-                </div>
-              )}
-              {hasSoldFractions && soldValueTotal !== null && (
-                <div>
-                  <p className="text-gray-500">Sold Value</p>
-                  <p className="text-blue-900 font-semibold">
-                    {formatCurrency(soldValueTotal)}
-                  </p>
-                </div>
-              )}
-              {hasSoldFractions && soldProfitTotal !== null && (
-                <div>
-                  <p className="text-gray-500">Sold Profit</p>
-                  <p className="text-emerald-600 font-semibold">
-                    {formatCurrency(soldProfitTotal)}
-                  </p>
+              {hasSoldFractions && (
+                <div className="rounded-lg border border-premium-gold/30 bg-premium-gold/10 p-3 text-sm text-tertiary">
+                  {fractionsOwned === 0
+                    ? `You have sold all ${soldTotal} fractions in ${property.title ?? "this property"}.`
+                    : `You have sold ${fractionsSold} fractions in ${property.title ?? "this property"}.`}
                 </div>
               )}
             </div>
-            {hasSoldFractions && (
-              <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
-                {fractionsOwned === 0
-                  ? `You have sold all ${soldTotal} fractions in ${property.title ?? "this property"}.`
-                  : `You have sold ${fractionsSold} fractions in ${property.title ?? "this property"}.`}
-              </div>
-            )}
-          </div>
+          </aside>
         </div>
-      </section>
+      </main>
       {selectedMedia && (
         <div
           className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 p-4"

@@ -2,16 +2,14 @@ import { ApiProperty } from "../types/property";
 import { CiLocationOn } from "react-icons/ci";
 import { isVideoUrl, usePresignedUrl } from "../util/normalizeMediaUrl";
 import { useMemo } from "react";
-// import { Link} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 interface LandingPropertyCardProps {
   property: ApiProperty;
 }
 
 const LandingPropertyCard: React.FC<LandingPropertyCardProps> = ({ property }) => {
-  // const pricePerFraction = 
-  //   property.fraction_price ?? 
-  //   Math.floor(property.project_value / property.total_fractions);
+  const navigate = useNavigate();
 
   const primaryMediaKey = useMemo(() => {
     const mediaFiles = property.media_files ?? [];
@@ -28,30 +26,40 @@ const LandingPropertyCard: React.FC<LandingPropertyCardProps> = ({ property }) =
       ""
     );
   }, [property]);
+
   const resolvedUrl = usePresignedUrl(primaryMediaKey);
   const imageUrl = resolvedUrl && !isVideoUrl(resolvedUrl) ? resolvedUrl : "";
   const videoUrl = resolvedUrl && isVideoUrl(resolvedUrl) ? resolvedUrl : "";
+
   const totalFractions = property.total_fractions ?? 0;
   const fractionsSold = property.fractions_sold ?? 0;
   const isSoldOut = totalFractions > 0 && fractionsSold >= totalFractions;
+  const fundingPct =
+    totalFractions > 0 ? Math.round((fractionsSold / totalFractions) * 100) : 0;
   const projectValue =
     typeof property.project_value === "number" ? property.project_value : null;
+  const fractionPrice =
+    typeof property.fraction_price === "number" ? property.fraction_price : null;
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition overflow-hidden h-full">
-      {/* Optimized Image */}
-      <div className="relative">
+    <button
+      type="button"
+      onClick={() => navigate(`/properties/${property.id}`)}
+      className="group glass-panel glass-panel-hover rounded-xl overflow-hidden h-full text-left flex flex-col w-full cursor-pointer"
+    >
+      {/* Media */}
+      <div className="relative h-56 overflow-hidden">
         {imageUrl ? (
           <img
             src={imageUrl}
             alt={property.title}
-            className="w-full h-48 object-cover"
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
             loading="lazy"
             decoding="async"
           />
         ) : videoUrl ? (
           <video
-            className="w-full h-48 object-cover"
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
             src={videoUrl}
             muted
             playsInline
@@ -59,48 +67,66 @@ const LandingPropertyCard: React.FC<LandingPropertyCardProps> = ({ property }) =
             autoPlay
           />
         ) : (
-          <div className="w-full h-48 bg-gray-100 flex items-center justify-center text-xs text-gray-400">
+          <div className="w-full h-full bg-surface-high flex items-center justify-center text-xs text-on-surface-variant">
             Image unavailable
           </div>
         )}
-        {isSoldOut && (
-          <span className="absolute top-3 left-3 bg-gray-900 text-white text-xs font-medium px-2 py-1 rounded-full">
-            Sold
-          </span>
-        )}
-        <span className="absolute top-3 right-3 bg-green-600 text-white text-xs font-medium px-2 py-1 rounded-full">
+
+        {/* Category / status tag */}
+        <span className="absolute top-4 left-4 bg-background/80 backdrop-blur-md px-3 py-1 rounded label-caps text-[10px] text-on-surface">
+          {isSoldOut ? "Sold Out" : "Available"}
+        </span>
+        <span className="absolute top-4 right-4 glass-panel px-3 py-1 rounded-full data-stat text-success-emerald text-xs">
           {property.expected_roi}% ROI
         </span>
       </div>
 
-      {/* Simplified Content */}
-      <div className="p-4 flex flex-col h-[calc(100%-12rem)]">
-        <h3 className="font-semibold text-blue-900 line-clamp-2">
-          {property.title}
-        </h3>
-        
-        <div className="flex gap-1 items-center mt-2">
-          <CiLocationOn className="text-gray-400" />
-          <span className="text-base text-gray-500 truncate">
-            {property.location}
-          </span>
+      {/* Content */}
+      <div className="p-6 flex flex-col flex-1">
+        <div className="flex justify-between items-start gap-3 mb-4">
+          <h3 className="font-display text-xl text-white leading-snug line-clamp-2">
+            {property.title}
+          </h3>
         </div>
 
-        <div className="mt-auto pt-4">
-          <div className="flex justify-between items-center mb-3">
-            <span className="text-sm text-gray-600">Total Value</span>
-            <span className="font-semibold text-sm">
-              {projectValue !== null
-                ? `₦${projectValue.toLocaleString()}`
-                : "N/A"}
-            </span>
-            
+        <div className="flex gap-1.5 items-center text-on-surface-variant mb-4">
+          <CiLocationOn className="shrink-0" />
+          <span className="text-sm truncate">{property.location}</span>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4 py-4 border-y border-[rgba(248,246,241,0.12)] mb-5">
+          <div>
+            <p className="label-caps text-[10px] text-on-surface-variant mb-1">Asset Value</p>
+            <p className="data-stat text-white text-sm">
+              {projectValue !== null ? `₦${projectValue.toLocaleString()}` : "N/A"}
+            </p>
           </div>
-          
+          <div>
+            <p className="label-caps text-[10px] text-on-surface-variant mb-1">Per Fraction</p>
+            <p className="data-stat text-white text-sm">
+              {fractionPrice !== null ? `₦${fractionPrice.toLocaleString()}` : "N/A"}
+            </p>
+          </div>
         </div>
 
+        <div className="mt-auto space-y-2">
+          <div className="flex justify-between label-caps text-[11px]">
+            <span className="text-on-surface-variant">Funding Progress</span>
+            <span className="text-white">{fundingPct}%</span>
+          </div>
+          <div className="h-1 bg-surface-highest rounded-full overflow-hidden">
+            <div
+              className={`h-full rounded-full ${
+                fundingPct >= 90
+                  ? "bg-success-emerald shadow-[0_0_12px_rgba(26,122,94,0.6)]"
+                  : "bg-premium-gold"
+              }`}
+              style={{ width: `${fundingPct}%` }}
+            />
+          </div>
+        </div>
       </div>
-    </div>
+    </button>
   );
 };
 

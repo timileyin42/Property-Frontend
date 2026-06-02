@@ -1,18 +1,14 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link  } from "react-router-dom";
-// useLocation
+import { useNavigate, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "../context/AuthContext";
 import toast, { Toaster } from "react-hot-toast";
-import { FaRegEye } from "react-icons/fa";
-import { FaRegEyeSlash } from "react-icons/fa";
-import auth_img from "../assets/auth.jpg";
-
-
-// type Role = "ADMIN" | "INVESTOR" | "USER";
-
+import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
+import { fetchFeaturedProperties } from "../api/properties";
+import type { ApiProperty } from "../types/property";
+import heroVisual from "../assets/hero/01-aerial-night.jpg";
 
 const loginSchema = z.object({
   username: z.string().email("Please enter a valid email address"),
@@ -21,43 +17,20 @@ const loginSchema = z.object({
 });
 
 type LoginValues = z.infer<typeof loginSchema>;
-console.log("signin page mounted");
 
-const phrases = [
-  "Welcome back to your luxury portfolio.",
-  "Secure access to your property investments.",
-  "Manage your real estate assets with ease.",
-  "Real-time updates on your luxury acquisitions."
-];
+const inputClass =
+  "w-full bg-surface-lowest border border-[rgba(248,246,241,0.15)] rounded px-4 py-3 text-on-surface outline-none transition-all focus:border-premium-gold focus:ring-1 focus:ring-premium-gold placeholder:text-outline-variant";
 
 export const LoginForm = () => {
-  const {user, loading} = useAuth()
-  const { signin } = useAuth();
+  const { user, loading, signin } = useAuth();
   const navigate = useNavigate();
-  // const location = useLocation();
   const [showPassword, setShowPassword] = useState(false);
-  const [phraseIndex, setPhraseIndex] = useState(0);
-  // ADMIN MISTAKENLY LOGGED ON THE REGULAR USER URL
-  const adminUrl = import.meta.env.VITE_ADMIN_URL;
-  console.log(adminUrl);
+  const [featured, setFeatured] = useState<ApiProperty | null>(null);
 
-// const defaultDash = user?.role === "ADMIN" ? "/admindashboard" : "/investor/dashboard";
-// const defaultDash = (() => {
-//   if (!user?.role) return "/login";
-
-//   return user.role === "ADMIN"
-//     ? "/admindashboard"
-//     : "/investor/dashboard";
-// })();
-
-// const from = location.state?.from?.pathname || defaultDash;
-
-// animation effect
   useEffect(() => {
-    const interval = setInterval(() => {
-      setPhraseIndex((prev) => (prev + 1) % phrases.length);
-    }, 4000);
-    return () => clearInterval(interval);
+    fetchFeaturedProperties(1)
+      .then((data) => setFeatured(data?.[0] ?? null))
+      .catch((err) => console.error(err));
   }, []);
 
   const {
@@ -70,17 +43,13 @@ export const LoginForm = () => {
       username: localStorage.getItem("remembered_email") ?? "",
       password: localStorage.getItem("remembered_password") ?? "",
       rememberMe: !!localStorage.getItem("remembered_email"),
-    }
+    },
   });
 
-useEffect(() => {
+  useEffect(() => {
     if (loading || !user) return;
-
-    const redirectTo = "/";
-
-    navigate(redirectTo, { replace: true });
+    navigate("/", { replace: true });
   }, [user, loading, navigate]);
-
 
   const onSubmit = async (data: LoginValues) => {
     try {
@@ -97,8 +66,6 @@ useEffect(() => {
         password: data.password,
         rememberMe: data.rememberMe,
       });
-
-      // toast.success("Welcome back!");
     } catch (err: unknown) {
       const error = err as {
         response?: { data?: { detail?: string; message?: string } };
@@ -113,104 +80,166 @@ useEffect(() => {
     }
   };
 
-
+  const fundingPct =
+    featured && featured.total_fractions > 0
+      ? Math.round(((featured.fractions_sold ?? 0) / featured.total_fractions) * 100)
+      : 0;
 
   return (
-    <section className="flex flex-col md:flex-row h-screen w-full bg-white">
-      <Toaster />
-      {/* LEFT SIDE (Same as Signup) */}
-      <div className="md:w-1/2 h-64 md:h-full relative overflow-hidden">
-        <div className="absolute inset-0 bg-black/40 z-10" />
-        <img src={auth_img} alt="Luxury Home" className="object-cover w-full h-full absolute inset-0" />
-        <div className="absolute top-10 left-10 z-20">
-          <Link to="/" className="text-white text-2xl font-black tracking-tighter uppercase">
-            Elycap<span className="text-blue-400">vest</span>
+    <main className="min-h-screen w-full flex bg-primary-container text-on-surface overflow-hidden">
+      <Toaster position="top-right" />
 
-          </Link>
-        </div>
-        <div className="absolute bottom-12 left-10 right-10 z-20 text-white">
-          <p className="text-xl md:text-3xl font-light italic">"{phrases[phraseIndex]}"</p>
-        </div>
-      </div>
-
-      {/* RIGHT SIDE: LOGIN FORM */}
-      <div className="md:w-1/2 flex items-center justify-center p-6 md:p-12">
-        <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-md flex flex-col gap-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Welcome Back</h1>
-            <p className="text-gray-500">Enter your credentials to access your account.</p>
+      {/* LEFT: Login form */}
+      <section className="w-full lg:w-5/12 xl:w-4/12 flex flex-col justify-center items-center px-8 md:px-16 py-12 relative bg-primary-container">
+        <div className="w-full max-w-md space-y-10">
+          <div className="flex flex-col items-start gap-2">
+            <Link to="/" className="font-display text-2xl font-semibold text-premium-gold tracking-tight">
+              Elycapvest
+            </Link>
+            <h1 className="font-display text-4xl text-on-surface mt-4">Welcome Back.</h1>
+            <p className="text-on-surface-variant">
+              Institutional fractional ownership of premium real estate.
+            </p>
           </div>
 
-          <div className="flex flex-col gap-4">
-            {/* Email Field */}
-            <div className="flex flex-col">
-              <label className="text-sm font-semibold mb-1 text-gray-700">Email Address</label>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <div className="space-y-2">
+              <label className="label-caps text-on-surface-variant block">Email Address</label>
               <input
                 {...register("username")}
                 type="email"
-                className={`border p-3 rounded-lg bg-gray-50 outline-none focus:ring-2 focus:ring-blue-900/20 ${errors.username ? 'border-red-500' : 'border-gray-200'}`}
+                placeholder="investor@elycapvest.com"
+                className={inputClass}
               />
-              {errors.username && <span className="text-red-500 text-xs mt-1">{errors.username.message}</span>}
+              {errors.username && (
+                <span className="text-error text-xs">{errors.username.message}</span>
+              )}
             </div>
 
-            {/* Password Field with Eye Toggle */}
-            <div className="flex flex-col">
-              <div className="flex justify-between items-center mb-1">
-                <label className="text-sm font-semibold text-gray-700">Password</label>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <label className="label-caps text-on-surface-variant block">Password</label>
+                <Link
+                  to="/forgotpassword"
+                  className="label-caps text-[10px] text-premium-gold hover:underline"
+                >
+                  Forgot Password?
+                </Link>
               </div>
               <div className="relative">
                 <input
                   {...register("password")}
                   type={showPassword ? "text" : "password"}
-                  className={`w-full border p-3 rounded-lg bg-gray-50 outline-none focus:ring-2 focus:ring-blue-900/20 ${errors.password ? 'border-red-500' : 'border-gray-200'}`}
+                  placeholder="••••••••"
+                  className={inputClass}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-900"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-premium-gold"
                 >
-                  {showPassword ? <FaRegEyeSlash size={20} /> : <FaRegEye size={20} />}
+                  {showPassword ? <FaRegEyeSlash size={18} /> : <FaRegEye size={18} />}
                 </button>
               </div>
-              {errors.password && <span className="text-red-500 text-xs mt-1">{errors.password.message}</span>}
+              {errors.password && (
+                <span className="text-error text-xs">{errors.password.message}</span>
+              )}
             </div>
 
-            {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 cursor-pointer group">
-                <div className="relative flex items-center">
-                  <input
-                    type="checkbox"
-                    {...register("rememberMe")}
-                    className="peer appearance-none w-5 h-5 border-2 border-gray-300 rounded checked:bg-blue-900 checked:border-blue-900 transition-all"
-                  />
-                  {/* Custom Checkmark Icon */}
-                  <svg className="absolute w-3 h-3 text-white hidden peer-checked:block left-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4">
-                    <path d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <span className="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">Remember me</span>
-              </label>
-              
-              <Link to="/forgotpassword"  className="text-sm text-blue-900 font-bold hover:underline">
-                Forgot Password?
+            <label className="flex items-center gap-2 cursor-pointer group">
+              <input
+                type="checkbox"
+                {...register("rememberMe")}
+                className="appearance-none w-5 h-5 border border-[rgba(248,246,241,0.3)] rounded checked:bg-premium-gold checked:border-premium-gold transition-all"
+              />
+              <span className="text-sm text-on-surface-variant group-hover:text-on-surface transition-colors">
+                Remember me
+              </span>
+            </label>
+
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="btn-gold w-full py-4 text-[12px] disabled:opacity-70"
+            >
+              {isSubmitting ? "Authenticating…" : "Sign In"}
+            </button>
+          </form>
+
+          <div className="text-center">
+            <p className="text-on-surface-variant">
+              Don't have an account?{" "}
+              <Link to="/signup" className="text-premium-gold font-bold hover:underline">
+                Create an account
               </Link>
+            </p>
+          </div>
+        </div>
+
+        <div className="absolute bottom-8 label-caps text-[10px] text-outline-variant tracking-widest text-center px-4">
+          © {new Date().getFullYear()} Elycapvest Luxury Homes. All fractional investments are subject to regulatory approval.
+        </div>
+      </section>
+
+      {/* RIGHT: Property visual + live stats */}
+      <section className="hidden lg:flex w-7/12 xl:w-8/12 relative overflow-hidden bg-surface-lowest">
+        <img
+          src={heroVisual}
+          alt="Featured property"
+          className="absolute inset-0 w-full h-full object-cover brightness-[0.6]"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
+
+        {featured && (
+          <div className="absolute bottom-8 left-8 right-8 flex justify-between items-end gap-6">
+            <div className="glass-panel p-6 rounded-xl max-w-lg space-y-4">
+              <span className="label-caps text-premium-gold block">Active Listing</span>
+              <h2 className="font-display text-3xl text-white leading-tight">
+                {featured.title}
+              </h2>
+              <div className="grid grid-cols-3 gap-6 py-4 border-y border-[rgba(248,246,241,0.15)]">
+                <div className="space-y-1">
+                  <span className="label-caps text-[10px] text-on-surface-variant">Expected ROI</span>
+                  <div className="data-stat text-success-emerald text-lg">{featured.expected_roi}%</div>
+                </div>
+                <div className="space-y-1">
+                  <span className="label-caps text-[10px] text-on-surface-variant">Valuation</span>
+                  <div className="data-stat text-white text-lg">
+                    {featured.project_value
+                      ? `₦${(featured.project_value / 1_000_000).toFixed(1)}M`
+                      : "—"}
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <span className="label-caps text-[10px] text-on-surface-variant">Per Fraction</span>
+                  <div className="data-stat text-white text-lg">
+                    {featured.fraction_price ? `₦${featured.fraction_price.toLocaleString()}` : "—"}
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 text-white/80">
+                <span className="material-symbols-outlined text-premium-gold">location_on</span>
+                <span>{featured.location}</span>
+              </div>
+            </div>
+
+            <div className="hidden xl:flex">
+              <div className="glass-panel px-6 py-4 rounded-full flex items-center gap-3">
+                <div className="w-2 h-2 rounded-full bg-success-emerald animate-pulse" />
+                <span className="label-caps text-[11px] text-white tracking-widest">
+                  Funding {fundingPct}% Complete
+                </span>
+              </div>
             </div>
           </div>
+        )}
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full bg-blue-900 text-white py-3 rounded-lg font-bold hover:bg-black transition-all active:scale-[0.98] disabled:opacity-70"
-          >
-            {isSubmitting ? "Authenticating..." : "Login"}
-          </button>
-
-          <p className="text-center text-sm text-gray-600">
-            New to Elycapvest? <Link to="/signup" className="text-blue-900 font-bold">Create Account</Link>
-          </p>
-        </form>
-      </div>
-    </section>
+        <div className="absolute top-8 right-8">
+          <div className="w-16 h-16 border border-[rgba(248,246,241,0.15)] rounded-full flex items-center justify-center glass-panel">
+            <span className="font-display text-2xl text-premium-gold italic">E</span>
+          </div>
+        </div>
+      </section>
+    </main>
   );
 };
